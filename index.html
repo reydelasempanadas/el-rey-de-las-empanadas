@@ -12,12 +12,24 @@ body{
  margin:0;
  padding:10px;
 }
-h1{text-align:center;color:#b30000}
-h2{color:#333;margin-top:30px}
+h1{
+ text-align:center;
+ color:#b30000;
+ margin-bottom:5px;
+}
+h2{
+ border-bottom:2px solid #eee;
+ padding-bottom:5px;
+ color:#b30000;
+}
+p{
+ text-align:center;
+ color:#444;
+}
 .card{
  background:white;
  padding:15px;
- border-radius:10px;
+ border-radius:12px;
  margin-bottom:15px;
  box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
@@ -26,30 +38,49 @@ h2{color:#333;margin-top:30px}
  justify-content:space-between;
  align-items:center;
  margin:8px 0;
+ padding-bottom:8px;
+ border-bottom:1px dashed #eee;
 }
-.name{font-weight:bold}
-.desc{font-size:12px;color:#666}
+.item:last-child{
+ border-bottom:none;
+}
+.name{
+ font-weight:bold;
+ font-size:15px;
+}
+.desc{
+ font-size:12px;
+ color:#777;
+}
 .controls button{
- width:30px;height:30px;
+ width:32px;
+ height:32px;
  font-size:18px;
  border:none;
  background:#b30000;
  color:white;
- border-radius:5px;
+ border-radius:6px;
+ cursor:pointer;
 }
-.controls span{margin:0 8px}
+.controls span{
+ margin:0 8px;
+ font-size:16px;
+}
 .total{
  background:#fff;
  padding:15px;
- border-radius:10px;
+ border-radius:12px;
  margin-top:20px;
- font-size:18px;
+ font-size:16px;
+ box-shadow:0 3px 8px rgba(0,0,0,.15);
 }
-select,input,textarea{
+select,input{
  width:100%;
  padding:8px;
- margin:5px 0;
+ margin:6px 0;
  font-size:16px;
+ border-radius:6px;
+ border:1px solid #ccc;
 }
 button.send{
  width:100%;
@@ -58,23 +89,26 @@ button.send{
  color:white;
  font-size:20px;
  border:none;
- border-radius:10px;
+ border-radius:12px;
+ margin-top:10px;
+ cursor:pointer;
 }
-small{color:#777}
+small{
+ color:#777;
+}
 </style>
 </head>
 
 <body>
 
 <h1>👑 El Rey de las Empanadas</h1>
-
-<p><b>🕒 Entrega:</b> 18:30 a 23:00</p>
+<p>🕒 Entrega de 18:30 a 23:00</p>
 
 <div id="menu"></div>
 
 <div class="total">
-<h2>🛒 Resumen</h2>
-<div id="resumen"></div>
+<h2>🛒 Resumen del pedido</h2>
+<div id="resumen"><small>No hay productos seleccionados</small></div>
 <p><b>Total:</b> $<span id="total">0</span></p>
 <small>Envío no incluido</small>
 
@@ -99,28 +133,28 @@ small{color:#777}
 <script>
 const productos = [
  {cat:"Empanadas",items:[
-  ["Carne","Criolla","carne y huevo"],
-  ["Carne","Mendocina","carne, huevo y aceituna"],
-  ["Carne","Mexicana","carne, huevo, aceituna y pimienta"],
-  ["Carne","Cordobesa","carne, huevo y pasas"],
-  ["Carne","Mixta","carne, huevo, choclo y calabresa"],
-  ["Carne","Gallega","carne, huevo y panceta"],
-  ["Carne","Burguer","carne, cebolla y cheddar"],
-  ["Pollo","Pollo clásico","pollo, salsa y huevo"],
-  ["Pollo","Pollo queso","pollo, queso y aceituna"],
-  ["Pollo","Pollo requesón","pollo y requesón"],
-  ["Pollo","Pollo mostaza","pollo a la mostaza"],
-  ["Verdura","Palmito","jamón y salsa golf"],
-  ["Verdura","Acelga","cebolla, morrón y huevo"],
-  ["Verdura","Humita","choclo, queso y salsa blanca"],
-  ["Verdura","Caprese","queso, tomate y albahaca"],
-  ["Mar","Atún","atún, huevo y salsa"],
-  ["Mozzarella","Pizza","mozzarella, salsa y orégano"],
-  ["Mozzarella","Napolitana","mozzarella, jamón y morrón"],
-  ["Queso","Jamón y queso","clásica"],
-  ["Queso","4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
-  ["Dulce","Dulce de leche",""],
-  ["Dulce","Nutella",""]
+  ["Empanada","Criolla","carne y huevo"],
+  ["Empanada","Mendocina","carne, huevo y aceituna"],
+  ["Empanada","Mexicana","carne, huevo, aceituna y pimienta"],
+  ["Empanada","Cordobesa","carne, huevo y pasas"],
+  ["Empanada","Mixta","carne, huevo, choclo y calabresa"],
+  ["Empanada","Gallega","carne, huevo y panceta"],
+  ["Empanada","Burguer","carne, cebolla y cheddar"],
+  ["Empanada","Pollo clásico","pollo, salsa y huevo"],
+  ["Empanada","Pollo queso","pollo, queso y aceituna"],
+  ["Empanada","Pollo requesón","pollo y requesón"],
+  ["Empanada","Pollo mostaza","pollo a la mostaza"],
+  ["Empanada","Palmito","jamón y salsa golf"],
+  ["Empanada","Acelga","cebolla, morrón y huevo"],
+  ["Empanada","Humita","choclo, queso y salsa blanca"],
+  ["Empanada","Caprese","queso, tomate y albahaca"],
+  ["Empanada","Atún","atún, huevo y salsa"],
+  ["Empanada","Pizza","mozzarella, salsa y orégano"],
+  ["Empanada","Napolitana","mozzarella, jamón y morrón"],
+  ["Empanada","Jamón y queso","clásica"],
+  ["Empanada","4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+  ["Empanada","Dulce de leche",""],
+  ["Empanada","Nutella",""]
  ]},
  {cat:"Bebidas",items:[
   ["Coca-Cola","Mini","$40",40],
@@ -161,17 +195,17 @@ function render(){
  productos.forEach(sec=>{
   html+=`<div class="card"><h2>${sec.cat}</h2>`;
   sec.items.forEach(i=>{
-   let key=i.join("-");
+   let key=i[0]+"-"+i[1];
    carrito[key]=0;
-   let precio = i[3] || 60;
+   let precio=i[3]||60;
    html+=`
    <div class="item">
     <div>
-     <div class="name">${i[0]} ${i[1]} $${precio}</div>
+     <div class="name">${i[0]} ${i[1]} — $${precio}</div>
      <div class="desc">${i[2]||""}</div>
     </div>
     <div class="controls">
-     <button onclick="chg('${key}',-1,${precio})">-</button>
+     <button onclick="chg('${key}',-1,${precio})">−</button>
      <span id="${key}">0</span>
      <button onclick="chg('${key}',1,${precio})">+</button>
     </div>
@@ -181,6 +215,7 @@ function render(){
  });
  document.getElementById("menu").innerHTML=html;
 }
+
 function chg(k,d,p){
  carrito[k]+=d;
  if(carrito[k]<0) carrito[k]=0;
@@ -190,25 +225,36 @@ function chg(k,d,p){
  document.getElementById("total").innerText=total;
  resumen();
 }
+
 function resumen(){
  let r="";
  for(let k in carrito){
-  if(carrito[k]>0) r+=`${k} x${carrito[k]}<br>`;
+  if(carrito[k]>0){
+   let nombre=k.split("-")[1];
+   r+=`${nombre} x${carrito[k]}<br>`;
+  }
  }
- document.getElementById("resumen").innerHTML=r;
+ document.getElementById("resumen").innerHTML=r || "<small>No hay productos seleccionados</small>";
 }
+
 function enviar(){
- let msg="Pedido:%0A";
+ let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
  for(let k in carrito){
-  if(carrito[k]>0) msg+=`${k} x${carrito[k]}%0A`;
+  if(carrito[k]>0){
+   let nombre=k.split("-")[1];
+   msg+=`• ${nombre} x${carrito[k]}%0A`;
+  }
  }
- msg+=`%0ATotal: $${total}`;
- msg+=`%0AEntrega: ${entrega.value}`;
- msg+=`%0ANombre: ${nombre.value}`;
- if(entrega.value=="Delivery") msg+=`%0ADirección: ${direccion.value}`;
- msg+=`%0APago: ${pago.value}`;
+ msg+=`%0A💰 *Total:* $${total} (envío no incluido)`;
+ msg+=`%0A🚚 *Entrega:* ${entrega.value}`;
+ msg+=`%0A👤 *Nombre:* ${nombre.value || "No indicado"}`;
+ if(entrega.value=="Delivery"){
+  msg+=`%0A📍 *Dirección:* ${direccion.value || "No indicada"}`;
+ }
+ msg+=`%0A💳 *Pago:* ${pago.value}`;
  window.open("https://wa.me/598XXXXXXXX?text="+msg,"_blank");
 }
+
 render();
 </script>
 
