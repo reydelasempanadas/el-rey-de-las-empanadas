@@ -257,16 +257,27 @@ function resumen(){
 }
 
 function setEntrega(t){
- entrega=t;
- document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
- document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
- document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
+  entrega = t;
+  // Botones
+  const btnMostrador = document.getElementById("btnMostrador");
+  const btnDelivery = document.getElementById("btnDelivery");
+  btnMostrador.classList.remove("active");
+  btnDelivery.classList.remove("active");
+  if(t === "Mostrador") btnMostrador.classList.add("active");
+  else btnDelivery.classList.add("active");
+
+  // Mostrar u ocultar dirección
+  document.getElementById("direccion").style.display = t === "Delivery" ? "block" : "none";
 }
 
 function setPago(p){
- pago=p;
- document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
- document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
+  pago = p;
+  const btnEfectivo = document.getElementById("btnEfectivo");
+  const btnTransferencia = document.getElementById("btnTransferencia");
+  btnEfectivo.classList.remove("active");
+  btnTransferencia.classList.remove("active");
+  if(p === "Efectivo") btnEfectivo.classList.add("active");
+  else btnTransferencia.classList.add("active");
 }
 
 function enviar(){
