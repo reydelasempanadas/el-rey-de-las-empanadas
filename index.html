@@ -81,6 +81,9 @@ h2{
 .controls span{
  margin:0 6px;
  font-size:16px;
+ min-width:20px;
+ text-align:center;
+ display:inline-block;
 }
 .selector{
  display:flex;
@@ -284,6 +287,13 @@ const productos=[
 }
 ];
 
+// Inicializamos carrito con todos los productos, incluyendo empanadas especiales
+productos.forEach(sec=>{
+ sec.items.forEach(i=>{
+   if(i[1]!==undefined) carrito[i[0]]=0;
+ });
+});
+
 function render(){
  let html="";
  productos.forEach(sec=>{
@@ -294,7 +304,6 @@ function render(){
     return;
    }
    let nombre=i[0], precio=i[1] || 60;
-   carrito[nombre]=0;
    html+=`
    <div class="item">
     <div>
@@ -316,6 +325,7 @@ function render(){
 function chg(n,d,p){
  carrito[n]+=d;
  if(carrito[n]<0) carrito[n]=0;
+ document.getElementById(n).innerText=carrito[n];
  calcularTotal();
  resumen();
 }
@@ -323,7 +333,7 @@ function chg(n,d,p){
 function resumen(){
  let r="";
  for(let k in carrito){
-  if(carrito[k]>0) r+=`${carrito[k]} x ${k}<br>`;
+  if(carrito[k]>0) r+=`${carrito[k]} ${k}<br>`;
  }
  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
@@ -363,7 +373,7 @@ function enviar(){
  }
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
  for(let k in carrito){
-  if(carrito[k]>0) msg+=`${carrito[k]} x ${k}%0A`;
+  if(carrito[k]>0) msg+=`${carrito[k]} ${k}%0A`;
  }
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
  msg+=`%0A🚚 Entrega: ${entrega}`+(entrega==="Delivery"?" (Delivery inicia a las 18:30)":"");
