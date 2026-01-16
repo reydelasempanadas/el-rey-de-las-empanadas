@@ -78,7 +78,7 @@ h2{
 .controls button.plus{
  width:30px;
  height:30px;
- background:#25D366; /* verde */
+ background:#25D366;
  color:white;
  border:none;
  border-radius:6px;
@@ -88,7 +88,7 @@ h2{
 .controls button.minus{
  width:30px;
  height:30px;
- background:#b30000; /* rojo */
+ background:#b30000;
  color:white;
  border:none;
  border-radius:6px;
@@ -118,7 +118,7 @@ h2{
  background:#b30000;
  color:white;
 }
-input,select{
+input,textarea,select{
  width:100%;
  padding:8px;
  margin:6px 0;
@@ -163,6 +163,15 @@ small{color:#777;}
  margin-top:2px;
  width:100%;
 }
+.notice{
+ background:#fff3cd;
+ border:1px solid #ffeeba;
+ padding:8px;
+ border-radius:6px;
+ color:#856404;
+ margin:6px 0;
+ font-size:13px;
+}
 </style>
 </head>
 
@@ -188,11 +197,18 @@ small{color:#777;}
 
 <input id="nombre" placeholder="Nombre">
 <input id="direccion" placeholder="Dirección" style="display:none">
+<textarea id="observaciones" placeholder="Observaciones para el delivery" style="display:none"></textarea>
 
 <div class="section-title">💳 Forma de pago</div>
 <div class="selector">
 <button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
 <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
+</div>
+
+<input id="cambio" placeholder="¿Necesita cambio? Indique monto" style="display:block">
+
+<div id="transferNotice" class="notice" style="display:none">
+El enlace de transferencia se enviará por WhatsApp y deberá enviar comprobante.
 </div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
@@ -398,6 +414,7 @@ function setEntrega(t){
  if(t === "Mostrador") btnMostrador.classList.add("active");
  else btnDelivery.classList.add("active");
  document.getElementById("direccion").style.display = t==="Delivery"?"block":"none";
+ document.getElementById("observaciones").style.display = t==="Delivery"?"block":"none"; // mostrar si Delivery
 }
 
 function setPago(p){
@@ -406,8 +423,15 @@ function setPago(p){
  const btnTransferencia = document.getElementById("btnTransferencia");
  btnEfectivo.classList.remove("active");
  btnTransferencia.classList.remove("active");
- if(p === "Efectivo") btnEfectivo.classList.add("active");
- else btnTransferencia.classList.add("active");
+ if(p === "Efectivo") {
+   btnEfectivo.classList.add("active");
+   document.getElementById("cambio").style.display="block";
+   document.getElementById("transferNotice").style.display="none";
+ } else {
+   btnTransferencia.classList.add("active");
+   document.getElementById("cambio").style.display="none";
+   document.getElementById("transferNotice").style.display="block";
+ }
 }
 
 function enviar(){
@@ -435,11 +459,15 @@ function enviar(){
   if(carrito[k]>0) msg+=`• ${carrito[k]} x ${k}%0A`;
  }
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
- if(entrega=="Delivery") msg+=`%0A🚚 Delivery: ${entrega} (Inicia a las 18:30)`;
+ if(entrega=="Delivery") msg+=`%0A🚚 Delivery (Inicia a las 18:30)`;
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
  if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
+ if(entrega=="Delivery" && document.getElementById("observaciones").value) 
+   msg+=`%0A📝 Observaciones: ${document.getElementById("observaciones").value}`;
+ if(pago==="Efectivo" && document.getElementById("cambio").value) 
+   msg+=`%0A💵 Cambio solicitado: ${document.getElementById("cambio").value}`;
  msg+=`%0A💳 Pago: ${pago}`;
- if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://tranferencia (Enviar comprobante para confirmar pedido)`;
+ if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: Enlace se enviará por WhatsApp (Enviar comprobante)`;
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
