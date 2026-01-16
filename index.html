@@ -12,13 +12,11 @@ body{
  margin:0;
  padding:10px;
 }
-
 h1{
  text-align:center;
  color:#b30000;
  margin-bottom:10px;
 }
-
 .section-title{
  background:#b30000;
  color:white;
@@ -27,7 +25,13 @@ h1{
  margin-bottom:10px;
  font-size:18px;
 }
-
+.sub-title{
+ font-weight:bold;
+ color:#b30000;
+ margin:12px 0 6px;
+ font-size:15px;
+ border-bottom:1px solid #eee;
+}
 .card{
  background:white;
  padding:15px;
@@ -35,13 +39,6 @@ h1{
  margin-bottom:20px;
  box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
-
-.price-note{
- font-weight:bold;
- color:#444;
- margin-bottom:10px;
-}
-
 .item{
  display:flex;
  justify-content:space-between;
@@ -50,39 +47,41 @@ h1{
  border-bottom:1px dashed #eee;
 }
 .item:last-child{border-bottom:none}
-
 .name{
  font-weight:bold;
  font-size:15px;
 }
-
 .desc{
  font-size:12px;
  color:#777;
  margin-top:2px;
 }
-
 .controls button{
  width:30px;
  height:30px;
- background:#b30000;
  color:white;
  border:none;
  border-radius:6px;
  font-size:18px;
+ cursor:pointer;
 }
 
+.controls button:first-child{
+ background:#b30000; /* disminuir */
+}
+
+.controls button:last-child{
+ background:#2e7d32; /* aumentar */
+}
 .controls span{
  margin:0 6px;
  font-size:16px;
 }
-
 .selector{
  display:flex;
  gap:10px;
  margin:10px 0;
 }
-
 .selector button{
  flex:1;
  padding:10px;
@@ -91,12 +90,10 @@ h1{
  border:1px solid #ccc;
  background:#eee;
 }
-
 .selector button.active{
  background:#b30000;
  color:white;
 }
-
 input,select{
  width:100%;
  padding:8px;
@@ -105,14 +102,12 @@ input,select{
  border-radius:6px;
  border:1px solid #ccc;
 }
-
 .total{
  background:white;
  padding:15px;
  border-radius:12px;
  box-shadow:0 3px 8px rgba(0,0,0,.15);
 }
-
 button.send{
  width:100%;
  padding:15px;
@@ -123,7 +118,6 @@ button.send{
  border-radius:12px;
  margin-top:10px;
 }
-
 small{color:#777}
 </style>
 </head>
@@ -165,56 +159,62 @@ let pago="Efectivo";
 let carrito={}, total=0;
 
 const productos=[
-{cat:"EMPANADAS – $60 c/u",precio:60,items:[
-["Empanada Criolla","carne y huevo"],
-["Empanada Mendocina","carne, huevo y aceituna"],
-["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
-["Empanada Cordobesa","carne, huevo y pasas"],
-["Empanada Mixta","carne, huevo, choclo y calabresa"],
-["Empanada Gallega","carne, huevo y panceta"],
-["Empanada Burguer","carne, cebolla y cheddar"],
-["Empanada Pollo clásico","pollo, salsa y huevo"],
-["Empanada Pollo queso","pollo, queso y aceituna"],
-["Empanada Pollo requesón","pollo y requesón"],
-["Empanada Pollo mostaza","pollo a la mostaza"],
-["Empanada Humita","choclo, queso y salsa blanca"],
-["Empanada Caprese","queso, tomate y albahaca"],
-["Empanada Atún","atún, huevo y salsa"],
-["Empanada Dulce de leche",""],
-["Empanada Nutella",""]
-]},
-{cat:"🍟 Extras",items:[
-["Papas fritas (porción)",120],
-["Aros de cebolla (10u)",120],
-["Nuggets (10u)",120]
-]},
-{cat:"🧃 Jugos naturales",items:[
-["Jugo Mango",120],
-["Jugo Frutilla",120],
-["Jugo Naranja",120],
-["Jugo Ananá",120]
-]},
-{cat:"🥤 Bebidas",items:[
-["Coca-Cola Mini",40],
-["Coca-Cola Lata",60],
-["Coca-Cola 600ml",80],
-["Coca-Cola 2L",120],
-["Fanta Mini",40],
-["Fanta Lata",60],
-["Fanta 600ml",80],
-["Fanta 2L",120],
-["Sprite Mini",40],
-["Sprite Lata",60],
-["Sprite 600ml",80],
-["Sprite 2L",120]
-]},
-{cat:"🍺 Cervezas",items:[
-["Pilsen Lata",120],
-["Pilsen 2L",180],
-["Patricia Lata",120],
-["Patricia 2L",220],
-["Glacial Lata",110]
-]}
+{
+ cat:"EMPANADAS – $60 c/u",
+ precio:60,
+ items:[
+  ["CARNE",""],
+  ["Empanada Criolla","carne y huevo"],
+  ["Empanada Mendocina","carne, huevo y aceituna"],
+  ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
+  ["Empanada Cordobesa","carne, huevo y pasas de uva"],
+  ["Empanada Mixta","carne, huevo, choclo y calabresa"],
+  ["Empanada Gallega","carne, huevo y panceta"],
+  ["Empanada Burguer","carne, cebolla y cheddar"],
+
+  ["POLLO",""],
+  ["Empanada Pollo clásico","pollo, salsa y huevo"],
+  ["Empanada Pollo queso","pollo, queso y aceituna"],
+  ["Empanada Pollo requesón","pollo y requesón"],
+  ["Empanada Pollo mostaza","pollo a la mostaza"],
+
+  ["VERDURA",""],
+  ["Empanada Palmito","jamón y salsa golf"],
+  ["Empanada Acelga","cebolla, morrón y huevo"],
+  ["Empanada Humita","choclo, queso y salsa blanca"],
+  ["Empanada Choclo y jamón",""],
+  ["Empanada Caprese","queso, tomate y albahaca"],
+
+  ["MAR",""],
+  ["Empanada Atún","atún, huevo y salsa"],
+
+  ["MOZZARELLA",""],
+  ["Empanada Pizza","mozzarella, salsa y orégano"],
+  ["Empanada Alemana","mozzarella y frankfurter"],
+  ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
+  ["Empanada Caribeña","mozzarella, salame y aceituna"],
+  ["Empanada Mozzarella y panceta",""],
+  ["Empanada Mozzarella, cebolla y calabresa",""],
+
+  ["QUESO",""],
+  ["Empanada Jamón y queso",""],
+  ["Empanada Queso, calabresa y salsa",""],
+  ["Empanada Queso y cebolla",""],
+  ["Empanada Queso y aceituna",""],
+  ["Empanada Libanesa","queso, cebolla, ajo y perejil"],
+  ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
+  ["Empanada Tropical","queso, jamón y ananá"],
+  ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+
+  ["DULCES",""],
+  ["Empanada Dulce de leche",""],
+  ["Empanada Membrillo",""],
+  ["Empanada Crema pastelera",""],
+  ["Empanada Mulata","dulce de leche y chocolate"],
+  ["Empanada Gringa","dulce de leche y chocolate blanco"],
+  ["Empanada Nutella",""]
+ ]
+}
 ];
 
 function render(){
@@ -222,15 +222,17 @@ function render(){
  productos.forEach(sec=>{
   html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
   sec.items.forEach(i=>{
-   let nombre=i[0], precio=i[1]||sec.precio;
+   if(i[1]==="" && i[0]===i[0].toUpperCase()){
+    html+=`<div class="sub-title">${i[0]}</div>`;
+    return;
+   }
+   let nombre=i[0], precio=sec.precio;
    carrito[nombre]=0;
    html+=`
    <div class="item">
     <div>
      <div class="name">${nombre}</div>
-     ${sec.precio && i[1]==undefined ? `<div class="desc">${i[1]||""}</div>` : ""}
-     ${!sec.precio ? `<small>$${precio}</small>` : ""}
-     ${i.length==2 && sec.precio ? `<div class="desc">${i[1]}</div>`:""}
+     <div class="desc">${i[1]}</div>
     </div>
     <div class="controls">
      <button onclick="chg('${nombre}',-1,${precio})">−</button>
