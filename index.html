@@ -8,54 +8,68 @@
 <style>
 body{
   font-family: Arial, sans-serif;
-  max-width: 500px;
+  max-width: 480px;
   margin: auto;
-  padding: 20px;
+  padding: 15px;
+  background:#fafafa;
 }
-h1{text-align:center;}
+h1{
+  text-align:center;
+  margin-bottom:5px;
+}
 h2{
-  margin-top:30px;
-  border-bottom:2px solid #ddd;
+  margin-top:25px;
+  padding-bottom:5px;
+  border-bottom:2px solid #ccc;
+  font-size:20px;
+}
+.section{
+  margin-top:10px;
 }
 .item{
-  display:flex;
-  justify-content:space-between;
+  display:grid;
+  grid-template-columns: 1fr auto auto auto;
   align-items:center;
-  margin:10px 0;
-  font-size:18px;
+  gap:8px;
+  padding:8px 0;
+  border-bottom:1px solid #eee;
+  font-size:17px;
 }
-.item span{
-  min-width:30px;
+.qty{
+  min-width:28px;
   text-align:center;
   font-weight:bold;
-}
-button{
   font-size:18px;
-  padding:5px 10px;
+}
+.btn{
+  width:36px;
+  height:36px;
+  font-size:20px;
 }
 .option{
-  margin:10px 0;
-  font-size:18px;
+  margin:8px 0;
+  font-size:17px;
 }
 input[type="text"]{
   width:100%;
-  font-size:18px;
   padding:10px;
-  margin:10px 0;
+  font-size:17px;
+  margin-top:5px;
 }
 .whatsapp{
   width:100%;
+  margin-top:25px;
+  padding:16px;
   font-size:22px;
-  padding:15px;
   background:#25D366;
   color:white;
   border:none;
-  border-radius:10px;
-  margin-top:25px;
+  border-radius:12px;
 }
-.info{
-  margin-top:20px;
-  font-size:16px;
+.note{
+  margin-top:15px;
+  font-size:15px;
+  color:#444;
 }
 </style>
 </head>
@@ -63,167 +77,127 @@ input[type="text"]{
 <body>
 
 <h1>👑 El Rey De Las Empanadas</h1>
+<p style="text-align:center;font-size:15px;">Pedidos simples y rápidos</p>
 
-<h2>🧑 Nombre del cliente</h2>
-<input type="text" id="nombre" placeholder="Escriba su nombre">
+<h2>🧑 Nombre</h2>
+<input id="nombre" type="text" placeholder="Escriba su nombre">
 
-<h2>🥟 Empanadas – $60 c/u</h2>
-
-<div class="item">Carne
-<button onclick="menos('carne')">➖</button>
-<span id="carne">0</span>
-<button onclick="mas('carne')">➕</button>
+<h2>🥟 Empanadas $60</h2>
+<div class="section">
+  <div class="item"><span>Carne</span>
+    <button class="btn" onclick="menos('carne')">➖</button>
+    <span class="qty" id="carne">0</span>
+    <button class="btn" onclick="mas('carne')">➕</button>
+  </div>
+  <div class="item"><span>Pollo</span>
+    <button class="btn" onclick="menos('pollo')">➖</button>
+    <span class="qty" id="pollo">0</span>
+    <button class="btn" onclick="mas('pollo')">➕</button>
+  </div>
+  <div class="item"><span>Jamón y Queso</span>
+    <button class="btn" onclick="menos('jyq')">➖</button>
+    <span class="qty" id="jyq">0</span>
+    <button class="btn" onclick="mas('jyq')">➕</button>
+  </div>
+  <div class="item"><span>Queso</span>
+    <button class="btn" onclick="menos('queso')">➖</button>
+    <span class="qty" id="queso">0</span>
+    <button class="btn" onclick="mas('queso')">➕</button>
+  </div>
 </div>
 
-<div class="item">Pollo
-<button onclick="menos('pollo')">➖</button>
-<span id="pollo">0</span>
-<button onclick="mas('pollo')">➕</button>
-</div>
-
-<div class="item">Jamón y Queso
-<button onclick="menos('jyq')">➖</button>
-<span id="jyq">0</span>
-<button onclick="mas('jyq')">➕</button>
-</div>
-
-<div class="item">Queso
-<button onclick="menos('queso')">➖</button>
-<span id="queso">0</span>
-<button onclick="mas('queso')">➕</button>
-</div>
-
-<h2>🍟 Otros productos</h2>
-
-<div class="item">Fritas – $120
-<button onclick="menos('fritas')">➖</button>
-<span id="fritas">0</span>
-<button onclick="mas('fritas')">➕</button>
-</div>
-
-<div class="item">Aros de cebolla (10) – $120
-<button onclick="menos('aros')">➖</button>
-<span id="aros">0</span>
-<button onclick="mas('aros')">➕</button>
-</div>
-
-<div class="item">Nuggets (10) – $120
-<button onclick="menos('nuggets')">➖</button>
-<span id="nuggets">0</span>
-<button onclick="mas('nuggets')">➕</button>
+<h2>🍟 Otros</h2>
+<div class="section">
+  <div class="item"><span>Fritas $120</span>
+    <button class="btn" onclick="menos('fritas')">➖</button>
+    <span class="qty" id="fritas">0</span>
+    <button class="btn" onclick="mas('fritas')">➕</button>
+  </div>
+  <div class="item"><span>Aros (10) $120</span>
+    <button class="btn" onclick="menos('aros')">➖</button>
+    <span class="qty" id="aros">0</span>
+    <button class="btn" onclick="mas('aros')">➕</button>
+  </div>
+  <div class="item"><span>Nuggets (10) $120</span>
+    <button class="btn" onclick="menos('nuggets')">➖</button>
+    <span class="qty" id="nuggets">0</span>
+    <button class="btn" onclick="mas('nuggets')">➕</button>
+  </div>
 </div>
 
 <h2>🥤 Bebidas</h2>
-
-<div class="item">Mini – $40
-<button onclick="menos('mini')">➖</button>
-<span id="mini">0</span>
-<button onclick="mas('mini')">➕</button>
+<div class="section">
+  <div class="item"><span>Mini $40</span>
+    <button class="btn" onclick="menos('mini')">➖</button>
+    <span class="qty" id="mini">0</span>
+    <button class="btn" onclick="mas('mini')">➕</button>
+  </div>
+  <div class="item"><span>600ml $80</span>
+    <button class="btn" onclick="menos('b600')">➖</button>
+    <span class="qty" id="b600">0</span>
+    <button class="btn" onclick="mas('b600')">➕</button>
+  </div>
+  <div class="item"><span>1 Litro $120</span>
+    <button class="btn" onclick="menos('litro')">➖</button>
+    <span class="qty" id="litro">0</span>
+    <button class="btn" onclick="mas('litro')">➕</button>
+  </div>
+  <div class="item"><span>Cerveza $120</span>
+    <button class="btn" onclick="menos('cerveza')">➖</button>
+    <span class="qty" id="cerveza">0</span>
+    <button class="btn" onclick="mas('cerveza')">➕</button>
+  </div>
 </div>
 
-<div class="item">600ml – $80
-<button onclick="menos('b600')">➖</button>
-<span id="b600">0</span>
-<button onclick="mas('b600')">➕</button>
-</div>
+<h2>🚚 Entrega</h2>
+<div class="option"><input type="radio" name="entrega" value="Retiro en mostrador"> Retiro en mostrador</div>
+<div class="option"><input type="radio" name="entrega" value="Delivery (costo a coordinar)"> Delivery</div>
 
-<div class="item">1 Litro – $120
-<button onclick="menos('litro')">➖</button>
-<span id="litro">0</span>
-<button onclick="mas('litro')">➕</button>
-</div>
+<h2>💰 Pago</h2>
+<div class="option"><input type="radio" name="pago" value="Efectivo"> Efectivo</div>
+<div class="option"><input type="radio" name="pago" value="Transferencia (envío comprobante)"> Transferencia</div>
 
-<div class="item">Cerveza – $120
-<button onclick="menos('cerveza')">➖</button>
-<span id="cerveza">0</span>
-<button onclick="mas('cerveza')">➕</button>
-</div>
+<button class="whatsapp" onclick="enviarPedido()">📲 Enviar pedido</button>
 
-<h2>🚚 Forma de entrega</h2>
-<div class="option">
-<input type="radio" name="entrega" value="Retiro en mostrador"> Retiro en mostrador
-</div>
-<div class="option">
-<input type="radio" name="entrega" value="Delivery (costo a coordinar)"> Delivery (costo a coordinar)
-</div>
-
-<h2>💰 Forma de pago</h2>
-<div class="option">
-<input type="radio" name="pago" value="Efectivo"> Efectivo
-</div>
-<div class="option">
-<input type="radio" name="pago" value="Transferencia (envío comprobante)"> Transferencia (envío comprobante)
-</div>
-
-<button class="whatsapp" onclick="enviarPedido()">
-📲 Enviar pedido por WhatsApp
-</button>
-
-<div class="info">
-📍 Delivery con costo adicional según distancia<br>
-💵 Efectivo o transferencia
-</div>
+<p class="note">
+Delivery con costo adicional según distancia.<br>
+Transferencia: enviar comprobante.
+</p>
 
 <script>
-function mas(id){
-  let el=document.getElementById(id);
-  el.innerText=parseInt(el.innerText)+1;
-}
+function mas(id){document.getElementById(id).innerText++}
 function menos(id){
-  let el=document.getElementById(id);
-  if(parseInt(el.innerText)>0)
-    el.innerText=parseInt(el.innerText)-1;
+  let e=document.getElementById(id);
+  if(e.innerText>0) e.innerText--;
 }
-
 function enviarPedido(){
   let nombre=document.getElementById("nombre").value.trim();
-  if(nombre===""){
-    alert("Por favor, escriba su nombre");
-    return;
-  }
+  if(!nombre){alert("Ingrese su nombre");return;}
 
-  let productos=[
-    ["Empanada Carne","carne"],
-    ["Empanada Pollo","pollo"],
-    ["Empanada Jamón y Queso","jyq"],
-    ["Empanada Queso","queso"],
-    ["Fritas","fritas"],
-    ["Aros de cebolla","aros"],
-    ["Nuggets","nuggets"],
-    ["Bebida Mini","mini"],
-    ["Bebida 600ml","b600"],
-    ["Bebida 1 Litro","litro"],
-    ["Cerveza","cerveza"]
+  let items=[
+    ["Carne","carne"],["Pollo","pollo"],["Jamón y Queso","jyq"],["Queso","queso"],
+    ["Fritas","fritas"],["Aros","aros"],["Nuggets","nuggets"],
+    ["Mini","mini"],["600ml","b600"],["1 Litro","litro"],["Cerveza","cerveza"]
   ];
 
-  let mensaje="Pedido de "+nombre+":%0A";
+  let msg="Pedido de "+nombre+":%0A";
+  let ok=false;
 
-  productos.forEach(p=>{
-    let c=parseInt(document.getElementById(p[1]).innerText);
-    if(c>0) mensaje+="- "+p[0]+": "+c+"%0A";
+  items.forEach(i=>{
+    let c=document.getElementById(i[1]).innerText;
+    if(c>0){msg+="- "+i[0]+": "+c+"%0A";ok=true;}
   });
 
-  if(mensaje==="Pedido de "+nombre+":%0A"){
-    alert("Seleccioná al menos un producto");
-    return;
-  }
+  if(!ok){alert("Seleccione productos");return;}
 
-  let entrega=document.querySelector('input[name="entrega"]:checked');
-  if(!entrega){
-    alert("Seleccioná forma de entrega");
-    return;
-  }
+  let e=document.querySelector("input[name='entrega']:checked");
+  let p=document.querySelector("input[name='pago']:checked");
+  if(!e||!p){alert("Seleccione entrega y pago");return;}
 
-  let pago=document.querySelector('input[name="pago"]:checked');
-  if(!pago){
-    alert("Seleccioná forma de pago");
-    return;
-  }
+  msg+="%0AEntrega: "+e.value;
+  msg+="%0APago: "+p.value;
 
-  mensaje+="%0AEntrega: "+entrega.value;
-  mensaje+="%0APago: "+pago.value;
-
-  window.open("https://wa.me/59892663559?text="+mensaje,"_blank");
+  window.open("https://wa.me/598XXXXXXXX?text="+msg,"_blank");
 }
 </script>
 
