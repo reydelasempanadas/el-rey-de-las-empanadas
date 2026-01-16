@@ -332,21 +332,21 @@ function render(){
        html+=`<div class="bebida-card"><div class="sub-title">${marca}</div>`; 
        return;
      } else {
-       let nombre=i[0], precio=parseInt(i[1]);
-       carrito[nombre]=0;
+       let nombreUnico = marca + " " + i[0]; // <-- IDENTIFICADOR ÚNICO
+       let precio=parseInt(i[1]);
+       carrito[nombreUnico]=0;
        html+=`
        <div class="bebida-option">
          <div>
-           <div class="name">${nombre}</div>
+           <div class="name">${i[0]}</div>
            <div class="desc">$${precio}</div>
          </div>
          <div class="controls">
-           <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
-           <span id="${nombre}">0</span>
-           <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
+           <button class="minus" onclick="chg('${nombreUnico}',-1,${precio})">−</button>
+           <span id="${nombreUnico}">0</span>
+           <button class="plus" onclick="chg('${nombreUnico}',1,${precio})">+</button>
          </div>
        </div>`;
-       // cerrar tarjeta si es última opción o viene otra marca
        let nextIndex = index+1;
        if(nextIndex>=sec.items.length || sec.items[nextIndex][1]==="") html+="</div>";
        return;
