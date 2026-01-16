@@ -241,9 +241,19 @@ function resumen(){
 }
 
 function setEntrega(t){
- entrega=t;
- document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
-}
+ entrega = t;
+
+ document.getElementById("m").classList.remove("active");
+ document.getElementById("d").classList.remove("active");
+
+ if(t === "Mostrador"){
+  document.getElementById("m").classList.add("active");
+  document.getElementById("direccion").style.display = "none";
+ }else{
+  document.getElementById("d").classList.add("active");
+  document.getElementById("direccion").style.display = "block";
+ }
+
 
 function setPago(p){
  pago=p;
