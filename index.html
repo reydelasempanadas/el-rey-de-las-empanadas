@@ -256,10 +256,16 @@ function setEntrega(t){
 
 
 function setPago(p){
- pago=p;
- document.getElementById("e").classList.toggle("active",p=="Efectivo");
- document.getElementById("t").classList.toggle("active",p=="Transferencia");
-}
+ pago = p;
+
+ document.getElementById("e").classList.remove("active");
+ document.getElementById("t").classList.remove("active");
+
+ if(p === "Efectivo"){
+  document.getElementById("e").classList.add("active");
+ }else{
+  document.getElementById("t").classList.add("active");
+ }
 
 function enviar(){
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
