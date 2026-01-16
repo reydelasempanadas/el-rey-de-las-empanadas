@@ -82,7 +82,6 @@ h1{
 .controls span{
  margin:0 6px;
  font-size:16px;
-}
 
 /* Botones de selector de entrega y pago */
 .selector{
@@ -310,11 +309,12 @@ function render(){
    }
    let nombre=i[0], precio=sec.precio || parseInt(i[1]) || 0;
    carrito[nombre]=0;
+   let descText = i[1] || ""; // <- Siempre crea div desc
    html+=`
    <div class="item">
     <div>
      <div class="name">${nombre}</div>
-     ${sec.cat.includes("🥟 EMPANADAS") ? `<div class="desc">${i[1]}</div>` : precio>0?`<div class="desc">$${precio}</div>`:""}
+     ${sec.cat.includes("🥟 EMPANADAS") ? `<div class="desc">${descText}</div>` : precio>0?`<div class="desc">$${precio}</div>`:""}
     </div>
     <div class="controls">
      <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
