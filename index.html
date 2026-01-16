@@ -39,10 +39,6 @@ h1{
  margin-bottom:20px;
  box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
-
-/* ===================== */
-/* ITEM Y BOTONES        */
-/* ===================== */
 .item, .bebida-option{
  display:flex;
  justify-content:space-between;
@@ -65,8 +61,6 @@ h1{
  color:#777;
  margin-top:2px;
 }
-
-/* Botones de cantidad */
 .controls{
  display:flex;
  align-items:center;
@@ -97,8 +91,6 @@ h1{
  margin:0 6px;
  font-size:16px;
 }
-
-/* Selector entrega/pago */
 .selector{
  display:flex;
  gap:10px;
@@ -118,7 +110,6 @@ h1{
  background:#b30000;
  color:white;
 }
-
 input,select{
  width:100%;
  padding:8px;
@@ -142,10 +133,9 @@ button.send{
  border:none;
  border-radius:12px;
  margin-top:10px;
+ cursor:pointer;
 }
-small{color:#777}
-
-/* Tarjetas para bebidas/jugos/cervezas */
+small{color:#777;}
 .bebida-card{
  background:#fff;
  padding:10px;
@@ -163,7 +153,7 @@ small{color:#777}
  color:#555;
  font-size:13px;
  margin-top:2px;
- width:100%; /* debajo del nombre */
+ width:100%;
 }
 </style>
 </head>
@@ -332,7 +322,7 @@ function render(){
        html+=`<div class="bebida-card"><div class="sub-title">${marca}</div>`; 
        return;
      } else {
-       let nombreUnico = marca + " " + i[0]; // <-- IDENTIFICADOR ÚNICO
+       let nombreUnico = marca + " " + i[0]; // IDENTIFICADOR ÚNICO
        let precio=parseInt(i[1]);
        carrito[nombreUnico]=0;
        html+=`
@@ -382,7 +372,6 @@ function chg(n,d,p){
  resumen();
 }
 
-// === RESUMEN: mostrar cantidad antes del producto ===
 function resumen(){
  let r="";
  for(let k in carrito){
@@ -413,15 +402,38 @@ function setPago(p){
 }
 
 function enviar(){
+ const now = new Date();
+ const hora = now.getHours();
+ const minuto = now.getMinutes();
+ const dia = now.getDay(); 
+ if(dia===1){
+   alert("🚫 Los lunes estamos cerrados, no se pueden realizar pedidos.");
+   return;
+ }
+ if(hora<17 || hora>23){
+   alert("🚫 Los pedidos se reciben de 17:00 a 23:00. El entregador inicia a las 18:30.");
+   return;
+ }
+
+ let comprobante = "";
+ if(pago==="Transferencia"){
+   comprobante = prompt("⚠️ Has seleccionado Transferencia. Ingrese el link o confirmación de su comprobante para aceptar el pedido. Ejemplo: https://ejemplo.com/comprobante");
+   if(!comprobante){
+     alert("No se puede enviar el pedido sin el comprobante de transferencia.");
+     return;
+   }
+ }
+
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
  for(let k in carrito){
   if(carrito[k]>0) msg+=`• ${carrito[k]} x ${k}%0A`;
  }
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
- msg+=`%0A🚚 Entrega: ${entrega}`;
+ msg+=`%0A🚚 Entrega: ${entrega} (El entregador inicia a las 18:30)`;
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
  if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
  msg+=`%0A💳 Pago: ${pago}`;
+ if(pago==="Transferencia") msg+=`%0A📎 Comprobante: ${comprobante}`;
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
