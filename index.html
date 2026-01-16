@@ -100,7 +100,7 @@ h2{
  background:#b30000;
  color:white;
 }
-input,textarea{
+input,textarea,select{
  width:100%;
  padding:8px;
  margin:6px 0;
@@ -150,7 +150,23 @@ small{color:#777}
 </div>
 
 <input id="nombre" placeholder="Nombre">
-<textarea id="direccion" placeholder="Dirección para Delivery" style="display:none"></textarea>
+<select id="barrio" style="display:none">
+ <option value="">Seleccionar barrio (Rivera)</option>
+ <option value="Centro">Centro</option>
+ <option value="Cerro Marconi">Cerro Marconi</option>
+ <option value="Ceballos">Ceballos</option>
+ <option value="Pueblo Nuevo">Pueblo Nuevo</option>
+ <option value="Siñeriz">Siñeriz</option>
+ <option value="Los Pirineos">Los Pirineos</option>
+ <option value="Rampla">Rampla</option>
+ <option value="Santa Isabel">Santa Isabel</option>
+ <option value="Bisio">Bisio</option>
+ <option value="La Pedrera">La Pedrera</option>
+ <option value="La Racca">La Racca</option>
+ <option value="Lagunón">Lagunón</option>
+ <option value="Rivera Chico Norte">Rivera Chico Norte</option>
+ <option value="Rivera Chico Sur">Rivera Chico Sur</option>
+</select>
 <textarea id="obs" placeholder="Observaciones sobre la dirección" style="display:none"></textarea>
 
 <div class="section-title">💳 Forma de pago</div>
@@ -170,6 +186,7 @@ let pago="Efectivo";
 let carrito={}, total=0;
 let envio=0;
 
+// Código oficial productos
 const productos=[
 {
  cat:"🥟 Empanadas",
@@ -183,23 +200,19 @@ const productos=[
   ["Empanada Mixta","carne, huevo, choclo y calabresa"],
   ["Empanada Gallega","carne, huevo y panceta"],
   ["Empanada Burguer","carne, cebolla y cheddar"],
-
   ["POLLO",""],
   ["Empanada Pollo clásico","pollo, salsa y huevo"],
   ["Empanada Pollo queso","pollo, queso y aceituna"],
   ["Empanada Pollo requesón","pollo y requesón"],
   ["Empanada Pollo mostaza","pollo a la mostaza"],
-
   ["VERDURA",""],
   ["Empanada Palmito","jamón y salsa golf"],
   ["Empanada Acelga","cebolla, morrón y huevo"],
   ["Empanada Humita","choclo, queso y salsa blanca"],
   ["Empanada Choclo y jamón",""],
   ["Empanada Caprese","queso, tomate y albahaca"],
-
   ["MAR",""],
   ["Empanada Atún","atún, huevo y salsa"],
-
   ["MOZZARELLA",""],
   ["Empanada Pizza","mozzarella, salsa y orégano"],
   ["Empanada Alemana","mozzarella y frankfurter"],
@@ -207,7 +220,6 @@ const productos=[
   ["Empanada Caribeña","mozzarella, salame y aceituna"],
   ["Empanada Mozzarella y panceta",""],
   ["Empanada Mozzarella, cebolla y calabresa",""],
-
   ["QUESO",""],
   ["Empanada Jamón y queso",""],
   ["Empanada Queso, calabresa y salsa",""],
@@ -217,7 +229,6 @@ const productos=[
   ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
   ["Empanada Tropical","queso, jamón y ananá"],
   ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
-
   ["DULCES",""],
   ["Empanada Dulce de leche",""],
   ["Empanada Membrillo",""],
@@ -268,7 +279,7 @@ const productos=[
 }
 ];
 
-// Lista de barrios y costos de envío
+// Envío Rivera
 const envioRivera = [
  {barrios:["Centro"], valor:50},
  {barrios:["Cerro Marconi","Ceballos","Pueblo Nuevo","Siñeriz"], valor:60},
@@ -277,15 +288,12 @@ const envioRivera = [
  {barrios:["Lagunón","Rivera Chico Norte","Rivera Chico Sur"], valor:120}
 ];
 
-function calcularEnvio(direccion){
- if(!direccion) return 0;
- let dirLower = direccion.toLowerCase();
+function calcularEnvio(barrio){
+ if(!barrio) return 0;
  for(let zona of envioRivera){
-   for(let barrio of zona.barrios){
-     if(dirLower.includes(barrio.toLowerCase())) return zona.valor;
-   }
+   if(zona.barrios.includes(barrio)) return zona.valor;
  }
- return 0; // si no coincide, se puede pedir confirmación
+ return 0;
 }
 
 function render(){
@@ -337,7 +345,7 @@ function setEntrega(t){
  entrega=t;
  document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
  document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
- document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
+ document.getElementById("barrio").style.display=t=="Delivery"?"block":"none";
  document.getElementById("obs").style.display=t=="Delivery"?"block":"none";
  calcularTotal();
 }
@@ -359,15 +367,16 @@ function calcularTotal(){
  for(let k in carrito){
    total+=carrito[k]*((productos.find(sec=>sec.items.some(x=>x[0]===k))?.items.find(x=>x[0]===k)[1] || 60));
  }
- // envío si delivery
  if(entrega==="Delivery"){
-   let dir=document.getElementById("direccion").value;
-   envio=calcularEnvio(dir);
+   let barrioSel=document.getElementById("barrio").value;
+   envio=calcularEnvio(barrioSel);
    if(envio>0){
      document.getElementById("envioText").innerText="Envío: $"+envio;
      total+=envio;
-   } else {
+   } else if(barrioSel){
      document.getElementById("envioText").innerText="Envío: confirmar dirección";
+   } else {
+     document.getElementById("envioText").innerText="Envío: seleccionar barrio";
    }
  } else {
    envio=0;
@@ -377,13 +386,12 @@ function calcularTotal(){
 }
 
 function enviar(){
- // Validaciones
  if(Object.values(carrito).every(x=>x===0)){
    alert("Debe seleccionar productos");
    return;
  }
- if(entrega==="Delivery" && !document.getElementById("direccion").value){
-   alert("Debe ingresar la dirección para Delivery");
+ if(entrega==="Delivery" && !document.getElementById("barrio").value){
+   alert("Debe seleccionar el barrio para calcular el envío");
    return;
  }
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
@@ -391,9 +399,9 @@ function enviar(){
   if(carrito[k]>0) msg+=`${carrito[k]} x ${k}%0A`;
  }
  msg+=`%0A💰 Total: $${total}`;
- msg+=`%0A🚚 Entrega: ${entrega}`+(entrega==="Delivery"?" (El delivery inicia a partir de 18:30)":"");
+ msg+=`%0A🚚 Entrega: ${entrega}`+(entrega==="Delivery"?" (Delivery inicia a las 18:30)":"");
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
- if(entrega==="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`+(obs.value?" - Obs: "+obs.value:"");
+ if(entrega==="Delivery") msg+=`%0A📍 Barrio: ${barrio.value||"No indicado"} - Obs: ${obs.value||"No indicado"}`;
  msg+=`%0A💳 Pago: ${pago}`;
  if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (enviar comprobante)`;
  if(pago==="Efectivo") msg+=`%0A💵 Cambio: ${cambio.value||"No indicado"}`;
