@@ -2,315 +2,214 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>El Rey De Las Empanadas</title>
+<title>El Rey de las Empanadas</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
-  font-family: Arial, sans-serif;
-  background:#f5f5f5;
-  margin:0;
-  padding:16px;
+ font-family:Arial, sans-serif;
+ background:#f6f6f6;
+ margin:0;
+ padding:10px;
 }
-.container{
-  max-width:540px;
-  margin:auto;
-}
-h1{
-  text-align:center;
-  color:#8b0000;
-}
-.info{
-  text-align:center;
-  font-size:15px;
-  margin-bottom:20px;
-}
+h1{text-align:center;color:#b30000}
+h2{color:#333;margin-top:30px}
 .card{
-  background:white;
-  border-radius:14px;
-  padding:14px;
-  margin-bottom:18px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.08);
-}
-.card h2{
-  margin-top:0;
-  background:#8b0000;
-  color:white;
-  padding:10px;
-  border-radius:10px;
-  font-size:20px;
+ background:white;
+ padding:15px;
+ border-radius:10px;
+ margin-bottom:15px;
+ box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
 .item{
-  display:grid;
-  grid-template-columns:1fr auto auto auto;
-  gap:8px;
-  align-items:center;
-  padding:10px 0;
-  border-bottom:1px solid #eee;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin:8px 0;
 }
-.item:last-child{border-bottom:none;}
-.name{font-size:16px;}
-.desc{font-size:13px;color:#777;}
-.price{font-size:14px;color:#333;}
-.qty{
-  width:24px;
-  text-align:center;
-  font-weight:bold;
+.name{font-weight:bold}
+.desc{font-size:12px;color:#666}
+.controls button{
+ width:30px;height:30px;
+ font-size:18px;
+ border:none;
+ background:#b30000;
+ color:white;
+ border-radius:5px;
 }
-.btn{
-  width:34px;
-  height:34px;
-  border:none;
-  border-radius:8px;
-  font-size:18px;
+.controls span{margin:0 8px}
+.total{
+ background:#fff;
+ padding:15px;
+ border-radius:10px;
+ margin-top:20px;
+ font-size:18px;
 }
-.plus{background:#2ecc71;color:white;}
-.minus{background:#ddd;}
-.cart{
-  background:#fff3cd;
-  border-radius:14px;
-  padding:14px;
-  font-size:18px;
+select,input,textarea{
+ width:100%;
+ padding:8px;
+ margin:5px 0;
+ font-size:16px;
 }
-.cart small{color:#555;}
-.option{
-  margin:8px 0;
-  font-size:16px;
+button.send{
+ width:100%;
+ padding:15px;
+ background:#25D366;
+ color:white;
+ font-size:20px;
+ border:none;
+ border-radius:10px;
 }
-input, textarea{
-  width:100%;
-  padding:10px;
-  font-size:16px;
-  margin-top:6px;
-}
-button.main{
-  width:100%;
-  padding:18px;
-  font-size:22px;
-  background:#25D366;
-  color:white;
-  border:none;
-  border-radius:16px;
-  margin-top:18px;
-}
-button.gray{
-  width:100%;
-  padding:14px;
-  font-size:18px;
-  background:#444;
-  color:white;
-  border:none;
-  border-radius:14px;
-  margin-top:10px;
-}
-.hidden{display:none;}
-.alert{
-  background:#ffd6d6;
-  padding:12px;
-  border-radius:10px;
-  text-align:center;
-  color:#a00;
-  margin-bottom:15px;
-}
-@media print{
-  body{background:white;}
-  button{display:none;}
-}
+small{color:#777}
 </style>
 </head>
 
 <body>
-<div class="container">
 
-<h1>👑 El Rey De Las Empanadas</h1>
-<div class="info">
-🕒 Pedidos de 18:30 a 23:00 · ❌ Lunes cerrado<br>
-🚚 Delivery con costo adicional · 🏃 Retiro en mostrador
-</div>
+<h1>👑 El Rey de las Empanadas</h1>
 
-<div id="alerta" class="alert hidden"></div>
+<p><b>🕒 Entrega:</b> 18:30 a 23:00</p>
 
-<!-- EMPANADAS -->
-<div class="card">
-<h2>🥟 Empanadas $60</h2>
+<div id="menu"></div>
 
-<div class="item">
-  <div>
-    <div class="name">Criolla</div>
-    <div class="desc">Carne y huevo</div>
-  </div>
-  <button class="btn minus" onclick="menos('criolla',60)">−</button>
-  <div class="qty" id="criolla">0</div>
-  <button class="btn plus" onclick="mas('criolla',60)">+</button>
-</div>
-
-<div class="item">
-  <div>
-    <div class="name">Mendocina</div>
-    <div class="desc">Carne, huevo y aceituna</div>
-  </div>
-  <button class="btn minus" onclick="menos('mendo',60)">−</button>
-  <div class="qty" id="mendo">0</div>
-  <button class="btn plus" onclick="mas('mendo',60)">+</button>
-</div>
-
-<div class="item">
-  <div>
-    <div class="name">Burguer</div>
-    <div class="desc">Carne, cebolla y cheddar</div>
-  </div>
-  <button class="btn minus" onclick="menos('burguer',60)">−</button>
-  <div class="qty" id="burguer">0</div>
-  <button class="btn plus" onclick="mas('burguer',60)">+</button>
-</div>
-
-</div>
-
-<!-- BEBIDAS -->
-<div class="card">
-<h2>🥤 Coca-Cola</h2>
-
-<div class="item"><div class="name">Mini</div>
-<button class="btn minus" onclick="menos('cocamini',40)">−</button>
-<div class="qty" id="cocamini">0</div>
-<button class="btn plus" onclick="mas('cocamini',40)">+</button></div>
-
-<div class="item"><div class="name">Lata</div>
-<button class="btn minus" onclick="menos('cocalata',60)">−</button>
-<div class="qty" id="cocalata">0</div>
-<button class="btn plus" onclick="mas('cocalata',60)">+</button></div>
-
-<div class="item"><div class="name">600 ml</div>
-<button class="btn minus" onclick="menos('coca600',80)">−</button>
-<div class="qty" id="coca600">0</div>
-<button class="btn plus" onclick="mas('coca600',80)">+</button></div>
-
-<div class="item"><div class="name">2 Litros</div>
-<button class="btn minus" onclick="menos('coca2l',120)">−</button>
-<div class="qty" id="coca2l">0</div>
-<button class="btn plus" onclick="mas('coca2l',120)">+</button></div>
-</div>
-
-<!-- CERVEZAS -->
-<div class="card">
-<h2>🍺 Cervezas</h2>
-
-<div class="item">
-  <div class="name">Pilsen Lata</div>
-  <button class="btn minus" onclick="menos('pilsenl',120)">−</button>
-  <div class="qty" id="pilsenl">0</div>
-  <button class="btn plus" onclick="mas('pilsenl',120)">+</button>
-</div>
-
-<div class="item">
-  <div class="name">Pilsen 2L</div>
-  <button class="btn minus" onclick="menos('pilsen2',180)">−</button>
-  <div class="qty" id="pilsen2">0</div>
-  <button class="btn plus" onclick="mas('pilsen2',180)">+</button>
-</div>
-
-<div class="item">
-  <div class="name">Patricia Lata</div>
-  <button class="btn minus" onclick="menos('patl',120)">−</button>
-  <div class="qty" id="patl">0</div>
-  <button class="btn plus" onclick="mas('patl',120)">+</button>
-</div>
-
-<div class="item">
-  <div class="name">Patricia 2L</div>
-  <button class="btn minus" onclick="menos('pat2',220)">−</button>
-  <div class="qty" id="pat2">0</div>
-  <button class="btn plus" onclick="mas('pat2',220)">+</button>
-</div>
-</div>
-
-<!-- ENTREGA -->
-<div class="card">
-<h2>🚚 Entrega</h2>
-<div class="option"><input type="radio" name="entrega" value="Mostrador" onchange="mostrarEntrega()"> Retiro en mostrador</div>
-<div class="option"><input type="radio" name="entrega" value="Delivery" onchange="mostrarEntrega()"> Delivery</div>
-
-<div id="nombreBox" class="hidden">
-<input placeholder="Nombre del cliente">
-</div>
-
-<div id="direccionBox" class="hidden">
-<textarea placeholder="Dirección para delivery"></textarea>
-</div>
-</div>
-
-<!-- PAGO -->
-<div class="card">
-<h2>💰 Pago</h2>
-<div class="option"><input type="radio" name="pago" value="Efectivo"> Efectivo</div>
-<div class="option"><input type="radio" name="pago" value="Transferencia"> Transferencia (enviar comprobante)</div>
-</div>
-
-<!-- CARRITO -->
-<div class="cart">
-<strong>Total: $<span id="total">0</span></strong><br>
+<div class="total">
+<h2>🛒 Resumen</h2>
+<div id="resumen"></div>
+<p><b>Total:</b> $<span id="total">0</span></p>
 <small>Envío no incluido</small>
-</div>
 
-<button class="gray" onclick="mostrarResumen()">🧾 Ver resumen</button>
-<button class="main" onclick="enviarPedido()">📲 Enviar pedido</button>
+<h3>Entrega</h3>
+<select id="entrega">
+<option value="Mostrador">Retiro en mostrador</option>
+<option value="Delivery">Delivery</option>
+</select>
 
-<div id="resumen" class="card hidden"></div>
+<input id="nombre" placeholder="Nombre">
+<input id="direccion" placeholder="Dirección (solo delivery)">
 
+<h3>Pago</h3>
+<select id="pago">
+<option>Efectivo</option>
+<option>Transferencia (enviar comprobante)</option>
+</select>
+
+<button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
 <script>
-let total=0;
-function mas(id,p){document.getElementById(id).innerText++;total+=p;actualizar();}
-function menos(id,p){
- let e=document.getElementById(id);
- if(e.innerText>0){e.innerText--;total-=p;actualizar();}
-}
-function actualizar(){document.getElementById("total").innerText=total;}
+const productos = [
+ {cat:"Empanadas",items:[
+  ["Carne","Criolla","carne y huevo"],
+  ["Carne","Mendocina","carne, huevo y aceituna"],
+  ["Carne","Mexicana","carne, huevo, aceituna y pimienta"],
+  ["Carne","Cordobesa","carne, huevo y pasas"],
+  ["Carne","Mixta","carne, huevo, choclo y calabresa"],
+  ["Carne","Gallega","carne, huevo y panceta"],
+  ["Carne","Burguer","carne, cebolla y cheddar"],
+  ["Pollo","Pollo clásico","pollo, salsa y huevo"],
+  ["Pollo","Pollo queso","pollo, queso y aceituna"],
+  ["Pollo","Pollo requesón","pollo y requesón"],
+  ["Pollo","Pollo mostaza","pollo a la mostaza"],
+  ["Verdura","Palmito","jamón y salsa golf"],
+  ["Verdura","Acelga","cebolla, morrón y huevo"],
+  ["Verdura","Humita","choclo, queso y salsa blanca"],
+  ["Verdura","Caprese","queso, tomate y albahaca"],
+  ["Mar","Atún","atún, huevo y salsa"],
+  ["Mozzarella","Pizza","mozzarella, salsa y orégano"],
+  ["Mozzarella","Napolitana","mozzarella, jamón y morrón"],
+  ["Queso","Jamón y queso","clásica"],
+  ["Queso","4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+  ["Dulce","Dulce de leche",""],
+  ["Dulce","Nutella",""]
+ ]},
+ {cat:"Bebidas",items:[
+  ["Coca-Cola","Mini","$40",40],
+  ["Coca-Cola","Lata","$60",60],
+  ["Coca-Cola","600ml","$80",80],
+  ["Coca-Cola","2lts","$120",120],
+  ["Fanta","Mini","$40",40],
+  ["Fanta","Lata","$60",60],
+  ["Fanta","600ml","$80",80],
+  ["Fanta","2lts","$120",120],
+  ["Sprite","Mini","$40",40],
+  ["Sprite","Lata","$60",60],
+  ["Sprite","600ml","$80",80],
+  ["Sprite","2lts","$120",120],
+  ["Jugo","Mango","$120",120],
+  ["Jugo","Frutilla","$120",120],
+  ["Jugo","Naranja","$120",120],
+  ["Jugo","Ananá","$120",120]
+ ]},
+ {cat:"Cervezas",items:[
+  ["Pilsen","Lata","$120",120],
+  ["Pilsen","2lts","$180",180],
+  ["Patricia","Lata","$120",120],
+  ["Patricia","2lts","$220",220],
+  ["Glacial","Lata","$110",110]
+ ]},
+ {cat:"Extras",items:[
+  ["Papas fritas","Porción","$120",120],
+  ["Aros de cebolla","10 unidades","$120",120],
+  ["Nuggets","10 unidades","$120",120]
+ ]}
+];
 
-function mostrarEntrega(){
- document.getElementById("nombreBox").classList.add("hidden");
- document.getElementById("direccionBox").classList.add("hidden");
- let v=document.querySelector("input[name='entrega']:checked").value;
- if(v==="Mostrador") document.getElementById("nombreBox").classList.remove("hidden");
- else document.getElementById("direccionBox").classList.remove("hidden");
-}
+let carrito={}, total=0;
 
-function horarioValido(){
- let d=new Date();
- if(d.getDay()==1) return false;
- let h=d.getHours()+d.getMinutes()/60;
- return h>=18.5 && h<=23;
-}
-
-function mostrarResumen(){
- let r="<h2>🧾 Resumen</h2>";
- document.querySelectorAll(".qty").forEach(q=>{
-  if(q.innerText>0){
-   r+=q.parentElement.querySelector(".name").innerText+" x"+q.innerText+"<br>";
-  }
+function render(){
+ let html="";
+ productos.forEach(sec=>{
+  html+=`<div class="card"><h2>${sec.cat}</h2>`;
+  sec.items.forEach(i=>{
+   let key=i.join("-");
+   carrito[key]=0;
+   let precio = i[3] || 60;
+   html+=`
+   <div class="item">
+    <div>
+     <div class="name">${i[0]} ${i[1]} $${precio}</div>
+     <div class="desc">${i[2]||""}</div>
+    </div>
+    <div class="controls">
+     <button onclick="chg('${key}',-1,${precio})">-</button>
+     <span id="${key}">0</span>
+     <button onclick="chg('${key}',1,${precio})">+</button>
+    </div>
+   </div>`;
+  });
+  html+="</div>";
  });
- r+="<br><strong>Total: $"+total+"</strong><br>";
- r+="<button onclick='window.print()'>🖨️ Imprimir</button>";
- document.getElementById("resumen").innerHTML=r;
- document.getElementById("resumen").classList.remove("hidden");
+ document.getElementById("menu").innerHTML=html;
 }
-
-function enviarPedido(){
- if(!horarioValido()){
-  document.getElementById("alerta").innerText="⛔ Fuera de horario. Pedidos de 18:30 a 23:00. Lunes cerrado.";
-  document.getElementById("alerta").classList.remove("hidden");
-  return;
+function chg(k,d,p){
+ carrito[k]+=d;
+ if(carrito[k]<0) carrito[k]=0;
+ document.getElementById(k).innerText=carrito[k];
+ total+=d*p;
+ if(total<0) total=0;
+ document.getElementById("total").innerText=total;
+ resumen();
+}
+function resumen(){
+ let r="";
+ for(let k in carrito){
+  if(carrito[k]>0) r+=`${k} x${carrito[k]}<br>`;
  }
+ document.getElementById("resumen").innerHTML=r;
+}
+function enviar(){
  let msg="Pedido:%0A";
- document.querySelectorAll(".qty").forEach(q=>{
-  if(q.innerText>0){
-   msg+=q.parentElement.querySelector(".name").innerText+" x"+q.innerText+"%0A";
-  }
- });
- msg+="%0ATotal: $"+total+" (envío no incluido)";
+ for(let k in carrito){
+  if(carrito[k]>0) msg+=`${k} x${carrito[k]}%0A`;
+ }
+ msg+=`%0ATotal: $${total}`;
+ msg+=`%0AEntrega: ${entrega.value}`;
+ msg+=`%0ANombre: ${nombre.value}`;
+ if(entrega.value=="Delivery") msg+=`%0ADirección: ${direccion.value}`;
+ msg+=`%0APago: ${pago.value}`;
  window.open("https://wa.me/598XXXXXXXX?text="+msg,"_blank");
 }
+render();
 </script>
 
 </body>
