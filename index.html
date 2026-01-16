@@ -126,13 +126,21 @@ button.send{
  cursor:pointer;
 }
 small{color:#777}
+.letrero{
+ background:#fff3cd;
+ color:#856404;
+ padding:8px;
+ border-radius:6px;
+ font-size:14px;
+ margin-top:6px;
+}
 </style>
 </head>
 
 <body>
 
 <h1>👑 El Rey de las Empanadas</h1>
-<h2>Horario: 17 a 23 hs | Lunes cerrado | Delivery desde las 18:30 hs</h2>
+<h2>Horario: 17 a 23 | Lunes cerrado | Delivery: 18:30 a 23:00</h2>
 
 <div id="menu"></div>
 
@@ -145,13 +153,13 @@ small{color:#777}
 
 <div class="section-title">🚚 Forma de entrega</div>
 <div class="selector">
-<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
+<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Mostrador</button>
 <button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
 </div>
 
 <input id="nombre" placeholder="Nombre">
 <input id="direccion" placeholder="Dirección" style="display:none">
-<textarea id="observaciones" placeholder="Observaciones (para el delivery)" style="display:none"></textarea>
+<textarea id="observaciones" placeholder="Observaciones para delivery" style="display:none"></textarea>
 
 <div class="section-title">💳 Forma de pago</div>
 <div class="selector">
@@ -293,7 +301,6 @@ function render(){
 function chg(n,d,p){
  carrito[n]+=d;
  if(carrito[n]<0) carrito[n]=0;
- document.getElementById(n).innerText=carrito[n];
  calcularTotal();
  resumen();
 }
@@ -322,7 +329,7 @@ function setPago(p){
  if(p=="Efectivo"){
    caja.innerHTML=`<input placeholder="¿Necesita cambio?" id="cambio">`;
  } else {
-   caja.innerHTML=`<small>En WhatsApp se mostrará el enlace para realizar la transferencia y deberá enviar comprobante.</small>`;
+   caja.innerHTML=`<div class="letrero">En WhatsApp se mostrará el enlace para realizar la transferencia y deberá enviar comprobante.</div>`;
  }
 }
 
@@ -346,8 +353,7 @@ function enviar(){
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
  msg+=`%0A🚚 Entrega: ${entrega}`+(entrega==="Delivery"?" (Delivery inicia a las 18:30)":"");
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
- if(entrega==="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
- if(observaciones.value) msg+=`%0A📝 Observaciones: ${observaciones.value}`;
+ if(entrega==="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}%0A📝 Observaciones: ${observaciones.value||"Ninguna"}`;
  msg+=`%0A💳 Pago: ${pago}`;
  if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (enviar comprobante)`;
  if(pago==="Efectivo") msg+=`%0A💵 Cambio: ${cambio.value||"No indicado"}`;
