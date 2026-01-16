@@ -6,231 +6,398 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:10px;}
-h1{text-align:center;color:#b30000;margin-bottom:5px;}
-h2{text-align:center;color:#333;font-weight:normal;font-size:14px;margin-top:0;margin-bottom:10px;}
-.section-title{background:#b30000;color:white;padding:8px 12px;border-radius:8px;margin-bottom:10px;font-size:18px;}
-.sub-title{font-weight:bold;color:#b30000;margin:12px 0 6px;font-size:15px;border-bottom:1px solid #eee;}
-.card{background:white;padding:15px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
-.item, .bebida-option{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed #eee;flex-wrap:wrap;}
-.item:last-child, .bebida-option:last-child{border-bottom:none;}
-.item > div:first-child, .bebida-option > div:first-child{flex:1 1 70%;min-width:0;}
-.name{font-weight:bold;font-size:15px;}
-.desc{font-size:12px;color:#777;margin-top:2px;}
-.controls{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.controls button.plus{width:30px;height:30px;background:#25D366;color:white;border:none;border-radius:6px;font-size:18px;cursor:pointer;}
-.controls button.minus{width:30px;height:30px;background:#b30000;color:white;border:none;border-radius:6px;font-size:18px;cursor:pointer;}
-.controls span{margin:0 6px;font-size:16px;}
-.selector{display:flex;gap:10px;margin:10px 0;}
-.selector button{flex:1;padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;background:#eee;color:#000;cursor:pointer;}
-.selector button.active{background:#b30000;color:white;}
-input,textarea,select{width:100%;padding:8px;margin:6px 0;font-size:16px;border-radius:6px;border:1px solid #ccc;}
-.total{background:white;padding:15px;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.15);}
-button.send{width:100%;padding:15px;background:#25D366;color:white;font-size:20px;border:none;border-radius:12px;margin-top:10px;cursor:pointer;}
-small{color:#777;}
-.notice{background:#fff3cd;border:1px solid #ffeeba;padding:8px;border-radius:6px;color:#856404;margin:6px 0;font-size:13px;}
+body{
+ font-family:Arial,sans-serif;
+ background:#f4f4f4;
+ margin:0;
+ padding:10px;
+}
+h1{
+ text-align:center;
+ color:#b30000;
+ margin-bottom:5px;
+}
+h2{
+ text-align:center;
+ font-size:14px;
+ color:#555;
+ margin-bottom:10px;
+}
+.section-title{
+ background:#b30000;
+ color:white;
+ padding:8px 12px;
+ border-radius:8px;
+ margin-bottom:10px;
+ font-size:18px;
+}
+.sub-title{
+ font-weight:bold;
+ color:#b30000;
+ margin:12px 0 6px;
+ font-size:15px;
+ border-bottom:1px solid #eee;
+}
+.card{
+ background:white;
+ padding:15px;
+ border-radius:12px;
+ margin-bottom:20px;
+ box-shadow:0 2px 6px rgba(0,0,0,.1);
+}
+.item{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:8px 0;
+ border-bottom:1px dashed #eee;
+}
+.item:last-child{border-bottom:none}
+.name{
+ font-weight:bold;
+ font-size:15px;
+}
+.desc{
+ font-size:12px;
+ color:#777;
+ margin-top:2px;
+}
+.controls button{
+ width:30px;
+ height:30px;
+ border:none;
+ border-radius:6px;
+ font-size:18px;
+ cursor:pointer;
+}
+.controls button.plus{
+ background:green;
+ color:white;
+}
+.controls button.minus{
+ background:red;
+ color:white;
+}
+.controls span{
+ margin:0 6px;
+ font-size:16px;
+}
+.selector{
+ display:flex;
+ gap:10px;
+ margin:10px 0;
+}
+.selector button{
+ flex:1;
+ padding:10px;
+ font-size:16px;
+ border-radius:8px;
+ border:1px solid #ccc;
+ background:#eee;
+ cursor:pointer;
+}
+.selector button.active{
+ background:#b30000;
+ color:white;
+}
+input,textarea{
+ width:100%;
+ padding:8px;
+ margin:6px 0;
+ font-size:16px;
+ border-radius:6px;
+ border:1px solid #ccc;
+}
+.total{
+ background:white;
+ padding:15px;
+ border-radius:12px;
+ box-shadow:0 3px 8px rgba(0,0,0,.15);
+}
+button.send{
+ width:100%;
+ padding:15px;
+ background:#25D366;
+ color:white;
+ font-size:20px;
+ border:none;
+ border-radius:12px;
+ margin-top:10px;
+ cursor:pointer;
+}
+small{color:#777}
 </style>
 </head>
 
 <body>
 
 <h1>👑 El Rey de las Empanadas</h1>
-<h2>Pedidos: 17:00 a 23:00 | Lunes cerrado | Delivery: 18:30 a 23:00</h2>
+<h2>Horario: 17 a 23 hs | Lunes cerrado | Delivery desde las 18:30 hs</h2>
 
 <div id="menu"></div>
 
 <div class="total">
-  <div class="section-title">🛒 Resumen del pedido</div>
-  <div id="resumen"><small>No hay productos seleccionados</small></div>
+<div class="section-title">🛒 Resumen del pedido</div>
+<div id="resumen"><small>No hay productos seleccionados</small></div>
 
-  <p><b>Subtotal:</b> $<span id="subtotal">0</span></p>
-  <p><b>Envío:</b> $<span id="envio">0</span></p>
-  <p><b>Total:</b> $<span id="total">0</span></p>
+<p><b>Total:</b> $<span id="total">0</span></p>
+<p id="envioText"><small>Envío no incluido</small></p>
 
-  <div class="section-title">🚚 Forma de entrega</div>
-  <div class="selector">
-    <button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
-    <button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
-  </div>
+<div class="section-title">🚚 Forma de entrega</div>
+<div class="selector">
+<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
+<button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
+</div>
 
-  <input id="nombre" placeholder="Nombre">
-  <input id="direccion" placeholder="Dirección">
+<input id="nombre" placeholder="Nombre">
+<textarea id="direccion" placeholder="Dirección para Delivery" style="display:none"></textarea>
+<textarea id="obs" placeholder="Observaciones sobre la dirección" style="display:none"></textarea>
 
-  <textarea id="observaciones" placeholder="Observaciones para el delivery" style="display:none"></textarea>
+<div class="section-title">💳 Forma de pago</div>
+<div class="selector">
+<button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
+<button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
+</div>
 
-  <div class="section-title">💳 Forma de pago</div>
-  <div class="selector">
-    <button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
-    <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
-  </div>
+<div id="cajaPago"></div>
 
-  <input id="cambio" placeholder="¿Necesita cambio? Indique monto" style="display:block">
-
-  <div id="transferNotice" class="notice" style="display:none">
-    El enlace de transferencia se mostrará en WhatsApp y deberá enviar comprobante.
-  </div>
-
-  <button class="send" onclick="enviar()">📲 Enviar pedido</button>
+<button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
 <script>
-// Barrios de Rivera URU
-const barriosRivera = [
-  "Centro","Cerro Marconi","Misiones-Siñeriz","Cerro Caqueiro","Magisterial","Ceballos",
-  "Los Pirineos","Pueblo Nuevo","Rampla","Legislativo","Don Bosco","Insausti","Bella Vista",
-  "Bisio","La Racca","La Pedrera","Parque de la Pedrera","La Virgencita","Mandubí","Santa Teresa",
-  "Santa Isabel","Carmelo Sosa","Juan A. Lavalleja","Máximo Xavier","Cerro del Marco","Saavedra",
-  "Rivera Chico Norte","Rivera Chico Sur","Ansina","Cuartel","Quintas al Norte","Lagunón",
-  "Paso de la Estiba","Recreo-Zavaleta"
+let entrega="Mostrador";
+let pago="Efectivo";
+let carrito={}, total=0;
+let envio=0;
+
+const productos=[
+{
+ cat:"🥟 Empanadas",
+ precio:60,
+ items:[
+  ["CARNE",""],
+  ["Empanada Criolla","carne y huevo"],
+  ["Empanada Mendocina","carne, huevo y aceituna"],
+  ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
+  ["Empanada Cordobesa","carne, huevo y pasas de uva"],
+  ["Empanada Mixta","carne, huevo, choclo y calabresa"],
+  ["Empanada Gallega","carne, huevo y panceta"],
+  ["Empanada Burguer","carne, cebolla y cheddar"],
+
+  ["POLLO",""],
+  ["Empanada Pollo clásico","pollo, salsa y huevo"],
+  ["Empanada Pollo queso","pollo, queso y aceituna"],
+  ["Empanada Pollo requesón","pollo y requesón"],
+  ["Empanada Pollo mostaza","pollo a la mostaza"],
+
+  ["VERDURA",""],
+  ["Empanada Palmito","jamón y salsa golf"],
+  ["Empanada Acelga","cebolla, morrón y huevo"],
+  ["Empanada Humita","choclo, queso y salsa blanca"],
+  ["Empanada Choclo y jamón",""],
+  ["Empanada Caprese","queso, tomate y albahaca"],
+
+  ["MAR",""],
+  ["Empanada Atún","atún, huevo y salsa"],
+
+  ["MOZZARELLA",""],
+  ["Empanada Pizza","mozzarella, salsa y orégano"],
+  ["Empanada Alemana","mozzarella y frankfurter"],
+  ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
+  ["Empanada Caribeña","mozzarella, salame y aceituna"],
+  ["Empanada Mozzarella y panceta",""],
+  ["Empanada Mozzarella, cebolla y calabresa",""],
+
+  ["QUESO",""],
+  ["Empanada Jamón y queso",""],
+  ["Empanada Queso, calabresa y salsa",""],
+  ["Empanada Queso y cebolla",""],
+  ["Empanada Queso y aceituna",""],
+  ["Empanada Libanesa","queso, cebolla, ajo y perejil"],
+  ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
+  ["Empanada Tropical","queso, jamón y ananá"],
+  ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+
+  ["DULCES",""],
+  ["Empanada Dulce de leche",""],
+  ["Empanada Membrillo",""],
+  ["Empanada Crema pastelera",""],
+  ["Empanada Mulata","dulce de leche y chocolate"],
+  ["Empanada Gringa","dulce de leche y chocolate blanco"],
+  ["Empanada Nutella",""]
+ ]
+},
+{
+ cat:"🍟 Otros productos",
+ items:[
+  ["Papas fritas (porción)","120"],
+  ["Aros de cebolla (10 u.)","120"],
+  ["Nuggets (10 u.)","120"]
+ ]
+},
+{
+ cat:"🥤 Bebidas",
+ items:[
+  ["Coca-Cola Mini","40"],
+  ["Coca-Cola Lata","60"],
+  ["Coca-Cola 600 ml","80"],
+  ["Coca-Cola 2 litros","120"],
+  ["Fanta Mini","40"],
+  ["Fanta Lata","60"],
+  ["Fanta 600 ml","80"],
+  ["Fanta 2 litros","120"],
+  ["Sprite Mini","40"],
+  ["Sprite Lata","60"],
+  ["Sprite 600 ml","80"],
+  ["Sprite 2 litros","120"],
+  ["Jugos Mango","120"],
+  ["Jugos Frutilla","120"],
+  ["Jugos Naranja","120"],
+  ["Jugos Ananá","120"]
+ ]
+},
+{
+ cat:"🍺 Cervezas",
+ items:[
+  ["Pilsen Lata","120"],
+  ["Pilsen 2 litros","180"],
+  ["Patricia Lata","120"],
+  ["Patricia 2 litros","220"],
+  ["Glacial Lata","110"]
+ ]
+}
 ];
 
-// Definir tramos de distancia aproximada y valores
-const envioTramos = [
-  {barrios:["Centro"], valor:50},
-  {barrios:["Cerro Marconi","Ceballos","Pueblo Nuevo","Mandubí","Santa Teresa","Bella Vista"], valor:60},
-  {barrios:["Los Pirineos","Rampla","Santa Isabel","Juan A. Lavalleja","Máximo Xavier","Saavedra","Parque de la Pedrera","La Virgencita","Ansina","Cuartel"], valor:70},
-  {barrios:["Bisio","La Pedrera","La Racca","Paso de la Estiba","Recreo-Zavaleta","Quintas al Norte","Cerro Caqueiro"], valor:80},
-  {barrios:["Lagunón","Rivera Chico Norte","Rivera Chico Sur"], valor:120}
+// Lista de barrios y costos de envío
+const envioRivera = [
+ {barrios:["Centro"], valor:50},
+ {barrios:["Cerro Marconi","Ceballos","Pueblo Nuevo","Siñeriz"], valor:60},
+ {barrios:["Los Pirineos","Rampla","Santa Isabel"], valor:70},
+ {barrios:["Bisio","La Pedrera","La Racca"], valor:80},
+ {barrios:["Lagunón","Rivera Chico Norte","Rivera Chico Sur"], valor:120}
 ];
 
-// Calcula envío por texto de dirección
-function calcularEnvio(dir) {
-  let d = dir.toLowerCase();
-  for (let tramo of envioTramos) {
-    for (let b of tramo.barrios) {
-      if (d.includes(b.toLowerCase())) return tramo.valor;
-    }
-  }
-  if (d.includes("livramento") || d.includes("santana")) return -1; // confirmar envío
-  return 60; // default normal
+function calcularEnvio(direccion){
+ if(!direccion) return 0;
+ let dirLower = direccion.toLowerCase();
+ for(let zona of envioRivera){
+   for(let barrio of zona.barrios){
+     if(dirLower.includes(barrio.toLowerCase())) return zona.valor;
+   }
+ }
+ return 0; // si no coincide, se puede pedir confirmación
 }
 
-// Variables
-let entrega="Mostrador", pago="Efectivo";
-let carrito={}, subtotal=0;
-
-// Función para renderizar productos
 function render(){
-  let html="";
-  const productos=[
-    {cat:"🥟 EMPANADAS", precio:60, items:[
-      ["CARNE","Empanada Criolla: carne y huevo"],["Empanada Mendocina","carne, huevo y aceituna"],
-      ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],["Empanada Cordobesa","carne, huevo y pasas de uva"],
-      ["Empanada Mixta","carne, huevo, choclo y calabresa"],["Empanada Gallega","carne, huevo y panceta"],
-      ["Empanada Burguer","carne, cebolla y cheddar"],
-      ["POLLO","Empanada Pollo clásico: pollo, salsa y huevo"],["Empanada Pollo queso","pollo, queso y aceituna"],
-      ["Empanada Pollo requesón","pollo y requesón"],["Empanada Pollo mostaza","pollo a la mostaza"],
-      ["VERDURA","Empanada Palmito: jamón y salsa golf"],["Empanada Acelga","cebolla, morrón y huevo"],
-      ["Empanada Humita","choclo, queso y salsa blanca"],["Empanada Choclo y jamón",""],
-      ["Empanada Caprese","queso, tomate y albahaca"],
-      ["MAR","Empanada Atún: atún, huevo y salsa"],
-      ["MOZZARELLA","Empanada Pizza: mozzarella, salsa y orégano"],["Empanada Alemana","mozzarella y frankfurter"],
-      ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],["Empanada Caribeña","mozzarella, salame y aceituna"],
-      ["Empanada Mozzarella y panceta",""],["Empanada Mozzarella, cebolla y calabresa",""],
-      ["QUESO","Empanada Jamón y queso","Empanada Queso, calabresa y salsa","Empanada Queso y cebolla","Empanada Queso y aceituna"],
-      ["Empanada Libanesa","queso, cebolla, ajo y perejil"],["Empanada Toscana","queso, panceta, cebolla y aceituna"],
-      ["Empanada Tropical","queso, jamón y ananá"],["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
-      ["DULCES","Empanada Dulce de leche","Empanada Membrillo","Empanada Crema pastelera","Empanada Mulata: dulce de leche y chocolate",
-      "Empanada Gringa: dulce de leche y chocolate blanco","Empanada Nutella"]
-    ]},
-    {cat:"🍟 OTROS PRODUCTOS", precio:0, items:[
-      ["Papas fritas (porción)","120"],["Aros de cebolla (10 u.)","120"],["Nuggets (10 u.)","120"]
-    ]},
-    {cat:"🥤 BEBIDAS", precio:0, items:[
-      ["Coca-Cola Mini","40"],["Coca-Cola Lata","60"],["Coca-Cola 600 ml","80"],["Coca-Cola 2 L","120"],
-      ["Fanta Mini","40"],["Fanta Lata","60"],["Fanta 600 ml","80"],["Fanta 2 L","120"],
-      ["Sprite Mini","40"],["Sprite Lata","60"],["Sprite 600 ml","80"],["Sprite 2 L","120"],
-      ["Jugos Mango","120"],["Jugos Frutilla","120"],["Jugos Naranja","120"],["Jugos Ananá","120"]
-    ]},
-    {cat:"🍺 CERVEZAS", precio:0, items:[
-      ["Pilsen Lata","120"],["Pilsen 2 L","180"],["Patricia Lata","120"],["Patricia 2 L","220"],["Glacial Lata","110"]
-    ]}
-  ];
-
-  productos.forEach(sec=>{
-    html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
-    sec.items.forEach(i=>{
-      let nombre=i[0], precio=sec.precio || parseInt(i[1])||0;
-      carrito[nombre]=0;
-      html+=`
-      <div class="item">
-       <div>
-         <div class="name">${nombre}</div>
-         <div class="desc">${i[1]?i[1]:precio>0?"$"+precio:""}</div>
-       </div>
-       <div class="controls">
-         <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
-         <span id="${nombre}">0</span>
-         <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
-       </div>
-      </div>`;
-    });
-    html+="</div>";
+ let html="";
+ productos.forEach(sec=>{
+  html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
+  sec.items.forEach(i=>{
+   if(i[1]==="" && i[0]===i[0].toUpperCase()){
+    html+=`<div class="sub-title">${i[0]}</div>`;
+    return;
+   }
+   let nombre=i[0], precio=i[1] || 60;
+   carrito[nombre]=0;
+   html+=`
+   <div class="item">
+    <div>
+     <div class="name">${nombre}</div>
+     <div class="desc">${i[1] && i[1]!==60 ? i[1] : ""}</div>
+    </div>
+    <div class="controls">
+     <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
+     <span id="${nombre}">0</span>
+     <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
+    </div>
+   </div>`;
   });
-  document.getElementById("menu").innerHTML=html;
+  html+="</div>";
+ });
+ document.getElementById("menu").innerHTML=html;
 }
 
 function chg(n,d,p){
-  carrito[n]+=d; if(carrito[n]<0) carrito[n]=0;
-  document.getElementById(n).innerText=carrito[n];
-  subtotal+=d*p; if(subtotal<0) subtotal=0;
-  document.getElementById("subtotal").innerText=subtotal;
-  actualizarEnvio();
-  resumen();
-}
-
-function actualizarEnvio(){
-  let dirTxt = document.getElementById("direccion").value;
-  let costo = (entrega==="Delivery")? calcularEnvio(dirTxt):0;
-  if(costo<0){
-    document.getElementById("envio").innerText = "Confirmar";
-    document.getElementById("total").innerText = "—";
-  } else {
-    document.getElementById("envio").innerText = costo;
-    document.getElementById("total").innerText = subtotal + costo;
-  }
+ carrito[n]+=d;
+ if(carrito[n]<0) carrito[n]=0;
+ calcularTotal();
+ document.getElementById(n).innerText=carrito[n];
+ resumen();
 }
 
 function resumen(){
-  let r=""; for(let k in carrito){ if(carrito[k]>0) r+=`${carrito[k]} x ${k}<br>`; }
-  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+ let r="";
+ for(let k in carrito){
+  if(carrito[k]>0) r+=`${carrito[k]} x ${k}<br>`;
+ }
+ document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
 function setEntrega(t){
-  entrega=t;
-  document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
-  document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
-  document.getElementById("observaciones").style.display = t==="Delivery"?"block":"none";
-  actualizarEnvio();
+ entrega=t;
+ document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
+ document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
+ document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
+ document.getElementById("obs").style.display=t=="Delivery"?"block":"none";
+ calcularTotal();
 }
 
 function setPago(p){
-  pago=p;
-  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
-  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
-  document.getElementById("cambio").style.display = p==="Efectivo"?"block":"none";
-  document.getElementById("transferNotice").style.display = p==="Transferencia"?"block":"none";
+ pago=p;
+ document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
+ document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
+ const caja=document.getElementById("cajaPago");
+ if(p=="Efectivo"){
+   caja.innerHTML=`<input placeholder="¿Necesita cambio?" id="cambio">`;
+ } else {
+   caja.innerHTML=`<small>En WhatsApp se mostrará el enlace para realizar la transferencia y deberá enviar comprobante.</small>`;
+ }
+}
+
+function calcularTotal(){
+ total=0;
+ for(let k in carrito){
+   total+=carrito[k]*((productos.find(sec=>sec.items.some(x=>x[0]===k))?.items.find(x=>x[0]===k)[1] || 60));
+ }
+ // envío si delivery
+ if(entrega==="Delivery"){
+   let dir=document.getElementById("direccion").value;
+   envio=calcularEnvio(dir);
+   if(envio>0){
+     document.getElementById("envioText").innerText="Envío: $"+envio;
+     total+=envio;
+   } else {
+     document.getElementById("envioText").innerText="Envío: confirmar dirección";
+   }
+ } else {
+   envio=0;
+   document.getElementById("envioText").innerText="Envío no incluido";
+ }
+ document.getElementById("total").innerText=total;
 }
 
 function enviar(){
-  let dirTxt = document.getElementById("direccion").value;
-  let costo = calcularEnvio(dirTxt);
-  if(Object.values(carrito).reduce((a,b)=>a+b,0)===0){alert("Seleccionar productos para enviar pedido.");return;}
-  const now=new Date(); if(now.getDay()===1){alert("Los lunes estamos cerrados.");return;}
-  if(now.getHours()<17||now.getHours()>23){alert("Los pedidos se reciben de 17:00 a 23:00.");return;}
-  if(entrega==="Delivery" && costo<0){alert("Dirección fuera de Rivera. Confirmar envío antes.");return;}
-
-  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
-  for(let k in carrito){ if(carrito[k]>0) msg+=`• ${carrito[k]} x ${k}%0A`; }
-  msg+=`%0A💰 Subtotal: $${subtotal}`;
-  if(entrega==="Delivery") msg+=`%0A🚚 Envío: $${costo}`;
-  msg+=`%0A💵 Total: $${subtotal+(costo>0?costo:0)}`;
-  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
-  if(entrega==="Delivery") msg+=`%0A📍 Dirección: ${direccion.value}`;
-  if(document.getElementById("observaciones").value) msg+= `%0A📝 Obs: ${document.getElementById("observaciones").value}`;
-  msg+=`%0A💳 Pago: ${pago}`;
-  if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
-  window.open("https://wa.me/59892663559?text="+msg,"_blank");
+ // Validaciones
+ if(Object.values(carrito).every(x=>x===0)){
+   alert("Debe seleccionar productos");
+   return;
+ }
+ if(entrega==="Delivery" && !document.getElementById("direccion").value){
+   alert("Debe ingresar la dirección para Delivery");
+   return;
+ }
+ let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
+ for(let k in carrito){
+  if(carrito[k]>0) msg+=`${carrito[k]} x ${k}%0A`;
+ }
+ msg+=`%0A💰 Total: $${total}`;
+ msg+=`%0A🚚 Entrega: ${entrega}`+(entrega==="Delivery"?" (El delivery inicia a partir de 18:30)":"");
+ msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
+ if(entrega==="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`+(obs.value?" - Obs: "+obs.value:"");
+ msg+=`%0A💳 Pago: ${pago}`;
+ if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (enviar comprobante)`;
+ if(pago==="Efectivo") msg+=`%0A💵 Cambio: ${cambio.value||"No indicado"}`;
+ window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
 render();
