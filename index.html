@@ -56,7 +56,9 @@ h1{
  color:#777;
  margin-top:2px;
 }
-.controls button{
+
+/* Botones de cantidad */
+.controls button.plus{
  width:30px;
  height:30px;
  background:#25D366; /* verde */
@@ -66,10 +68,23 @@ h1{
  font-size:18px;
  cursor: pointer;
 }
+.controls button.minus{
+ width:30px;
+ height:30px;
+ background:#b30000; /* rojo */
+ color:white;
+ border:none;
+ border-radius:6px;
+ font-size:18px;
+ cursor: pointer;
+}
+
 .controls span{
  margin:0 6px;
  font-size:16px;
 }
+
+/* Botones de selector de entrega y pago */
 .selector{
  display:flex;
  gap:10px;
@@ -89,6 +104,7 @@ h1{
  background:#b30000;
  color:white;
 }
+
 input,select{
  width:100%;
  padding:8px;
@@ -253,9 +269,9 @@ function render(){
      <div class="desc">${i[1]}</div>
     </div>
     <div class="controls">
-     <button onclick="chg('${nombre}',-1,${precio})">−</button>
+     <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
      <span id="${nombre}">0</span>
-     <button onclick="chg('${nombre}',1,${precio})">+</button>
+     <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
     </div>
    </div>`;
   });
