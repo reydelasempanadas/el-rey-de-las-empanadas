@@ -1,168 +1,260 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tu Página</title>
-  <style>
-    /* Conservando tu formato original */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #ffffff; /* según tu estilo anterior */
-      margin: 0;
-      padding: 0;
-    }
+<meta charset="UTF-8">
+<title>El Rey de las Empanadas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    header {
-      /* Formato original de tu menú */
-      background-color: #333; /* ejemplo, pon tu color original */
-      color: #fff;
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    header .logo {
-      font-size: 20px; /* tamaño de tu logo/texto original */
-      font-weight: bold;
-    }
-
-    nav a {
-      color: #fff;
-      margin-left: 20px;
-      text-decoration: none;
-    }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    main {
-      padding: 20px; /* el padding que tenías */
-    }
-
-    h2 {
-      margin-bottom: 10px;
-    }
-
-    .option-group {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .option {
-      padding: 12px 20px;
-      border: 2px solid #ccc;
-      border-radius: 6px;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.2s, border-color 0.2s;
-      background-color: #eee;
-      text-align: center;
-      flex: 1;
-    }
-
-    .option.active {
-      background-color: #007bff; /* color activo */
-      color: white;
-      border-color: #0056b3;
-    }
-
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      background-color: #28a745; /* tu color original de botón */
-      color: white;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    button:hover {
-      background-color: #218838;
-    }
-
-    .summary {
-      margin-top: 20px;
-      padding: 15px;
-      background-color: #fff;
-      border-radius: 6px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-  </style>
+<style>
+body{
+ font-family:Arial,sans-serif;
+ background:#f4f4f4;
+ margin:0;
+ padding:10px;
+}
+h1{
+ text-align:center;
+ color:#b30000;
+}
+.section-title{
+ background:#b30000;
+ color:white;
+ padding:8px 12px;
+ border-radius:8px;
+ margin:15px 0 10px;
+ font-size:18px;
+}
+.sub-title{
+ font-weight:bold;
+ color:#b30000;
+ margin:12px 0 6px;
+ font-size:15px;
+ border-bottom:1px solid #eee;
+}
+.card{
+ background:white;
+ padding:15px;
+ border-radius:12px;
+ margin-bottom:20px;
+ box-shadow:0 2px 6px rgba(0,0,0,.1);
+}
+.item{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:8px 0;
+ border-bottom:1px dashed #eee;
+}
+.item:last-child{border-bottom:none}
+.name{font-weight:bold}
+.desc{font-size:12px;color:#777}
+.controls button{
+ width:30px;height:30px;color:white;
+ border:none;border-radius:6px;font-size:18px;
+}
+.controls button:first-child{background:#b30000}
+.controls button:last-child{background:#2e7d32}
+.selector{
+ display:flex;gap:10px;margin:10px 0;
+}
+.selector button{
+ flex:1;padding:10px;font-size:16px;
+ border-radius:8px;border:1px solid #ccc;
+ background:#eee;
+}
+.selector button.active{
+ background:#b30000;color:white;
+}
+input{
+ width:100%;padding:8px;margin:6px 0;
+ font-size:16px;border-radius:6px;border:1px solid #ccc;
+}
+.total{
+ background:white;padding:15px;border-radius:12px;
+ box-shadow:0 3px 8px rgba(0,0,0,.15);
+}
+button.send{
+ width:100%;padding:15px;background:#25D366;
+ color:white;font-size:20px;border:none;
+ border-radius:12px;margin-top:10px;
+}
+small{color:#777}
+</style>
 </head>
+
 <body>
 
-  <!-- Menú conservando tu formato -->
-  <header>
-    <div class="logo">Tu Logo</div>
-    <nav>
-      <a href="#">Sección1</a>
-      <a href="#">Sección2</a>
-      <a href="#">Sección3</a>
-    </nav>
-  </header>
+<h1>👑 El Rey de las Empanadas</h1>
+<div id="menu"></div>
 
-  <main>
-    <!-- Selección de entrega -->
-    <h2>Método de entrega</h2>
-    <div class="option-group" id="deliveryOptions">
-      <div class="option" data-value="Delivery">Delivery</div>
-      <div class="option" data-value="Mostrador">Mostrador</div>
+<div class="total">
+<div class="section-title">🛒 Resumen del pedido</div>
+<div id="resumen"><small>No hay productos seleccionados</small></div>
+<p><b>Total:</b> $<span id="total">0</span></p>
+<small>Envío no incluido</small>
+
+<div class="section-title">🚚 Entrega</div>
+<div class="selector">
+<button id="m" class="active" onclick="setEntrega('Mostrador')">Mostrador</button>
+<button id="d" onclick="setEntrega('Delivery')">Delivery</button>
+</div>
+
+<input id="nombre" placeholder="Nombre">
+<input id="direccion" placeholder="Dirección" style="display:none">
+
+<div class="section-title">💳 Pago</div>
+<div class="selector">
+<button id="e" class="active" onclick="setPago('Efectivo')">Efectivo</button>
+<button id="t" onclick="setPago('Transferencia')">Transferencia</button>
+</div>
+
+<button class="send" onclick="enviar()">📲 Enviar pedido</button>
+</div>
+
+<script>
+let entrega="Mostrador", pago="Efectivo", carrito={}, total=0;
+
+const productos=[
+{cat:"EMPANADAS – $60 c/u",precio:60,items:[
+["CARNE",""],
+["Criolla","carne y huevo"],["Mendocina","carne, huevo y aceituna"],
+["Mexicana","carne, huevo, aceituna y pimienta"],
+["Cordobesa","carne, huevo y pasas"],
+["Mixta","carne, huevo, choclo y calabresa"],
+["Gallega","carne, huevo y panceta"],
+["Burguer","carne, cebolla y cheddar"],
+["POLLO",""],
+["Pollo clásico","pollo, salsa y huevo"],
+["Pollo queso","pollo, queso y aceituna"],
+["Pollo requesón","pollo y requesón"],
+["Pollo mostaza","pollo a la mostaza"],
+["VERDURA",""],
+["Palmito","jamón y salsa golf"],
+["Acelga","cebolla, morrón y huevo"],
+["Humita","choclo, queso y salsa blanca"],
+["Choclo y jamón",""],
+["Caprese","queso, tomate y albahaca"],
+["MAR",""],
+["Atún","atún, huevo y salsa"],
+["MOZZARELLA",""],
+["Pizza","mozzarella, salsa y orégano"],
+["Alemana","mozzarella y frankfurter"],
+["Napolitana","mozzarella, jamón, morrón y longaniza"],
+["Caribeña","mozzarella, salame y aceituna"],
+["Mozzarella y panceta",""],
+["Mozzarella cebolla y calabresa",""],
+["QUESO",""],
+["Jamón y queso",""],
+["Queso y cebolla",""],
+["Queso y aceituna",""],
+["Libanesa","queso, cebolla, ajo y perejil"],
+["Toscana","queso, panceta, cebolla y aceituna"],
+["Tropical","queso, jamón y ananá"],
+["4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+["DULCES",""],
+["Dulce de leche",""],["Membrillo",""],
+["Crema pastelera",""],
+["Mulata","dulce de leche y chocolate"],
+["Gringa","dulce de leche y chocolate blanco"],
+["Nutella",""]
+]},
+{cat:"EXTRAS",precio:120,items:[
+["Papas fritas","porción"],
+["Aros de cebolla","10 unidades"],
+["Nuggets","10 unidades"]
+]},
+{cat:"JUGOS NATURALES – $120",precio:120,items:[
+["Jugo de mango",""],
+["Jugo de frutilla",""],
+["Jugo de naranja",""],
+["Jugo de ananá",""]
+]},
+{cat:"BEBIDAS",precio:0,items:[
+["Coca-Cola mini","40"],
+["Coca-Cola lata","60"],
+["Coca-Cola 600ml","80"],
+["Coca-Cola 2L","120"],
+["Fanta mini","40"],
+["Fanta lata","60"],
+["Fanta 600ml","80"],
+["Fanta 2L","120"],
+["Sprite mini","40"],
+["Sprite lata","60"],
+["Sprite 600ml","80"],
+["Sprite 2L","120"]
+]},
+{cat:"CERVEZAS",precio:0,items:[
+["Pilsen lata","120"],
+["Pilsen 2L","200"],
+["Patricia lata","150"],
+["Patricia 2L","250"],
+["Glacial lata","120"]
+]}
+];
+
+function render(){
+ let html="";
+ productos.forEach(sec=>{
+  html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
+  sec.items.forEach(i=>{
+   if(i[1]==="" && i[0]==i[0].toUpperCase()){
+    html+=`<div class="sub-title">${i[0]}</div>`;return;
+   }
+   let precio=sec.precio||parseInt(i[1]);
+   let nombre=i[0];
+   carrito[nombre]=0;
+   html+=`
+   <div class="item">
+    <div>
+     <div class="name">${nombre}</div>
+     <div class="desc">${i[1]&&!isNaN(i[1])?"$"+i[1]:i[1]}</div>
     </div>
-
-    <!-- Selección de pago -->
-    <h2>Método de pago</h2>
-    <div class="option-group" id="paymentOptions">
-      <div class="option" data-value="Efectivo">Efectivo</div>
-      <div class="option" data-value="Transferencia">Transferencia</div>
+    <div class="controls">
+     <button onclick="chg('${nombre}',-1,${precio})">−</button>
+     <span id="${nombre}">0</span>
+     <button onclick="chg('${nombre}',1,${precio})">+</button>
     </div>
+   </div>`;
+  });
+  html+="</div>";
+ });
+ document.getElementById("menu").innerHTML=html;
+}
 
-    <button id="submitBtn">Enviar Pedido</button>
+function chg(n,d,p){
+ carrito[n]+=d;if(carrito[n]<0)carrito[n]=0;
+ document.getElementById(n).innerText=carrito[n];
+ total+=d*p;if(total<0)total=0;
+ document.getElementById("total").innerText=total;
+ resumen();
+}
 
-    <div class="summary" id="summary"></div>
-  </main>
+function resumen(){
+ let r="";
+ for(let k in carrito){if(carrito[k]>0)r+=`${k} x${carrito[k]}<br>`;}
+ document.getElementById("resumen").innerHTML=r||"<small>No hay productos</small>";
+}
 
-  <script>
-    // Función para manejar la selección de opciones
-    function setupOptionGroup(groupId) {
-      const group = document.getElementById(groupId);
-      const options = group.querySelectorAll('.option');
+function setEntrega(t){
+ entrega=t;
+ document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
+}
 
-      options.forEach(option => {
-        option.addEventListener('click', () => {
-          // Quitar active de todas
-          options.forEach(opt => opt.classList.remove('active'));
-          // Poner active en la seleccionada
-          option.classList.add('active');
-        });
-      });
-    }
+function setPago(p){pago=p}
 
-    // Configurar los grupos
-    setupOptionGroup('deliveryOptions');
-    setupOptionGroup('paymentOptions');
+function enviar(){
+ let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
+ for(let k in carrito){if(carrito[k]>0)msg+=`• ${k} x${carrito[k]}%0A`;}
+ msg+=`%0A💰 Total: $${total}`;
+ msg+=`%0A🚚 ${entrega}`;
+ msg+=`%0A👤 ${nombre.value||"Sin nombre"}`;
+ if(entrega=="Delivery")msg+=`%0A📍 ${direccion.value||""}`;
+ msg+=`%0A💳 ${pago}`;
+ window.open("https://wa.me/59892663559?text="+msg,"_blank");
+}
 
-    // Enviar pedido
-    document.getElementById('submitBtn').addEventListener('click', () => {
-      const delivery = document.querySelector('#deliveryOptions .option.active');
-      const payment = document.querySelector('#paymentOptions .option.active');
-
-      if (!delivery || !payment) {
-        alert('Por favor selecciona método de entrega y método de pago.');
-        return;
-      }
-
-      const summary = document.getElementById('summary');
-      summary.innerHTML = `
-        <h3>Resumen de pedido:</h3>
-        <p><strong>Entrega:</strong> ${delivery.dataset.value}</p>
-        <p><strong>Pago:</strong> ${payment.dataset.value}</p>
-      `;
-    });
-  </script>
+render();
+</script>
 
 </body>
 </html>
