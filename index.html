@@ -231,8 +231,13 @@ function chg(n,d,p){
 
 function resumen(){
  let r="";
- for(let k in carrito){if(carrito[k]>0)r+=`${k} x${carrito[k]}<br>`;}
- document.getElementById("resumen").innerHTML=r||"<small>No hay productos</small>";
+ for(let k in carrito){
+  if(carrito[k]>0){
+   r+=`${carrito[k]} x ${k}<br>`;
+  }
+ }
+ document.getElementById("resumen").innerHTML=
+  r || "<small>No hay productos seleccionados</small>";
 }
 
 function setEntrega(t){
@@ -240,7 +245,11 @@ function setEntrega(t){
  document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
 }
 
-function setPago(p){pago=p}
+function setPago(p){
+ pago=p;
+ document.getElementById("e").classList.toggle("active",p=="Efectivo");
+ document.getElementById("t").classList.toggle("active",p=="Transferencia");
+}
 
 function enviar(){
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
