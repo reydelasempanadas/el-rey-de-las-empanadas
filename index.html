@@ -39,14 +39,25 @@ h1{
  margin-bottom:20px;
  box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
+
+/* ===================== */
+/* ITEM Y BOTONES        */
+/* ===================== */
 .item{
  display:flex;
  justify-content:space-between;
  align-items:center;
+ flex-wrap:wrap; /* permite que el contenido largo envuelva si es necesario */
  padding:8px 0;
  border-bottom:1px dashed #eee;
 }
 .item:last-child{border-bottom:none}
+
+.item > div:first-child{
+ flex:1 1 70%; /* nombre y descripción ocupan mayor parte */
+ min-width:0;   /* evita overflow en textos largos */
+}
+
 .name{
  font-weight:bold;
  font-size:15px;
@@ -58,6 +69,11 @@ h1{
 }
 
 /* Botones de cantidad */
+.controls{
+ display:flex;
+ align-items:center;
+ gap:6px;
+}
 .controls button.plus{
  width:30px;
  height:30px;
@@ -78,12 +94,12 @@ h1{
  font-size:18px;
  cursor: pointer;
 }
-
 .controls span{
  margin:0 6px;
  font-size:16px;
+}
 
-/* Botones de selector de entrega y pago */
+/* Selector entrega/pago */
 .selector{
  display:flex;
  gap:10px;
@@ -299,7 +315,6 @@ function render(){
     html+=`<div class="sub-title">${i[0]}</div>`;
     return;
    }
-   // Detecta marca de bebida/cerveza
    if(sec.cat.includes("BEBIDAS") || sec.cat.includes("JUGOS") || sec.cat.includes("CERVEZAS")){
      if(i[1]===""){
        marca = i[0];
@@ -309,7 +324,7 @@ function render(){
    }
    let nombre=i[0], precio=sec.precio || parseInt(i[1]) || 0;
    carrito[nombre]=0;
-   let descText = i[1] || ""; // <- Siempre crea div desc
+   let descText = i[1] || ""; 
    html+=`
    <div class="item">
     <div>
