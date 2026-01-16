@@ -382,10 +382,11 @@ function chg(n,d,p){
  resumen();
 }
 
+// === RESUMEN: mostrar cantidad antes del producto ===
 function resumen(){
  let r="";
  for(let k in carrito){
-  if(carrito[k]>0) r+=`${k} x${carrito[k]}<br>`;
+  if(carrito[k]>0) r+=`${carrito[k]} x ${k}<br>`;
  }
  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
@@ -414,7 +415,7 @@ function setPago(p){
 function enviar(){
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
  for(let k in carrito){
-  if(carrito[k]>0) msg+=`• ${k} x${carrito[k]}%0A`;
+  if(carrito[k]>0) msg+=`• ${carrito[k]} x ${k}%0A`;
  }
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
  msg+=`%0A🚚 Entrega: ${entrega}`;
