@@ -163,13 +163,6 @@ small{color:#777;}
  margin-top:2px;
  width:100%;
 }
-.comprobante{
- font-size:13px;
- color:#b30000;
- font-weight:bold;
- margin:5px 0 10px 0;
- text-align:center;
-}
 </style>
 </head>
 
@@ -201,8 +194,6 @@ small{color:#777;}
 <button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
 <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
-
-<div id="comprobanteDiv" class="comprobante" style="display:none">TRANSFERENCIA: http://tranferencia</div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
@@ -417,7 +408,6 @@ function setPago(p){
  btnTransferencia.classList.remove("active");
  if(p === "Efectivo") btnEfectivo.classList.add("active");
  else btnTransferencia.classList.add("active");
- document.getElementById("comprobanteDiv").style.display = p==="Transferencia"?"block":"none";
 }
 
 function enviar(){
@@ -449,7 +439,7 @@ function enviar(){
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
  if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
  msg+=`%0A💳 Pago: ${pago}`;
- if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://tranferencia`;
+ if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://tranferencia (Enviar comprobante para confirmar pedido)`;
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
