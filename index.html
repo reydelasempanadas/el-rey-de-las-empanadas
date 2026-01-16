@@ -8,46 +8,109 @@
 <style>
 body{
   font-family: Arial, sans-serif;
+  background:#f5f5f5;
+  margin:0;
+  padding:16px;
+}
+.container{
   max-width:540px;
   margin:auto;
-  padding:16px;
-  background:#fafafa;
 }
-h1{text-align:center;}
-h2{margin-top:24px;border-bottom:2px solid #ddd;}
+h1{
+  text-align:center;
+  color:#8b0000;
+}
+.info{
+  text-align:center;
+  font-size:15px;
+  margin-bottom:20px;
+}
+.card{
+  background:white;
+  border-radius:14px;
+  padding:14px;
+  margin-bottom:18px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+.card h2{
+  margin-top:0;
+  background:#8b0000;
+  color:white;
+  padding:10px;
+  border-radius:10px;
+  font-size:20px;
+}
 .item{
   display:grid;
   grid-template-columns:1fr auto auto auto;
   gap:8px;
   align-items:center;
-  padding:8px 0;
+  padding:10px 0;
+  border-bottom:1px solid #eee;
 }
+.item:last-child{border-bottom:none;}
+.name{font-size:16px;}
 .desc{font-size:13px;color:#777;}
+.price{font-size:14px;color:#333;}
+.qty{
+  width:24px;
+  text-align:center;
+  font-weight:bold;
+}
 .btn{
-  width:34px;height:34px;border:none;border-radius:8px;
+  width:34px;
+  height:34px;
+  border:none;
+  border-radius:8px;
+  font-size:18px;
 }
 .plus{background:#2ecc71;color:white;}
 .minus{background:#ddd;}
 .cart{
-  background:white;padding:12px;border-radius:10px;margin-top:20px;
+  background:#fff3cd;
+  border-radius:14px;
+  padding:14px;
+  font-size:18px;
 }
-.hidden{display:none;}
+.cart small{color:#555;}
+.option{
+  margin:8px 0;
+  font-size:16px;
+}
+input, textarea{
+  width:100%;
+  padding:10px;
+  font-size:16px;
+  margin-top:6px;
+}
 button.main{
-  width:100%;padding:16px;font-size:20px;
-  background:#25D366;color:white;border:none;border-radius:14px;
+  width:100%;
+  padding:18px;
+  font-size:22px;
+  background:#25D366;
+  color:white;
+  border:none;
+  border-radius:16px;
+  margin-top:18px;
 }
 button.gray{
-  width:100%;padding:12px;font-size:18px;
-  background:#444;color:white;border:none;border-radius:12px;
+  width:100%;
+  padding:14px;
+  font-size:18px;
+  background:#444;
+  color:white;
+  border:none;
+  border-radius:14px;
   margin-top:10px;
 }
-#alerta{
-  background:#ffdddd;
+.hidden{display:none;}
+.alert{
+  background:#ffd6d6;
   padding:12px;
   border-radius:10px;
   text-align:center;
-  margin-bottom:15px;
   color:#a00;
+  margin-bottom:15px;
 }
 @media print{
   body{background:white;}
@@ -57,50 +120,144 @@ button.gray{
 </head>
 
 <body>
+<div class="container">
 
 <h1>👑 El Rey De Las Empanadas</h1>
-<p style="text-align:center">🕒 Delivery 18:30 a 23:00 · ❌ Lunes cerrado</p>
+<div class="info">
+🕒 Pedidos de 18:30 a 23:00 · ❌ Lunes cerrado<br>
+🚚 Delivery con costo adicional · 🏃 Retiro en mostrador
+</div>
 
-<div id="alerta" class="hidden"></div>
+<div id="alerta" class="alert hidden"></div>
 
+<!-- EMPANADAS -->
+<div class="card">
 <h2>🥟 Empanadas $60</h2>
 
 <div class="item">
   <div>
-    <strong>Criolla</strong>
-    <div class="desc">carne y huevo</div>
+    <div class="name">Criolla</div>
+    <div class="desc">Carne y huevo</div>
   </div>
   <button class="btn minus" onclick="menos('criolla',60)">−</button>
-  <div id="criolla">0</div>
+  <div class="qty" id="criolla">0</div>
   <button class="btn plus" onclick="mas('criolla',60)">+</button>
 </div>
 
-<h2>🥤 Bebidas</h2>
-
 <div class="item">
-  <div><strong>Coca/Fanta/Sprite 2L</strong></div>
-  <button class="btn minus" onclick="menos('coca2',120)">−</button>
-  <div id="coca2">0</div>
-  <button class="btn plus" onclick="mas('coca2',120)">+</button>
+  <div>
+    <div class="name">Mendocina</div>
+    <div class="desc">Carne, huevo y aceituna</div>
+  </div>
+  <button class="btn minus" onclick="menos('mendo',60)">−</button>
+  <div class="qty" id="mendo">0</div>
+  <button class="btn plus" onclick="mas('mendo',60)">+</button>
 </div>
 
+<div class="item">
+  <div>
+    <div class="name">Burguer</div>
+    <div class="desc">Carne, cebolla y cheddar</div>
+  </div>
+  <button class="btn minus" onclick="menos('burguer',60)">−</button>
+  <div class="qty" id="burguer">0</div>
+  <button class="btn plus" onclick="mas('burguer',60)">+</button>
+</div>
+
+</div>
+
+<!-- BEBIDAS -->
+<div class="card">
+<h2>🥤 Coca-Cola</h2>
+
+<div class="item"><div class="name">Mini</div>
+<button class="btn minus" onclick="menos('cocamini',40)">−</button>
+<div class="qty" id="cocamini">0</div>
+<button class="btn plus" onclick="mas('cocamini',40)">+</button></div>
+
+<div class="item"><div class="name">Lata</div>
+<button class="btn minus" onclick="menos('cocalata',60)">−</button>
+<div class="qty" id="cocalata">0</div>
+<button class="btn plus" onclick="mas('cocalata',60)">+</button></div>
+
+<div class="item"><div class="name">600 ml</div>
+<button class="btn minus" onclick="menos('coca600',80)">−</button>
+<div class="qty" id="coca600">0</div>
+<button class="btn plus" onclick="mas('coca600',80)">+</button></div>
+
+<div class="item"><div class="name">2 Litros</div>
+<button class="btn minus" onclick="menos('coca2l',120)">−</button>
+<div class="qty" id="coca2l">0</div>
+<button class="btn plus" onclick="mas('coca2l',120)">+</button></div>
+</div>
+
+<!-- CERVEZAS -->
+<div class="card">
+<h2>🍺 Cervezas</h2>
+
+<div class="item">
+  <div class="name">Pilsen Lata</div>
+  <button class="btn minus" onclick="menos('pilsenl',120)">−</button>
+  <div class="qty" id="pilsenl">0</div>
+  <button class="btn plus" onclick="mas('pilsenl',120)">+</button>
+</div>
+
+<div class="item">
+  <div class="name">Pilsen 2L</div>
+  <button class="btn minus" onclick="menos('pilsen2',180)">−</button>
+  <div class="qty" id="pilsen2">0</div>
+  <button class="btn plus" onclick="mas('pilsen2',180)">+</button>
+</div>
+
+<div class="item">
+  <div class="name">Patricia Lata</div>
+  <button class="btn minus" onclick="menos('patl',120)">−</button>
+  <div class="qty" id="patl">0</div>
+  <button class="btn plus" onclick="mas('patl',120)">+</button>
+</div>
+
+<div class="item">
+  <div class="name">Patricia 2L</div>
+  <button class="btn minus" onclick="menos('pat2',220)">−</button>
+  <div class="qty" id="pat2">0</div>
+  <button class="btn plus" onclick="mas('pat2',220)">+</button>
+</div>
+</div>
+
+<!-- ENTREGA -->
+<div class="card">
 <h2>🚚 Entrega</h2>
-<label><input type="radio" name="entrega" value="Mostrador"> Retiro en mostrador</label><br>
-<label><input type="radio" name="entrega" value="Delivery"> Delivery</label>
+<div class="option"><input type="radio" name="entrega" value="Mostrador" onchange="mostrarEntrega()"> Retiro en mostrador</div>
+<div class="option"><input type="radio" name="entrega" value="Delivery" onchange="mostrarEntrega()"> Delivery</div>
 
+<div id="nombreBox" class="hidden">
+<input placeholder="Nombre del cliente">
+</div>
+
+<div id="direccionBox" class="hidden">
+<textarea placeholder="Dirección para delivery"></textarea>
+</div>
+</div>
+
+<!-- PAGO -->
+<div class="card">
 <h2>💰 Pago</h2>
-<label><input type="radio" name="pago" value="Efectivo"> Efectivo</label><br>
-<label><input type="radio" name="pago" value="Transferencia (enviar comprobante)"> Transferencia</label>
+<div class="option"><input type="radio" name="pago" value="Efectivo"> Efectivo</div>
+<div class="option"><input type="radio" name="pago" value="Transferencia"> Transferencia (enviar comprobante)</div>
+</div>
 
+<!-- CARRITO -->
 <div class="cart">
-  <strong>Total: $<span id="total">0</span></strong><br>
-  <small>Envío no incluido</small>
+<strong>Total: $<span id="total">0</span></strong><br>
+<small>Envío no incluido</small>
 </div>
 
 <button class="gray" onclick="mostrarResumen()">🧾 Ver resumen</button>
-<button class="main" id="enviar" onclick="enviar()">📲 Enviar pedido</button>
+<button class="main" onclick="enviarPedido()">📲 Enviar pedido</button>
 
-<div id="resumen" class="hidden"></div>
+<div id="resumen" class="card hidden"></div>
+
+</div>
 
 <script>
 let total=0;
@@ -111,37 +268,45 @@ function menos(id,p){
 }
 function actualizar(){document.getElementById("total").innerText=total;}
 
+function mostrarEntrega(){
+ document.getElementById("nombreBox").classList.add("hidden");
+ document.getElementById("direccionBox").classList.add("hidden");
+ let v=document.querySelector("input[name='entrega']:checked").value;
+ if(v==="Mostrador") document.getElementById("nombreBox").classList.remove("hidden");
+ else document.getElementById("direccionBox").classList.remove("hidden");
+}
+
 function horarioValido(){
- let ahora=new Date();
- let dia=ahora.getDay(); // lunes=1
- let h=ahora.getHours()+ahora.getMinutes()/60;
- if(dia==1) return false;
+ let d=new Date();
+ if(d.getDay()==1) return false;
+ let h=d.getHours()+d.getMinutes()/60;
  return h>=18.5 && h<=23;
 }
 
 function mostrarResumen(){
- let r="RESUMEN DEL PEDIDO<br><br>";
- document.querySelectorAll(".item").forEach(i=>{
-  let q=i.children[2].innerText;
-  if(q>0) r+=i.querySelector("strong").innerText+" x"+q+"<br>";
+ let r="<h2>🧾 Resumen</h2>";
+ document.querySelectorAll(".qty").forEach(q=>{
+  if(q.innerText>0){
+   r+=q.parentElement.querySelector(".name").innerText+" x"+q.innerText+"<br>";
+  }
  });
- r+="<br>Total: $"+total+"<br><br>";
+ r+="<br><strong>Total: $"+total+"</strong><br>";
  r+="<button onclick='window.print()'>🖨️ Imprimir</button>";
  document.getElementById("resumen").innerHTML=r;
  document.getElementById("resumen").classList.remove("hidden");
 }
 
-function enviar(){
+function enviarPedido(){
  if(!horarioValido()){
-  document.getElementById("alerta").innerText=
-   "⛔ No estamos tomando pedidos ahora. Horario 18:30 a 23:00. Lunes cerrado.";
+  document.getElementById("alerta").innerText="⛔ Fuera de horario. Pedidos de 18:30 a 23:00. Lunes cerrado.";
   document.getElementById("alerta").classList.remove("hidden");
   return;
  }
  let msg="Pedido:%0A";
- document.querySelectorAll(".item").forEach(i=>{
-  let q=i.children[2].innerText;
-  if(q>0) msg+=i.querySelector("strong").innerText+" x"+q+"%0A";
+ document.querySelectorAll(".qty").forEach(q=>{
+  if(q.innerText>0){
+   msg+=q.parentElement.querySelector(".name").innerText+" x"+q.innerText+"%0A";
+  }
  });
  msg+="%0ATotal: $"+total+" (envío no incluido)";
  window.open("https://wa.me/598XXXXXXXX?text="+msg,"_blank");
