@@ -7,16 +7,15 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
       background-color: #f4f4f4;
+      /* Mantener el formato original, sin margenes extra */
     }
 
     /* Menú superior */
     header {
       background-color: #007bff;
       color: white;
-      padding: 15px 20px;
+      padding: 10px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -24,12 +23,12 @@
 
     header h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 22px;
     }
 
     nav a {
       color: white;
-      margin-left: 20px;
+      margin-left: 15px;
       text-decoration: none;
       font-weight: bold;
     }
@@ -40,8 +39,7 @@
 
     main {
       padding: 20px;
-      max-width: 800px;
-      margin: auto;
+      /* Mantener el layout anterior sin ancho máximo forzado */
     }
 
     h2 {
@@ -55,12 +53,12 @@
     }
 
     .option {
-      padding: 15px 25px;
+      padding: 12px 20px;
       border: 2px solid #ccc;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       user-select: none;
-      transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+      transition: background-color 0.2s, border-color 0.2s;
       background-color: #eee;
       text-align: center;
       flex: 1;
@@ -72,19 +70,14 @@
       border-color: #0056b3;
     }
 
-    .option:hover {
-      transform: scale(1.05);
-    }
-
     button {
       padding: 10px 20px;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       background-color: #28a745;
       color: white;
       cursor: pointer;
       font-size: 16px;
-      transition: background-color 0.2s;
     }
 
     button:hover {
@@ -95,7 +88,7 @@
       margin-top: 20px;
       padding: 15px;
       background-color: #fff;
-      border-radius: 8px;
+      border-radius: 6px;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
   </style>
@@ -133,26 +126,21 @@
   </main>
 
   <script>
-    // Función para manejar selección de opciones
     function setupOptionGroup(groupId) {
       const group = document.getElementById(groupId);
       const options = group.querySelectorAll('.option');
 
       options.forEach(option => {
         option.addEventListener('click', () => {
-          // Remover active de todas
           options.forEach(opt => opt.classList.remove('active'));
-          // Agregar active a la seleccionada
           option.classList.add('active');
         });
       });
     }
 
-    // Configurar los grupos
     setupOptionGroup('deliveryOptions');
     setupOptionGroup('paymentOptions');
 
-    // Función de envío
     document.getElementById('submitBtn').addEventListener('click', () => {
       const delivery = document.querySelector('#deliveryOptions .option.active');
       const payment = document.querySelector('#paymentOptions .option.active');
