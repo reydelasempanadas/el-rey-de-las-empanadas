@@ -151,6 +151,7 @@ small{color:#777}
 
 <input id="nombre" placeholder="Nombre">
 <input id="direccion" placeholder="Dirección" style="display:none">
+<textarea id="observaciones" placeholder="Observaciones (para el delivery)" style="display:none"></textarea>
 
 <div class="section-title">💳 Forma de pago</div>
 <div class="selector">
@@ -310,6 +311,7 @@ function setEntrega(t){
  document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
  document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
  document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
+ document.getElementById("observaciones").style.display=t=="Delivery"?"block":"none";
 }
 
 function setPago(p){
@@ -345,6 +347,7 @@ function enviar(){
  msg+=`%0A🚚 Entrega: ${entrega}`+(entrega==="Delivery"?" (Delivery inicia a las 18:30)":"");
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
  if(entrega==="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
+ if(observaciones.value) msg+=`%0A📝 Observaciones: ${observaciones.value}`;
  msg+=`%0A💳 Pago: ${pago}`;
  if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (enviar comprobante)`;
  if(pago==="Efectivo") msg+=`%0A💵 Cambio: ${cambio.value||"No indicado"}`;
