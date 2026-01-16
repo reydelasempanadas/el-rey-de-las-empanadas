@@ -43,16 +43,16 @@ h1{
 /* ===================== */
 /* ITEM Y BOTONES        */
 /* ===================== */
-.item{
+.item, .bebida-option{
  display:flex;
  justify-content:space-between;
- align-items:flex-start;
- flex-wrap:wrap;
+ align-items:center;
  padding:8px 0;
  border-bottom:1px dashed #eee;
+ flex-wrap:wrap;
 }
-.item:last-child{border-bottom:none}
-.item > div:first-child{
+.item:last-child, .bebida-option:last-child{border-bottom:none;}
+.item > div:first-child, .bebida-option > div:first-child{
  flex:1 1 70%;
  min-width:0;
 }
@@ -71,7 +71,6 @@ h1{
  display:flex;
  align-items:center;
  gap:6px;
- margin-left:10px;
  flex-shrink:0;
 }
 .controls button.plus{
@@ -160,15 +159,6 @@ small{color:#777}
  font-weight:bold;
  font-size:16px;
 }
-.bebida-option{
- display:flex;
- justify-content:space-between;
- align-items:flex-start;
- padding:4px 0;
- border-bottom:1px dashed #eee;
- flex-wrap:wrap;
-}
-.bebida-option:last-child{border-bottom:none;}
 .bebida-option .desc{
  color:#555;
  font-size:13px;
@@ -334,11 +324,8 @@ function render(){
  productos.forEach(sec=>{
   html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
   let marca = "";
-  sec.items.forEach(i=>{
-   if(i[1]==="" && i[0]===i[0].toUpperCase()){
-    html+=`<div class="sub-title">${i[0]}</div>`;
-    return;
-   }
+  sec.items.forEach((i,index)=>{
+   if(i[1]==="" && i[0]===i[0].toUpperCase()){ html+=`<div class="sub-title">${i[0]}</div>`; return; }
    if(sec.cat.includes("BEBIDAS") || sec.cat.includes("JUGOS") || sec.cat.includes("CERVEZAS")){
      if(i[1]===""){ 
        marca = i[0];
@@ -349,27 +336,29 @@ function render(){
        carrito[nombre]=0;
        html+=`
        <div class="bebida-option">
-         <div class="name">${nombre}</div>
-         <div class="desc">$${precio}</div>
+         <div>
+           <div class="name">${nombre}</div>
+           <div class="desc">$${precio}</div>
+         </div>
          <div class="controls">
            <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
            <span id="${nombre}">0</span>
            <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
          </div>
        </div>`;
-       let nextIndex = sec.items.indexOf(i)+1;
+       // cerrar tarjeta si es última opción o viene otra marca
+       let nextIndex = index+1;
        if(nextIndex>=sec.items.length || sec.items[nextIndex][1]==="") html+="</div>";
        return;
      }
    }
    let nombre=i[0], precio=sec.precio || parseInt(i[1]) || 0;
    carrito[nombre]=0;
-   let descText = i[1] && sec.cat.includes("🥟 EMPANADAS") ? i[1] : precio>0?`$${precio}`:""; 
    html+=`
    <div class="item">
     <div>
      <div class="name">${nombre}</div>
-     ${sec.cat.includes("🥟 EMPANADAS")?`<div class="desc">${descText}</div>`:`<div class="desc">${descText}</div>`}
+     ${sec.cat.includes("🥟 EMPANADAS")?`<div class="desc">${i[1]}</div>`:`<div class="desc">$${precio}</div>`}
     </div>
     <div class="controls">
      <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
