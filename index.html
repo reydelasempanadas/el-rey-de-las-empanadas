@@ -8,21 +8,18 @@
 <style>
 body{
   font-family: Arial, sans-serif;
-  max-width: 520px;
+  max-width:520px;
   margin:auto;
   padding:16px;
   background:#fafafa;
 }
 h1{text-align:center;margin-bottom:6px;}
 h2{
-  margin-top:28px;
+  margin-top:30px;
   border-bottom:2px solid #ddd;
   padding-bottom:4px;
 }
-h3{
-  margin-top:20px;
-  color:#444;
-}
+h3{margin-top:20px;color:#444;}
 .item{
   display:grid;
   grid-template-columns: 1fr auto auto auto;
@@ -31,18 +28,12 @@ h3{
   padding:10px 0;
   border-bottom:1px solid #eee;
 }
-.name{
-  font-size:16px;
-}
-.desc{
-  font-size:13px;
-  color:#777;
-}
+.name{font-size:16px;}
+.desc{font-size:13px;color:#777;}
 .qty{
   min-width:26px;
   text-align:center;
   font-weight:bold;
-  font-size:16px;
 }
 .btn{
   width:34px;
@@ -51,19 +42,14 @@ h3{
   border:none;
   border-radius:8px;
 }
-.plus{
-  background:#2ecc71;
-  color:white;
-}
-.minus{
-  background:#e0e0e0;
-}
+.plus{background:#2ecc71;color:white;}
+.minus{background:#e0e0e0;}
 input[type="text"]{
   width:100%;
   padding:10px;
   font-size:16px;
 }
-.option{margin:6px 0;font-size:15px;}
+.option{margin:6px 0;}
 .whatsapp{
   width:100%;
   margin-top:30px;
@@ -74,12 +60,7 @@ input[type="text"]{
   border:none;
   border-radius:14px;
 }
-.note{
-  margin-top:14px;
-  font-size:14px;
-  color:#555;
-  text-align:center;
-}
+.note{text-align:center;font-size:14px;color:#555;margin-top:14px;}
 </style>
 </head>
 
@@ -94,58 +75,51 @@ input[type="text"]{
 <h2>🥟 Empanadas $60</h2>
 
 <h3>Carne</h3>
+<div class="item"><div><div class="name">Criolla</div><div class="desc">carne y huevo</div></div><button class="btn minus" onclick="menos('criolla')">−</button><div class="qty" id="criolla">0</div><button class="btn plus" onclick="mas('criolla')">+</button></div>
+<div class="item"><div><div class="name">Mendocina</div><div class="desc">carne, huevo y aceituna</div></div><button class="btn minus" onclick="menos('mendocina')">−</button><div class="qty" id="mendocina">0</div><button class="btn plus" onclick="mas('mendocina')">+</button></div>
+<div class="item"><div><div class="name">Mexicana</div><div class="desc">carne, huevo, aceituna y pimienta</div></div><button class="btn minus" onclick="menos('mexicana')">−</button><div class="qty" id="mexicana">0</div><button class="btn plus" onclick="mas('mexicana')">+</button></div>
+<div class="item"><div><div class="name">Cordobesa</div><div class="desc">carne, huevo y pasas de uva</div></div><button class="btn minus" onclick="menos('cordobesa')">−</button><div class="qty" id="cordobesa">0</div><button class="btn plus" onclick="mas('cordobesa')">+</button></div>
+<div class="item"><div><div class="name">Mixta</div><div class="desc">carne, huevo, choclo y calabresa</div></div><button class="btn minus" onclick="menos('mixta')">−</button><div class="qty" id="mixta">0</div><button class="btn plus" onclick="mas('mixta')">+</button></div>
+<div class="item"><div><div class="name">Gallega</div><div class="desc">carne, huevo y panceta</div></div><button class="btn minus" onclick="menos('gallega')">−</button><div class="qty" id="gallega">0</div><button class="btn plus" onclick="mas('gallega')">+</button></div>
+<div class="item"><div><div class="name">Burguer</div><div class="desc">carne, cebolla y cheddar</div></div><button class="btn minus" onclick="menos('burguer')">−</button><div class="qty" id="burguer">0</div><button class="btn plus" onclick="mas('burguer')">+</button></div>
 
-<div class="item">
-  <div>
-    <div class="name">Criolla</div>
-    <div class="desc">carne y huevo</div>
-  </div>
-  <button class="btn minus" onclick="menos('criolla')">−</button>
-  <div class="qty" id="criolla">0</div>
-  <button class="btn plus" onclick="mas('criolla')">+</button>
-</div>
+<h3>Pollo</h3>
+<div class="item"><div><div class="name">Pollo salsa y huevo</div><div class="desc">pollo, salsa y huevo</div></div><button class="btn minus" onclick="menos('pollo1')">−</button><div class="qty" id="pollo1">0</div><button class="btn plus" onclick="mas('pollo1')">+</button></div>
+<div class="item"><div><div class="name">Pollo queso y aceituna</div><div class="desc">pollo, queso y aceituna</div></div><button class="btn minus" onclick="menos('pollo2')">−</button><div class="qty" id="pollo2">0</div><button class="btn plus" onclick="mas('pollo2')">+</button></div>
+<div class="item"><div><div class="name">Pollo y requesón</div><div class="desc">pollo y requesón</div></div><button class="btn minus" onclick="menos('pollo3')">−</button><div class="qty" id="pollo3">0</div><button class="btn plus" onclick="mas('pollo3')">+</button></div>
+<div class="item"><div><div class="name">Pollo a la mostaza</div><div class="desc">pollo y mostaza</div></div><button class="btn minus" onclick="menos('pollo4')">−</button><div class="qty" id="pollo4">0</div><button class="btn plus" onclick="mas('pollo4')">+</button></div>
 
-<div class="item">
-  <div>
-    <div class="name">Mendocina</div>
-    <div class="desc">carne, huevo y aceituna</div>
-  </div>
-  <button class="btn minus" onclick="menos('mendocina')">−</button>
-  <div class="qty" id="mendocina">0</div>
-  <button class="btn plus" onclick="mas('mendocina')">+</button>
-</div>
+<h3>Verdura</h3>
+<div class="item"><div><div class="name">Palmito</div><div class="desc">jamón y salsa golf</div></div><button class="btn minus" onclick="menos('palmito')">−</button><div class="qty" id="palmito">0</div><button class="btn plus" onclick="mas('palmito')">+</button></div>
+<div class="item"><div><div class="name">Acelga</div><div class="desc">cebolla, morrón y huevo</div></div><button class="btn minus" onclick="menos('acelga')">−</button><div class="qty" id="acelga">0</div><button class="btn plus" onclick="mas('acelga')">+</button></div>
+<div class="item"><div><div class="name">Humita</div><div class="desc">choclo, queso y salsa blanca</div></div><button class="btn minus" onclick="menos('humita')">−</button><div class="qty" id="humita">0</div><button class="btn plus" onclick="mas('humita')">+</button></div>
+<div class="item"><div><div class="name">Caprese</div><div class="desc">queso, tomate y albahaca</div></div><button class="btn minus" onclick="menos('caprese')">−</button><div class="qty" id="caprese">0</div><button class="btn plus" onclick="mas('caprese')">+</button></div>
 
-<div class="item">
-  <div>
-    <div class="name">Mexicana</div>
-    <div class="desc">carne, huevo, aceituna y pimienta</div>
-  </div>
-  <button class="btn minus" onclick="menos('mexicana')">−</button>
-  <div class="qty" id="mexicana">0</div>
-  <button class="btn plus" onclick="mas('mexicana')">+</button>
-</div>
+<h3>Dulces</h3>
+<div class="item"><div><div class="name">Dulce de leche</div><div class="desc">clásica</div></div><button class="btn minus" onclick="menos('ddl')">−</button><div class="qty" id="ddl">0</div><button class="btn plus" onclick="mas('ddl')">+</button></div>
+<div class="item"><div><div class="name">Nutella</div><div class="desc">chocolate con avellanas</div></div><button class="btn minus" onclick="menos('nutella')">−</button><div class="qty" id="nutella">0</div><button class="btn plus" onclick="mas('nutella')">+</button></div>
 
-<div class="item">
-  <div>
-    <div class="name">Cordobesa</div>
-    <div class="desc">carne, huevo y pasas de uva</div>
-  </div>
-  <button class="btn minus" onclick="menos('cordobesa')">−</button>
-  <div class="qty" id="cordobesa">0</div>
-  <button class="btn plus" onclick="mas('cordobesa')">+</button>
-</div>
+<h2>🥤 Bebidas</h2>
 
-<div class="item">
-  <div>
-    <div class="name">Burguer</div>
-    <div class="desc">carne, cebolla y cheddar</div>
-  </div>
-  <button class="btn minus" onclick="menos('burguer')">−</button>
-  <div class="qty" id="burguer">0</div>
-  <button class="btn plus" onclick="mas('burguer')">+</button>
-</div>
+<h3>Coca Cola</h3>
+<div class="item"><div class="name">Lata</div><button class="btn minus" onclick="menos('cocalata')">−</button><div class="qty" id="cocalata">0</div><button class="btn plus" onclick="mas('cocalata')">+</button></div>
+<div class="item"><div class="name">Mini</div><button class="btn minus" onclick="menos('cocamini')">−</button><div class="qty" id="cocamini">0</div><button class="btn plus" onclick="mas('cocamini')">+</button></div>
+<div class="item"><div class="name">600 ml</div><button class="btn minus" onclick="menos('coca600')">−</button><div class="qty" id="coca600">0</div><button class="btn plus" onclick="mas('coca600')">+</button></div>
+<div class="item"><div class="name">2 litros</div><button class="btn minus" onclick="menos('coca2l')">−</button><div class="qty" id="coca2l">0</div><button class="btn plus" onclick="mas('coca2l')">+</button></div>
 
-<!-- (El resto de sabores se continúa exactamente igual) -->
+<h3>Fanta / Sprite</h3>
+<div class="item"><div class="name">Fanta lata</div><button class="btn minus" onclick="menos('fantalata')">−</button><div class="qty" id="fantalata">0</div><button class="btn plus" onclick="mas('fantalata')">+</button></div>
+<div class="item"><div class="name">Sprite lata</div><button class="btn minus" onclick="menos('spritelata')">−</button><div class="qty" id="spritelata">0</div><button class="btn plus" onclick="mas('spritelata')">+</button></div>
+
+<h3>Cerveza</h3>
+<div class="item"><div class="name">Lata</div><button class="btn minus" onclick="menos('cervezalata')">−</button><div class="qty" id="cervezalata">0</div><button class="btn plus" onclick="mas('cervezalata')">+</button></div>
+<div class="item"><div class="name">2 litros</div><button class="btn minus" onclick="menos('cerveza2l')">−</button><div class="qty" id="cerveza2l">0</div><button class="btn plus" onclick="mas('cerveza2l')">+</button></div>
+
+<h3>🍹 Jugos Naturales $120</h3>
+<div class="item"><div class="name">Manga</div><button class="btn minus" onclick="menos('manga')">−</button><div class="qty" id="manga">0</div><button class="btn plus" onclick="mas('manga')">+</button></div>
+<div class="item"><div class="name">Frutilla</div><button class="btn minus" onclick="menos('frutilla')">−</button><div class="qty" id="frutilla">0</div><button class="btn plus" onclick="mas('frutilla')">+</button></div>
+<div class="item"><div class="name">Naranja</div><button class="btn minus" onclick="menos('naranja')">−</button><div class="qty" id="naranja">0</div><button class="btn plus" onclick="mas('naranja')">+</button></div>
+<div class="item"><div class="name">Ananá</div><button class="btn minus" onclick="menos('ananá')">−</button><div class="qty" id="ananá">0</div><button class="btn plus" onclick="mas('ananá')">+</button></div>
 
 <button class="whatsapp" onclick="enviarPedido()">📲 Enviar pedido</button>
 
@@ -153,10 +127,7 @@ input[type="text"]{
 
 <script>
 function mas(id){document.getElementById(id).innerText++}
-function menos(id){
- let e=document.getElementById(id);
- if(e.innerText>0) e.innerText--;
-}
+function menos(id){let e=document.getElementById(id); if(e.innerText>0)e.innerText--}
 function enviarPedido(){
  let n=document.getElementById("nombre").value.trim();
  if(!n){alert("Ingrese su nombre");return;}
