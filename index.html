@@ -141,7 +141,7 @@ small{color:#777}
 <div id="resumen"><small>No hay productos seleccionados</small></div>
 
 <p><b>Total:</b> $<span id="total">0</span></p>
-<p id="envioText"><small>Envío no incluido</small></p>
+<small>Envío no incluido</small>
 
 <div class="section-title">🚚 Forma de entrega</div>
 <div class="selector">
@@ -150,24 +150,7 @@ small{color:#777}
 </div>
 
 <input id="nombre" placeholder="Nombre">
-<select id="barrio" style="display:none">
- <option value="">Seleccionar barrio (Rivera)</option>
- <option value="Centro">Centro</option>
- <option value="Cerro Marconi">Cerro Marconi</option>
- <option value="Ceballos">Ceballos</option>
- <option value="Pueblo Nuevo">Pueblo Nuevo</option>
- <option value="Siñeriz">Siñeriz</option>
- <option value="Los Pirineos">Los Pirineos</option>
- <option value="Rampla">Rampla</option>
- <option value="Santa Isabel">Santa Isabel</option>
- <option value="Bisio">Bisio</option>
- <option value="La Pedrera">La Pedrera</option>
- <option value="La Racca">La Racca</option>
- <option value="Lagunón">Lagunón</option>
- <option value="Rivera Chico Norte">Rivera Chico Norte</option>
- <option value="Rivera Chico Sur">Rivera Chico Sur</option>
-</select>
-<textarea id="obs" placeholder="Observaciones sobre la dirección" style="display:none"></textarea>
+<input id="direccion" placeholder="Dirección" style="display:none">
 
 <div class="section-title">💳 Forma de pago</div>
 <div class="selector">
@@ -184,9 +167,7 @@ small{color:#777}
 let entrega="Mostrador";
 let pago="Efectivo";
 let carrito={}, total=0;
-let envio=0;
 
-// Código oficial productos
 const productos=[
 {
  cat:"🥟 Empanadas",
@@ -279,23 +260,6 @@ const productos=[
 }
 ];
 
-// Envío Rivera
-const envioRivera = [
- {barrios:["Centro"], valor:50},
- {barrios:["Cerro Marconi","Ceballos","Pueblo Nuevo","Siñeriz"], valor:60},
- {barrios:["Los Pirineos","Rampla","Santa Isabel"], valor:70},
- {barrios:["Bisio","La Pedrera","La Racca"], valor:80},
- {barrios:["Lagunón","Rivera Chico Norte","Rivera Chico Sur"], valor:120}
-];
-
-function calcularEnvio(barrio){
- if(!barrio) return 0;
- for(let zona of envioRivera){
-   if(zona.barrios.includes(barrio)) return zona.valor;
- }
- return 0;
-}
-
 function render(){
  let html="";
  productos.forEach(sec=>{
@@ -328,8 +292,8 @@ function render(){
 function chg(n,d,p){
  carrito[n]+=d;
  if(carrito[n]<0) carrito[n]=0;
- calcularTotal();
  document.getElementById(n).innerText=carrito[n];
+ calcularTotal();
  resumen();
 }
 
@@ -345,9 +309,7 @@ function setEntrega(t){
  entrega=t;
  document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
  document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
- document.getElementById("barrio").style.display=t=="Delivery"?"block":"none";
- document.getElementById("obs").style.display=t=="Delivery"?"block":"none";
- calcularTotal();
+ document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
 }
 
 function setPago(p){
@@ -367,21 +329,6 @@ function calcularTotal(){
  for(let k in carrito){
    total+=carrito[k]*((productos.find(sec=>sec.items.some(x=>x[0]===k))?.items.find(x=>x[0]===k)[1] || 60));
  }
- if(entrega==="Delivery"){
-   let barrioSel=document.getElementById("barrio").value;
-   envio=calcularEnvio(barrioSel);
-   if(envio>0){
-     document.getElementById("envioText").innerText="Envío: $"+envio;
-     total+=envio;
-   } else if(barrioSel){
-     document.getElementById("envioText").innerText="Envío: confirmar dirección";
-   } else {
-     document.getElementById("envioText").innerText="Envío: seleccionar barrio";
-   }
- } else {
-   envio=0;
-   document.getElementById("envioText").innerText="Envío no incluido";
- }
  document.getElementById("total").innerText=total;
 }
 
@@ -390,18 +337,14 @@ function enviar(){
    alert("Debe seleccionar productos");
    return;
  }
- if(entrega==="Delivery" && !document.getElementById("barrio").value){
-   alert("Debe seleccionar el barrio para calcular el envío");
-   return;
- }
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
  for(let k in carrito){
   if(carrito[k]>0) msg+=`${carrito[k]} x ${k}%0A`;
  }
- msg+=`%0A💰 Total: $${total}`;
+ msg+=`%0A💰 Total: $${total} (envío no incluido)`;
  msg+=`%0A🚚 Entrega: ${entrega}`+(entrega==="Delivery"?" (Delivery inicia a las 18:30)":"");
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
- if(entrega==="Delivery") msg+=`%0A📍 Barrio: ${barrio.value||"No indicado"} - Obs: ${obs.value||"No indicado"}`;
+ if(entrega==="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
  msg+=`%0A💳 Pago: ${pago}`;
  if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (enviar comprobante)`;
  if(pago==="Efectivo") msg+=`%0A💵 Cambio: ${cambio.value||"No indicado"}`;
