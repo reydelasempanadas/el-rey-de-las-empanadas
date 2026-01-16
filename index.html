@@ -15,14 +15,13 @@ body{
 h1{
  text-align:center;
  color:#b30000;
- margin-bottom:10px;
 }
 .section-title{
  background:#b30000;
  color:white;
  padding:8px 12px;
  border-radius:8px;
- margin-bottom:10px;
+ margin:15px 0 10px;
  font-size:18px;
 }
 .sub-title{
@@ -47,76 +46,37 @@ h1{
  border-bottom:1px dashed #eee;
 }
 .item:last-child{border-bottom:none}
-.name{
- font-weight:bold;
- font-size:15px;
-}
-.desc{
- font-size:12px;
- color:#777;
- margin-top:2px;
-}
+.name{font-weight:bold}
+.desc{font-size:12px;color:#777}
 .controls button{
- width:30px;
- height:30px;
- color:white;
- border:none;
- border-radius:6px;
- font-size:18px;
- cursor:pointer;
+ width:30px;height:30px;color:white;
+ border:none;border-radius:6px;font-size:18px;
 }
-
-.controls button:first-child{
- background:#b30000; /* disminuir */
-}
-
-.controls button:last-child{
- background:#2e7d32; /* aumentar */
-}
-.controls span{
- margin:0 6px;
- font-size:16px;
-}
+.controls button:first-child{background:#b30000}
+.controls button:last-child{background:#2e7d32}
 .selector{
- display:flex;
- gap:10px;
- margin:10px 0;
+ display:flex;gap:10px;margin:10px 0;
 }
 .selector button{
- flex:1;
- padding:10px;
- font-size:16px;
- border-radius:8px;
- border:1px solid #ccc;
+ flex:1;padding:10px;font-size:16px;
+ border-radius:8px;border:1px solid #ccc;
  background:#eee;
 }
 .selector button.active{
- background:#b30000;
- color:white;
+ background:#b30000;color:white;
 }
-input,select{
- width:100%;
- padding:8px;
- margin:6px 0;
- font-size:16px;
- border-radius:6px;
- border:1px solid #ccc;
+input{
+ width:100%;padding:8px;margin:6px 0;
+ font-size:16px;border-radius:6px;border:1px solid #ccc;
 }
 .total{
- background:white;
- padding:15px;
- border-radius:12px;
+ background:white;padding:15px;border-radius:12px;
  box-shadow:0 3px 8px rgba(0,0,0,.15);
 }
 button.send{
- width:100%;
- padding:15px;
- background:#25D366;
- color:white;
- font-size:20px;
- border:none;
- border-radius:12px;
- margin-top:10px;
+ width:100%;padding:15px;background:#25D366;
+ color:white;font-size:20px;border:none;
+ border-radius:12px;margin-top:10px;
 }
 small{color:#777}
 </style>
@@ -125,96 +85,111 @@ small{color:#777}
 <body>
 
 <h1>👑 El Rey de las Empanadas</h1>
-
 <div id="menu"></div>
 
 <div class="total">
 <div class="section-title">🛒 Resumen del pedido</div>
 <div id="resumen"><small>No hay productos seleccionados</small></div>
-
 <p><b>Total:</b> $<span id="total">0</span></p>
 <small>Envío no incluido</small>
 
-<div class="section-title">🚚 Forma de entrega</div>
+<div class="section-title">🚚 Entrega</div>
 <div class="selector">
-<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
-<button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
+<button id="m" class="active" onclick="setEntrega('Mostrador')">Mostrador</button>
+<button id="d" onclick="setEntrega('Delivery')">Delivery</button>
 </div>
 
 <input id="nombre" placeholder="Nombre">
 <input id="direccion" placeholder="Dirección" style="display:none">
 
-<div class="section-title">💳 Forma de pago</div>
+<div class="section-title">💳 Pago</div>
 <div class="selector">
-<button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
-<button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
+<button id="e" class="active" onclick="setPago('Efectivo')">Efectivo</button>
+<button id="t" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
 <script>
-let entrega="Mostrador";
-let pago="Efectivo";
-let carrito={}, total=0;
+let entrega="Mostrador", pago="Efectivo", carrito={}, total=0;
 
 const productos=[
-{
- cat:"EMPANADAS – $60 c/u",
- precio:60,
- items:[
-  ["CARNE",""],
-  ["Empanada Criolla","carne y huevo"],
-  ["Empanada Mendocina","carne, huevo y aceituna"],
-  ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
-  ["Empanada Cordobesa","carne, huevo y pasas de uva"],
-  ["Empanada Mixta","carne, huevo, choclo y calabresa"],
-  ["Empanada Gallega","carne, huevo y panceta"],
-  ["Empanada Burguer","carne, cebolla y cheddar"],
-
-  ["POLLO",""],
-  ["Empanada Pollo clásico","pollo, salsa y huevo"],
-  ["Empanada Pollo queso","pollo, queso y aceituna"],
-  ["Empanada Pollo requesón","pollo y requesón"],
-  ["Empanada Pollo mostaza","pollo a la mostaza"],
-
-  ["VERDURA",""],
-  ["Empanada Palmito","jamón y salsa golf"],
-  ["Empanada Acelga","cebolla, morrón y huevo"],
-  ["Empanada Humita","choclo, queso y salsa blanca"],
-  ["Empanada Choclo y jamón",""],
-  ["Empanada Caprese","queso, tomate y albahaca"],
-
-  ["MAR",""],
-  ["Empanada Atún","atún, huevo y salsa"],
-
-  ["MOZZARELLA",""],
-  ["Empanada Pizza","mozzarella, salsa y orégano"],
-  ["Empanada Alemana","mozzarella y frankfurter"],
-  ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
-  ["Empanada Caribeña","mozzarella, salame y aceituna"],
-  ["Empanada Mozzarella y panceta",""],
-  ["Empanada Mozzarella, cebolla y calabresa",""],
-
-  ["QUESO",""],
-  ["Empanada Jamón y queso",""],
-  ["Empanada Queso, calabresa y salsa",""],
-  ["Empanada Queso y cebolla",""],
-  ["Empanada Queso y aceituna",""],
-  ["Empanada Libanesa","queso, cebolla, ajo y perejil"],
-  ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
-  ["Empanada Tropical","queso, jamón y ananá"],
-  ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
-
-  ["DULCES",""],
-  ["Empanada Dulce de leche",""],
-  ["Empanada Membrillo",""],
-  ["Empanada Crema pastelera",""],
-  ["Empanada Mulata","dulce de leche y chocolate"],
-  ["Empanada Gringa","dulce de leche y chocolate blanco"],
-  ["Empanada Nutella",""]
- ]
-}
+{cat:"EMPANADAS – $60 c/u",precio:60,items:[
+["CARNE",""],
+["Criolla","carne y huevo"],["Mendocina","carne, huevo y aceituna"],
+["Mexicana","carne, huevo, aceituna y pimienta"],
+["Cordobesa","carne, huevo y pasas"],
+["Mixta","carne, huevo, choclo y calabresa"],
+["Gallega","carne, huevo y panceta"],
+["Burguer","carne, cebolla y cheddar"],
+["POLLO",""],
+["Pollo clásico","pollo, salsa y huevo"],
+["Pollo queso","pollo, queso y aceituna"],
+["Pollo requesón","pollo y requesón"],
+["Pollo mostaza","pollo a la mostaza"],
+["VERDURA",""],
+["Palmito","jamón y salsa golf"],
+["Acelga","cebolla, morrón y huevo"],
+["Humita","choclo, queso y salsa blanca"],
+["Choclo y jamón",""],
+["Caprese","queso, tomate y albahaca"],
+["MAR",""],
+["Atún","atún, huevo y salsa"],
+["MOZZARELLA",""],
+["Pizza","mozzarella, salsa y orégano"],
+["Alemana","mozzarella y frankfurter"],
+["Napolitana","mozzarella, jamón, morrón y longaniza"],
+["Caribeña","mozzarella, salame y aceituna"],
+["Mozzarella y panceta",""],
+["Mozzarella cebolla y calabresa",""],
+["QUESO",""],
+["Jamón y queso",""],
+["Queso y cebolla",""],
+["Queso y aceituna",""],
+["Libanesa","queso, cebolla, ajo y perejil"],
+["Toscana","queso, panceta, cebolla y aceituna"],
+["Tropical","queso, jamón y ananá"],
+["4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+["DULCES",""],
+["Dulce de leche",""],["Membrillo",""],
+["Crema pastelera",""],
+["Mulata","dulce de leche y chocolate"],
+["Gringa","dulce de leche y chocolate blanco"],
+["Nutella",""]
+]},
+{cat:"EXTRAS",precio:120,items:[
+["Papas fritas","porción"],
+["Aros de cebolla","10 unidades"],
+["Nuggets","10 unidades"]
+]},
+{cat:"JUGOS NATURALES – $120",precio:120,items:[
+["Jugo de mango",""],
+["Jugo de frutilla",""],
+["Jugo de naranja",""],
+["Jugo de ananá",""]
+]},
+{cat:"BEBIDAS",precio:0,items:[
+["Coca-Cola mini","40"],
+["Coca-Cola lata","60"],
+["Coca-Cola 600ml","80"],
+["Coca-Cola 2L","120"],
+["Fanta mini","40"],
+["Fanta lata","60"],
+["Fanta 600ml","80"],
+["Fanta 2L","120"],
+["Sprite mini","40"],
+["Sprite lata","60"],
+["Sprite 600ml","80"],
+["Sprite 2L","120"]
+]},
+{cat:"CERVEZAS",precio:0,items:[
+["Pilsen lata","120"],
+["Pilsen 2L","200"],
+["Patricia lata","150"],
+["Patricia 2L","250"],
+["Glacial lata","120"]
+]}
 ];
 
 function render(){
@@ -222,17 +197,17 @@ function render(){
  productos.forEach(sec=>{
   html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
   sec.items.forEach(i=>{
-   if(i[1]==="" && i[0]===i[0].toUpperCase()){
-    html+=`<div class="sub-title">${i[0]}</div>`;
-    return;
+   if(i[1]==="" && i[0]==i[0].toUpperCase()){
+    html+=`<div class="sub-title">${i[0]}</div>`;return;
    }
-   let nombre=i[0], precio=sec.precio;
+   let precio=sec.precio||parseInt(i[1]);
+   let nombre=i[0];
    carrito[nombre]=0;
    html+=`
    <div class="item">
     <div>
      <div class="name">${nombre}</div>
-     <div class="desc">${i[1]}</div>
+     <div class="desc">${i[1]&&!isNaN(i[1])?"$"+i[1]:i[1]}</div>
     </div>
     <div class="controls">
      <button onclick="chg('${nombre}',-1,${precio})">−</button>
@@ -247,46 +222,34 @@ function render(){
 }
 
 function chg(n,d,p){
- carrito[n]+=d;
- if(carrito[n]<0) carrito[n]=0;
+ carrito[n]+=d;if(carrito[n]<0)carrito[n]=0;
  document.getElementById(n).innerText=carrito[n];
- total+=d*p;
- if(total<0) total=0;
+ total+=d*p;if(total<0)total=0;
  document.getElementById("total").innerText=total;
  resumen();
 }
 
 function resumen(){
  let r="";
- for(let k in carrito){
-  if(carrito[k]>0) r+=`${k} x${carrito[k]}<br>`;
- }
- document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+ for(let k in carrito){if(carrito[k]>0)r+=`${k} x${carrito[k]}<br>`;}
+ document.getElementById("resumen").innerHTML=r||"<small>No hay productos</small>";
 }
 
 function setEntrega(t){
  entrega=t;
- document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
- document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
  document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
 }
 
-function setPago(p){
- pago=p;
- document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
- document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
-}
+function setPago(p){pago=p}
 
 function enviar(){
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
- for(let k in carrito){
-  if(carrito[k]>0) msg+=`• ${k} x${carrito[k]}%0A`;
- }
- msg+=`%0A💰 Total: $${total} (envío no incluido)`;
- msg+=`%0A🚚 Entrega: ${entrega}`;
- msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
- if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
- msg+=`%0A💳 Pago: ${pago}`;
+ for(let k in carrito){if(carrito[k]>0)msg+=`• ${k} x${carrito[k]}%0A`;}
+ msg+=`%0A💰 Total: $${total}`;
+ msg+=`%0A🚚 ${entrega}`;
+ msg+=`%0A👤 ${nombre.value||"Sin nombre"}`;
+ if(entrega=="Delivery")msg+=`%0A📍 ${direccion.value||""}`;
+ msg+=`%0A💳 ${pago}`;
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
