@@ -46,7 +46,7 @@ h1{
 .item{
  display:flex;
  justify-content:space-between;
- align-items:center;
+ align-items:flex-start;
  flex-wrap:wrap;
  padding:8px 0;
  border-bottom:1px dashed #eee;
@@ -71,6 +71,8 @@ h1{
  display:flex;
  align-items:center;
  gap:6px;
+ margin-left:10px;
+ flex-shrink:0;
 }
 .controls button.plus{
  width:30px;
@@ -161,7 +163,7 @@ small{color:#777}
 .bebida-option{
  display:flex;
  justify-content:space-between;
- align-items:center;
+ align-items:flex-start;
  padding:4px 0;
  border-bottom:1px dashed #eee;
  flex-wrap:wrap;
@@ -171,7 +173,7 @@ small{color:#777}
  color:#555;
  font-size:13px;
  margin-top:2px;
- width:100%; /* para que quede debajo del nombre */
+ width:100%; /* debajo del nombre */
 }
 </style>
 </head>
