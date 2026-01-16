@@ -14,12 +14,37 @@
   <hr>
 
   <h2>🥟 Empanadas – $60 c/u</h2>
-  <ul>
-    <li>Carne</li>
-    <li>Pollo</li>
-    <li>Jamón y queso</li>
-    <li>Queso</li>
-  </ul>
+
+<p>Elegí cantidades por sabor:</p>
+
+<label>Carne:
+  <input type="number" id="carne" min="0" value="0">
+</label><br><br>
+
+<label>Pollo:
+  <input type="number" id="pollo" min="0" value="0">
+</label><br><br>
+
+<label>Jamón y queso:
+  <input type="number" id="jyq" min="0" value="0">
+</label><br><br>
+
+<label>Queso:
+  <input type="number" id="queso" min="0" value="0">
+</label><br><br>
+
+<button onclick="armarPedido()"
+  style="
+    font-size:20px;
+    padding:10px;
+    width:100%;
+    background:#000;
+    color:white;
+    border:none;
+    border-radius:8px;
+  ">
+  Armar pedido de empanadas
+</button>
 
   <hr>
 
@@ -46,7 +71,24 @@
     📍 Delivery con costo según distancia<br>
     💵 Pago en efectivo o transferencia
   </p>
+<script>
+function armarPedido() {
+  let pedido = "Pedido de empanadas:%0A";
 
+  let carne = document.getElementById("carne").value;
+  let pollo = document.getElementById("pollo").value;
+  let jyq = document.getElementById("jyq").value;
+  let queso = document.getElementById("queso").value;
+
+  if (carne > 0) pedido += "- Carne: " + carne + "%0A";
+  if (pollo > 0) pedido += "- Pollo: " + pollo + "%0A";
+  if (jyq > 0) pedido += "- Jamón y Queso: " + jyq + "%0A";
+  if (queso > 0) pedido += "- Queso: " + queso + "%0A";
+
+  let url = "https://wa.me/59892663559?text=" + pedido;
+  window.open(url, "_blank");
+}
+</script>
 </body>
 </html>
 
