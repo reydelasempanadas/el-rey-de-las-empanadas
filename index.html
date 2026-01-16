@@ -258,9 +258,13 @@ const productos=[
   ["Mini","40"],
   ["Lata","60"],
   ["600 ml","80"],
-  ["2 litros","120"],
-
-  ["Jugos naturales",""],
+  ["2 litros","120"]
+ ]
+},
+{
+ cat:"🍹 JUGOS NATURALES",
+ precio:0,
+ items:[
   ["Mango","120"],
   ["Frutilla","120"],
   ["Naranja","120"],
@@ -301,7 +305,7 @@ function render(){
    <div class="item">
     <div>
      <div class="name">${nombre}</div>
-     <div class="desc">${i[1]!=="" && sec.precio===60?i[1]:""}</div>
+     ${precio>0?`<div class="desc">$${precio}</div>`:sec.precio===60?`<div class="desc">${i[1]}</div>`:""}
     </div>
     <div class="controls">
      <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
