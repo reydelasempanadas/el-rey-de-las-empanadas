@@ -3,34 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Formulario de Pedido</title>
+  <title>Tu Página</title>
   <style>
+    /* Conservando tu formato original */
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      /* Mantener el formato original, sin margenes extra */
-    }
-
-    /* Menú superior */
-    header {
-      background-color: #007bff;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    header h1 {
+      background-color: #ffffff; /* según tu estilo anterior */
       margin: 0;
-      font-size: 22px;
+      padding: 0;
+    }
+
+    header {
+      /* Formato original de tu menú */
+      background-color: #333; /* ejemplo, pon tu color original */
+      color: #fff;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header .logo {
+      font-size: 20px; /* tamaño de tu logo/texto original */
+      font-weight: bold;
     }
 
     nav a {
-      color: white;
-      margin-left: 15px;
+      color: #fff;
+      margin-left: 20px;
       text-decoration: none;
-      font-weight: bold;
     }
 
     nav a:hover {
@@ -38,8 +39,7 @@
     }
 
     main {
-      padding: 20px;
-      /* Mantener el layout anterior sin ancho máximo forzado */
+      padding: 20px; /* el padding que tenías */
     }
 
     h2 {
@@ -65,7 +65,7 @@
     }
 
     .option.active {
-      background-color: #007bff;
+      background-color: #007bff; /* color activo */
       color: white;
       border-color: #0056b3;
     }
@@ -74,7 +74,7 @@
       padding: 10px 20px;
       border: none;
       border-radius: 6px;
-      background-color: #28a745;
+      background-color: #28a745; /* tu color original de botón */
       color: white;
       cursor: pointer;
       font-size: 16px;
@@ -95,13 +95,13 @@
 </head>
 <body>
 
-  <!-- Menú superior -->
+  <!-- Menú conservando tu formato -->
   <header>
-    <h1>Mi Tienda</h1>
+    <div class="logo">Tu Logo</div>
     <nav>
-      <a href="#">Inicio</a>
-      <a href="#">Productos</a>
-      <a href="#">Contacto</a>
+      <a href="#">Sección1</a>
+      <a href="#">Sección2</a>
+      <a href="#">Sección3</a>
     </nav>
   </header>
 
@@ -126,21 +126,26 @@
   </main>
 
   <script>
+    // Función para manejar la selección de opciones
     function setupOptionGroup(groupId) {
       const group = document.getElementById(groupId);
       const options = group.querySelectorAll('.option');
 
       options.forEach(option => {
         option.addEventListener('click', () => {
+          // Quitar active de todas
           options.forEach(opt => opt.classList.remove('active'));
+          // Poner active en la seleccionada
           option.classList.add('active');
         });
       });
     }
 
+    // Configurar los grupos
     setupOptionGroup('deliveryOptions');
     setupOptionGroup('paymentOptions');
 
+    // Enviar pedido
     document.getElementById('submitBtn').addEventListener('click', () => {
       const delivery = document.querySelector('#deliveryOptions .option.active');
       const payment = document.querySelector('#paymentOptions .option.active');
