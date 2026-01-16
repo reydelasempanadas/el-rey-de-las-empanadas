@@ -7,7 +7,7 @@
 
 <style>
 body{
- font-family:Arial, sans-serif;
+ font-family:Arial,sans-serif;
  background:#f6f6f6;
  margin:0;
  padding:10px;
@@ -15,16 +15,11 @@ body{
 h1{
  text-align:center;
  color:#b30000;
- margin-bottom:5px;
 }
 h2{
- border-bottom:2px solid #eee;
- padding-bottom:5px;
  color:#b30000;
-}
-p{
- text-align:center;
- color:#444;
+ border-bottom:2px solid #eee;
+ padding-bottom:4px;
 }
 .card{
  background:white;
@@ -33,54 +28,58 @@ p{
  margin-bottom:15px;
  box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
+.price-note{
+ font-weight:bold;
+ color:#444;
+ margin-bottom:10px;
+}
 .item{
  display:flex;
  justify-content:space-between;
  align-items:center;
- margin:8px 0;
- padding-bottom:8px;
  border-bottom:1px dashed #eee;
+ padding:8px 0;
 }
-.item:last-child{
- border-bottom:none;
-}
-.name{
- font-weight:bold;
- font-size:15px;
-}
-.desc{
- font-size:12px;
- color:#777;
-}
+.item:last-child{border-bottom:none}
+.name{font-weight:bold}
+.desc{font-size:12px;color:#777}
 .controls button{
- width:32px;
- height:32px;
- font-size:18px;
- border:none;
+ width:30px;height:30px;
  background:#b30000;
  color:white;
+ border:none;
  border-radius:6px;
- cursor:pointer;
+ font-size:18px;
 }
-.controls span{
- margin:0 8px;
+.controls span{margin:0 6px}
+.selector{
+ display:flex;
+ gap:10px;
+ margin:10px 0;
+}
+.selector button{
+ flex:1;
+ padding:10px;
+ border-radius:8px;
+ border:1px solid #ccc;
+ background:#eee;
  font-size:16px;
 }
-.total{
- background:#fff;
- padding:15px;
- border-radius:12px;
- margin-top:20px;
- font-size:16px;
- box-shadow:0 3px 8px rgba(0,0,0,.15);
+.selector button.active{
+ background:#b30000;
+ color:white;
 }
-select,input{
+input,select{
  width:100%;
  padding:8px;
  margin:6px 0;
  font-size:16px;
- border-radius:6px;
- border:1px solid #ccc;
+}
+.total{
+ background:white;
+ padding:15px;
+ border-radius:12px;
+ box-shadow:0 3px 8px rgba(0,0,0,.15);
 }
 button.send{
  width:100%;
@@ -91,35 +90,32 @@ button.send{
  border:none;
  border-radius:12px;
  margin-top:10px;
- cursor:pointer;
 }
-small{
- color:#777;
-}
+small{color:#777}
 </style>
 </head>
 
 <body>
 
 <h1>👑 El Rey de las Empanadas</h1>
-<p>🕒 Entrega de 18:30 a 23:00</p>
 
 <div id="menu"></div>
 
 <div class="total">
 <h2>🛒 Resumen del pedido</h2>
 <div id="resumen"><small>No hay productos seleccionados</small></div>
+
 <p><b>Total:</b> $<span id="total">0</span></p>
 <small>Envío no incluido</small>
 
 <h3>Entrega</h3>
-<select id="entrega">
-<option value="Mostrador">Retiro en mostrador</option>
-<option value="Delivery">Delivery</option>
-</select>
+<div class="selector">
+<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Mostrador</button>
+<button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
+</div>
 
 <input id="nombre" placeholder="Nombre">
-<input id="direccion" placeholder="Dirección (solo delivery)">
+<input id="direccion" placeholder="Dirección" style="display:none">
 
 <h3>Pago</h3>
 <select id="pago">
@@ -131,83 +127,78 @@ small{
 </div>
 
 <script>
-const productos = [
- {cat:"Empanadas",items:[
-  ["Empanada","Criolla","carne y huevo"],
-  ["Empanada","Mendocina","carne, huevo y aceituna"],
-  ["Empanada","Mexicana","carne, huevo, aceituna y pimienta"],
-  ["Empanada","Cordobesa","carne, huevo y pasas"],
-  ["Empanada","Mixta","carne, huevo, choclo y calabresa"],
-  ["Empanada","Gallega","carne, huevo y panceta"],
-  ["Empanada","Burguer","carne, cebolla y cheddar"],
-  ["Empanada","Pollo clásico","pollo, salsa y huevo"],
-  ["Empanada","Pollo queso","pollo, queso y aceituna"],
-  ["Empanada","Pollo requesón","pollo y requesón"],
-  ["Empanada","Pollo mostaza","pollo a la mostaza"],
-  ["Empanada","Palmito","jamón y salsa golf"],
-  ["Empanada","Acelga","cebolla, morrón y huevo"],
-  ["Empanada","Humita","choclo, queso y salsa blanca"],
-  ["Empanada","Caprese","queso, tomate y albahaca"],
-  ["Empanada","Atún","atún, huevo y salsa"],
-  ["Empanada","Pizza","mozzarella, salsa y orégano"],
-  ["Empanada","Napolitana","mozzarella, jamón y morrón"],
-  ["Empanada","Jamón y queso","clásica"],
-  ["Empanada","4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
-  ["Empanada","Dulce de leche",""],
-  ["Empanada","Nutella",""]
- ]},
- {cat:"Bebidas",items:[
-  ["Coca-Cola","Mini","$40",40],
-  ["Coca-Cola","Lata","$60",60],
-  ["Coca-Cola","600ml","$80",80],
-  ["Coca-Cola","2lts","$120",120],
-  ["Fanta","Mini","$40",40],
-  ["Fanta","Lata","$60",60],
-  ["Fanta","600ml","$80",80],
-  ["Fanta","2lts","$120",120],
-  ["Sprite","Mini","$40",40],
-  ["Sprite","Lata","$60",60],
-  ["Sprite","600ml","$80",80],
-  ["Sprite","2lts","$120",120],
-  ["Jugo","Mango","$120",120],
-  ["Jugo","Frutilla","$120",120],
-  ["Jugo","Naranja","$120",120],
-  ["Jugo","Ananá","$120",120]
- ]},
- {cat:"Cervezas",items:[
-  ["Pilsen","Lata","$120",120],
-  ["Pilsen","2lts","$180",180],
-  ["Patricia","Lata","$120",120],
-  ["Patricia","2lts","$220",220],
-  ["Glacial","Lata","$110",110]
- ]},
- {cat:"Extras",items:[
-  ["Papas fritas","Porción","$120",120],
-  ["Aros de cebolla","10 unidades","$120",120],
-  ["Nuggets","10 unidades","$120",120]
- ]}
-];
-
+let entrega="Mostrador";
 let carrito={}, total=0;
+
+const productos=[
+{cat:"Empanadas",precioNota:"Empanadas $60 c/u",precio:60,items:[
+["Empanada Criolla","carne y huevo"],
+["Empanada Mendocina","carne, huevo y aceituna"],
+["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
+["Empanada Cordobesa","carne, huevo y pasas"],
+["Empanada Mixta","carne, huevo, choclo y calabresa"],
+["Empanada Gallega","carne, huevo y panceta"],
+["Empanada Burguer","carne, cebolla y cheddar"],
+["Empanada Pollo clásico","pollo, salsa y huevo"],
+["Empanada Pollo queso","pollo, queso y aceituna"],
+["Empanada Pollo requesón","pollo y requesón"],
+["Empanada Pollo mostaza","pollo a la mostaza"],
+["Empanada Humita","choclo, queso y salsa blanca"],
+["Empanada Caprese","queso, tomate y albahaca"],
+["Empanada Atún","atún, huevo y salsa"],
+["Empanada Dulce de leche",""],
+["Empanada Nutella",""]
+]},
+{cat:"Bebidas",items:[
+["Coca-Cola Mini",40],
+["Coca-Cola Lata",60],
+["Coca-Cola 600ml",80],
+["Coca-Cola 2L",120],
+["Fanta Mini",40],
+["Fanta Lata",60],
+["Fanta 600ml",80],
+["Fanta 2L",120],
+["Sprite Mini",40],
+["Sprite Lata",60],
+["Sprite 600ml",80],
+["Sprite 2L",120],
+["Jugo Mango",120],
+["Jugo Frutilla",120],
+["Jugo Naranja",120],
+["Jugo Ananá",120]
+]},
+{cat:"Cervezas",items:[
+["Pilsen Lata",120],
+["Pilsen 2L",180],
+["Patricia Lata",120],
+["Patricia 2L",220],
+["Glacial Lata",110]
+]},
+{cat:"Extras",items:[
+["Papas fritas (porción)",120],
+["Aros de cebolla (10u)",120],
+["Nuggets (10u)",120]
+]}
+];
 
 function render(){
  let html="";
  productos.forEach(sec=>{
   html+=`<div class="card"><h2>${sec.cat}</h2>`;
+  if(sec.precioNota) html+=`<div class="price-note">${sec.precioNota}</div>`;
   sec.items.forEach(i=>{
-   let key=i[0]+"-"+i[1];
-   carrito[key]=0;
-   let precio=i[3]||60;
+   let nombre=i[0], precio=i[1]||sec.precio;
+   carrito[nombre]=0;
    html+=`
    <div class="item">
     <div>
-     <div class="name">${i[0]} ${i[1]} — $${precio}</div>
-     <div class="desc">${i[2]||""}</div>
+     <div class="name">${nombre}</div>
+     ${!sec.precioNota?`<small>$${precio}</small>`:""}
     </div>
     <div class="controls">
-     <button onclick="chg('${key}',-1,${precio})">−</button>
-     <span id="${key}">0</span>
-     <button onclick="chg('${key}',1,${precio})">+</button>
+     <button onclick="chg('${nombre}',-1,${precio})">−</button>
+     <span id="${nombre}">0</span>
+     <button onclick="chg('${nombre}',1,${precio})">+</button>
     </div>
    </div>`;
   });
@@ -216,10 +207,10 @@ function render(){
  document.getElementById("menu").innerHTML=html;
 }
 
-function chg(k,d,p){
- carrito[k]+=d;
- if(carrito[k]<0) carrito[k]=0;
- document.getElementById(k).innerText=carrito[k];
+function chg(n,d,p){
+ carrito[n]+=d;
+ if(carrito[n]<0) carrito[n]=0;
+ document.getElementById(n).innerText=carrito[n];
  total+=d*p;
  if(total<0) total=0;
  document.getElementById("total").innerText=total;
@@ -229,30 +220,29 @@ function chg(k,d,p){
 function resumen(){
  let r="";
  for(let k in carrito){
-  if(carrito[k]>0){
-   let nombre=k.split("-")[1];
-   r+=`${nombre} x${carrito[k]}<br>`;
-  }
+  if(carrito[k]>0) r+=`${k} x${carrito[k]}<br>`;
  }
- document.getElementById("resumen").innerHTML=r || "<small>No hay productos seleccionados</small>";
+ document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+}
+
+function setEntrega(t){
+ entrega=t;
+ document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
+ document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
+ document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
 }
 
 function enviar(){
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
  for(let k in carrito){
-  if(carrito[k]>0){
-   let nombre=k.split("-")[1];
-   msg+=`• ${nombre} x${carrito[k]}%0A`;
-  }
+  if(carrito[k]>0) msg+=`• ${k} x${carrito[k]}%0A`;
  }
- msg+=`%0A💰 *Total:* $${total} (envío no incluido)`;
- msg+=`%0A🚚 *Entrega:* ${entrega.value}`;
- msg+=`%0A👤 *Nombre:* ${nombre.value || "No indicado"}`;
- if(entrega.value=="Delivery"){
-  msg+=`%0A📍 *Dirección:* ${direccion.value || "No indicada"}`;
- }
- msg+=`%0A💳 *Pago:* ${pago.value}`;
- window.open("https://wa.me/598XXXXXXXX?text="+msg,"_blank");
+ msg+=`%0A💰 Total: $${total} (envío no incluido)`;
+ msg+=`%0A🚚 Entrega: ${entrega}`;
+ msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
+ if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
+ msg+=`%0A💳 Pago: ${pago.value}`;
+ window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
 render();
