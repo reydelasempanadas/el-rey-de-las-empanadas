@@ -176,7 +176,7 @@ small{color:#777;}
 <body>
 
 <h1>👑 El Rey de las Empanadas</h1>
-<h2>Pedidos: 17:00 a 23:00 | Lunes cerrado | Entregador: 18:30 a 23:00</h2>
+<h2>Pedidos: 17:00 a 23:00 | Lunes cerrado | Delivery: 18:30 a 23:00</h2>
 
 <div id="menu"></div>
 
@@ -424,12 +424,19 @@ function enviar(){
  const now = new Date();
  const hora = now.getHours();
  const dia = now.getDay();
+
+ let totalItems = Object.values(carrito).reduce((a,b)=>a+b,0);
+ if(totalItems===0){
+   alert("🚫 Seleccionar productos para enviar pedido.");
+   return;
+ }
+
  if(dia===1){
    alert("🚫 Los lunes estamos cerrados, no se pueden realizar pedidos.");
    return;
  }
  if(hora<17 || hora>23){
-   alert("🚫 Los pedidos se reciben de 17:00 a 23:00. El entregador inicia a las 18:30.");
+   alert("🚫 Los pedidos se reciben de 17:00 a 23:00.");
    return;
  }
 
@@ -438,7 +445,7 @@ function enviar(){
   if(carrito[k]>0) msg+=`• ${carrito[k]} x ${k}%0A`;
  }
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
- msg+=`%0A🚚 Entrega: ${entrega} (El entregador inicia a las 18:30)`;
+ if(entrega=="Delivery") msg+=`%0A🚚 Delivery: ${entrega} (Inicia a las 18:30)`;
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
  if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
  msg+=`%0A💳 Pago: ${pago}`;
