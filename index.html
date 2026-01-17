@@ -144,21 +144,35 @@ small{color:#777}
  margin-top:2px;
 }
 
-/* QR */
+/* QR final */
 #qrcode{
  text-align:center;
- margin:20px 0;
+ margin:30px 0 10px;
 }
 #qrcode-canvas{
  display:inline-block;
  padding:10px;
- border:4px solid #b30000; /* borde rojo */
+ border:4px solid #b30000;
  border-radius:12px;
 }
 #qrcode-text{
  font-size:16px;
  color:#b30000;
  margin-top:8px;
+ margin-bottom:8px;
+}
+#share-whatsapp{
+ display:inline-block;
+ padding:10px 16px;
+ background:#25D366;
+ color:white;
+ border-radius:12px;
+ text-decoration:none;
+ font-weight:bold;
+ margin-top:5px;
+}
+#share-whatsapp:hover{
+ opacity:0.9;
 }
 </style>
 </head>
@@ -168,12 +182,6 @@ small{color:#777}
 <h1>👑 El Rey de las Empanadas
 <small>Horario: 17:00 a 23:00 | Lunes cerrado | Delivery: 18:30 a 23:00</small>
 </h1>
-
-<!-- QR -->
-<div id="qrcode">
-  <div id="qrcode-canvas"></div>
-  <div id="qrcode-text">📱 Escanea para hacer tu pedido</div>
-</div>
 
 <div id="menu"></div>
 
@@ -212,7 +220,14 @@ El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
-<!-- QRCode.js librería -->
+<!-- QR al final de la página -->
+<div id="qrcode">
+  <div id="qrcode-canvas"></div>
+  <div id="qrcode-text">📱 Escanea para hacer tu pedido</div>
+  <a href="#" target="_blank" id="share-whatsapp">Compartir QR por WhatsApp</a>
+</div>
+
+<!-- Librería QRCode.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
@@ -433,7 +448,7 @@ function enviar(){
 render();
 
 // Crear QR
-new QRCode(document.getElementById("qrcode-canvas"), {
+let qr = new QRCode(document.getElementById("qrcode-canvas"), {
     text: window.location.href,
     width: 180,
     height: 180,
@@ -441,6 +456,11 @@ new QRCode(document.getElementById("qrcode-canvas"), {
     colorLight : "#ffffff",
     correctLevel : QRCode.CorrectLevel.H
 });
+
+// Enlace para compartir QR por WhatsApp
+document.getElementById("share-whatsapp").href =
+  "https://wa.me/?text=" + encodeURIComponent("¡Haz tu pedido escaneando este QR! " + window.location.href);
+
 </script>
 
 </body>
