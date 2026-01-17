@@ -167,7 +167,11 @@ small{color:#777}
 <button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
 </div>
 
-<textarea id="observaciones" placeholder="Observaciones para la dirección" style="display:none"></textarea>
+<div class="input-area">
+<input id="nombre" placeholder="Nombre">
+<input id="direccion" placeholder="Dirección" style="display:none">
+<textarea id="observaciones" placeholder="Observaciones sobre la dirección" style="display:none"></textarea>
+</div>
 
 <div class="section-title">💳 Forma de pago</div>
 <div class="selector">
@@ -181,8 +185,6 @@ small{color:#777}
 <div id="transferNotice" class="notice" style="display:none">
 El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
 </div>
-
-<input id="nombre" placeholder="Nombre">
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
@@ -336,17 +338,14 @@ function chg(pid,d){
  carrito[pid]+=d;
  if(carrito[pid]<0) carrito[pid]=0;
 
- // actualizar contador
  document.getElementById(pid).innerText = carrito[pid];
 
- // recalcular total
  total=0;
  for(let k in carrito){
   total+=carrito[k]*precios[k];
  }
  document.getElementById("total").innerText = total;
 
- // actualizar resumen
  resumen();
 }
 
@@ -364,6 +363,8 @@ function setEntrega(t){
  entrega=t;
  document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
  document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
+
+ document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
  document.getElementById("observaciones").style.display=t=="Delivery"?"block":"none";
 }
 
@@ -372,7 +373,7 @@ function setPago(p){
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
  document.getElementById("cambio").style.display=p=="Efectivo"?"block":"none";
- document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
+	document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
 }
 
 function enviar(){
@@ -380,14 +381,23 @@ function enviar(){
   alert("Seleccione al menos un producto para realizar el pedido.");
   return;
  }
+ if(nombre.value.trim()===""){
+  alert("Ingrese su nombre para el pedido.");
+  return;
+ }
+ if(entrega=="Delivery" && direccion.value.trim()===""){
+  alert("Ingrese la dirección para el delivery.");
+  return;
+ }
+
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
  for(let k in carrito){
   if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g,' ')}%0A`;
  }
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
  msg+=`%0A🚚 Entrega: ${entrega}`;
- if(entrega=="Delivery") msg+=`%0A📍 Observaciones: ${observaciones.value||"No indicadas"}`;
- msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
+ if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value}%0A📝 Observaciones: ${observaciones.value||"No indicadas"}`;
+ msg+=`%0A👤 Nombre: ${nombre.value}`;
  msg+=`%0A💳 Pago: ${pago}`;
  if(pago=="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
