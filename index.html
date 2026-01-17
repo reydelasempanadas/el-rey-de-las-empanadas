@@ -181,8 +181,104 @@ let pago="Efectivo";
 let carrito={}, total=0;
 
 const productos=[
-  // Aquí va TODO el menú oficial: empanadas, otros productos, bebidas, jugos, cervezas
-  // Cada item debe inicializar carrito[nombre]=0
+{
+ cat:"🥟 Empanadas",
+ precio:60,
+ items:[
+  ["Carne","carne y huevo"],
+  ["Empanada Criolla","carne y huevo"],
+  ["Empanada Mendocina","carne, huevo y aceituna"],
+  ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
+  ["Empanada Cordobesa","carne, huevo y pasas de uva"],
+  ["Empanada Mixta","carne, huevo, choclo y calabresa"],
+  ["Empanada Gallega","carne, huevo y panceta"],
+  ["Empanada Burguer","carne, cebolla y cheddar"],
+  ["Pollo","pollo y huevo"],
+  ["Empanada Pollo clásico","pollo, salsa y huevo"],
+  ["Empanada Pollo queso","pollo, queso y aceituna"],
+  ["Empanada Pollo requesón","pollo y requesón"],
+  ["Empanada Pollo mostaza","pollo a la mostaza"],
+  ["Verdura","verdura y queso"],
+  ["Empanada Palmito","jamón y salsa golf"],
+  ["Empanada Acelga","cebolla, morrón y huevo"],
+  ["Empanada Humita","choclo, queso y salsa blanca"],
+  ["Empanada Choclo y jamón",""],
+  ["Empanada Caprese","queso, tomate y albahaca"],
+  ["Mar","atún, huevo y salsa"],
+  ["Empanada Atún","atún, huevo y salsa"],
+  ["Mozzarella","mozzarella y salsa"],
+  ["Empanada Pizza","mozzarella, salsa y orégano"],
+  ["Empanada Alemana","mozzarella y frankfurter"],
+  ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
+  ["Empanada Caribeña","mozzarella, salame y aceituna"],
+  ["Empanada Mozzarella y panceta",""],
+  ["Empanada Mozzarella, cebolla y calabresa",""],
+  ["Queso","queso"],
+  ["Empanada Jamón y queso",""],
+  ["Empanada Queso, calabresa y salsa",""],
+  ["Empanada Queso y cebolla",""],
+  ["Empanada Queso y aceituna",""],
+  ["Empanada Libanesa","queso, cebolla, ajo y perejil"],
+  ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
+  ["Empanada Tropical","queso, jamón y ananá"],
+  ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+  ["Dulces",""],
+  ["Empanada Dulce de leche",""],
+  ["Empanada Membrillo",""],
+  ["Empanada Crema pastelera",""],
+  ["Empanada Mulata","dulce de leche y chocolate"],
+  ["Empanada Gringa","dulce de leche y chocolate blanco"],
+  ["Empanada Nutella",""]
+ ]
+},
+{
+ cat:"🍟 Otros productos",
+ precio:0,
+ items:[
+  ["Papas fritas (porción)","$120"],
+  ["Aros de cebolla (10 u.)","$120"],
+  ["Nuggets (10 u.)","$120"]
+ ]
+},
+{
+ cat:"🥤 Bebidas",
+ precio:0,
+ items:[
+  ["Coca-Cola Mini","$40"],
+  ["Coca-Cola Lata","$60"],
+  ["Coca-Cola 600 ml","$80"],
+  ["Coca-Cola 2 litros","$120"],
+  ["Fanta Mini","$40"],
+  ["Fanta Lata","$60"],
+  ["Fanta 600 ml","$80"],
+  ["Fanta 2 litros","$120"],
+  ["Sprite Mini","$40"],
+  ["Sprite Lata","$60"],
+  ["Sprite 600 ml","$80"],
+  ["Sprite 2 litros","$120"]
+ ]
+},
+{
+ cat:"🍹 Jugos naturales",
+ precio:120,
+ items:[
+  ["Mango","$120"],
+  ["Frutilla","$120"],
+  ["Naranja","$120"],
+  ["Ananá","$120"]
+ ]
+},
+{
+ cat:"🍺 Cervezas",
+ precio:0,
+ items:[
+  ["Pilsen Lata","$120"],
+  ["Pilsen 2 litros","$180"],
+  ["Patricia Lata","$120"],
+  ["Patricia 2 litros","$220"],
+  ["Glacial Lata","$110"]
+ ]
+}
 ];
 
 function render(){
@@ -194,13 +290,13 @@ function render(){
     html+=`<div class="sub-title">${i[0]}</div>`;
     return;
    }
-   let nombre=i[0], precio=i[1]?i[1]:sec.precio;
+   let nombre=i[0], precio=parseInt(i[1].replace(/\D/g,'')) || sec.precio;
    if(carrito[nombre]===undefined) carrito[nombre]=0;
    html+=`
    <div class="item">
     <div>
      <div class="name">${nombre}</div>
-     <div class="desc">${i[1] || ""}</div>
+     <div class="desc">${i[1]?i[1]:""}</div>
     </div>
     <div class="controls">
      <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
@@ -226,7 +322,7 @@ function calcularTotal(){
  total=0;
  for(let k in carrito){
    let sec=productos.find(sec=>sec.items.some(x=>x[0]===k));
-   let precio=parseInt(sec.items.find(x=>x[0]===k)[1]) || sec.precio;
+   let precio=parseInt(sec.items.find(x=>x[0]===k)[1].replace(/\D/g,'')) || sec.precio;
    total+=carrito[k]*precio;
  }
  document.getElementById("total").innerText=total;
