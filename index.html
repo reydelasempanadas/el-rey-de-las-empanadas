@@ -91,13 +91,11 @@ h1 small{
 }
 .input-area input, .input-area textarea{
  width:100%;
- padding:10px;
+ padding:8px;
  margin:6px 0;
  font-size:16px;
  border-radius:6px;
- border:none;
- background:#fff9db; /* amarillo clarito */
- box-sizing:border-box;
+ border:1px solid #ccc;
 }
 .total{
  background:white;
@@ -181,10 +179,9 @@ small{color:#777}
 <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
 
-<div class="input-area" id="cambio" style="display:none">
-<input id="efectivoCambio" placeholder="Monto de cambio" />
+<div id="cambio" style="display:block">
+<input id="efectivoCambio" placeholder="¿Necesita cambio?">
 </div>
-
 <div id="transferNotice" class="notice" style="display:none">
 El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
 </div>
@@ -212,19 +209,23 @@ const productos=[
   ["Empanada Mixta","carne, huevo, choclo y calabresa"],
   ["Empanada Gallega","carne, huevo y panceta"],
   ["Empanada Burguer","carne, cebolla y cheddar"],
+
   ["POLLO",""],
   ["Empanada Pollo clásico","pollo, salsa y huevo"],
   ["Empanada Pollo queso","pollo, queso y aceituna"],
   ["Empanada Pollo requesón","pollo y requesón"],
   ["Empanada Pollo mostaza","pollo a la mostaza"],
+
   ["VERDURA",""],
   ["Empanada Palmito","jamón y salsa golf"],
   ["Empanada Acelga","cebolla, morrón y huevo"],
   ["Empanada Humita","choclo, queso y salsa blanca"],
   ["Empanada Choclo y jamón",""],
   ["Empanada Caprese","queso, tomate y albahaca"],
+
   ["MAR",""],
   ["Empanada Atún","atún, huevo y salsa"],
+
   ["MOZZARELLA",""],
   ["Empanada Pizza","mozzarella, salsa y orégano"],
   ["Empanada Alemana","mozzarella y frankfurter"],
@@ -232,6 +233,7 @@ const productos=[
   ["Empanada Caribeña","mozzarella, salame y aceituna"],
   ["Empanada Mozzarella y panceta",""],
   ["Empanada Mozzarella, cebolla y calabresa",""],
+
   ["QUESO",""],
   ["Empanada Jamón y queso",""],
   ["Empanada Queso, calabresa y salsa",""],
@@ -241,6 +243,7 @@ const productos=[
   ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
   ["Empanada Tropical","queso, jamón y ananá"],
   ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+
   ["DULCES",""],
   ["Empanada Dulce de leche",""],
   ["Empanada Membrillo",""],
@@ -250,7 +253,30 @@ const productos=[
   ["Empanada Nutella",""]
  ]
 },
-// Bebidas y jugos aquí se mantienen como estaban en el código oficial anterior
+{
+ cat:"🥤 Bebidas",
+ subcats:[
+   {marca:"Coca-Cola", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]},
+   {marca:"Fanta", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]},
+   {marca:"Sprite", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]}
+ ]
+},
+{
+ cat:"🍹 Jugos Naturales",
+ precio:0,
+ items:[
+  ["Jugo de Mango","120"], ["Jugo de Frutilla","120"], ["Jugo de Naranja","120"], ["Jugo de Ananá","120"]
+ ]
+},
+{
+ cat:"🍺 Cervezas",
+ precio:0,
+ items:[
+  ["Pilsen Lata","120"], ["Pilsen 2L","180"],
+  ["Patricia Lata","120"], ["Patricia 2L","220"],
+  ["Glacial Lata","110"]
+ ]
+}
 ];
 
 function render(){
@@ -346,9 +372,8 @@ function setPago(p){
  pago=p;
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
-
  document.getElementById("cambio").style.display=p=="Efectivo"?"block":"none";
- document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
+	document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
 }
 
 function enviar(){
