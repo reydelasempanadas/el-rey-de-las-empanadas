@@ -190,9 +190,8 @@ El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
 <script>
 let entrega="Mostrador";
 let pago="Efectivo";
-let carrito={}, total=0;
+let carrito={}, precios={}, total=0;
 
-// Generar IDs únicos para cada producto para evitar duplicados
 function idify(name){ return name.replace(/\s+/g,'_').replace(/[^\w]/g,''); }
 
 const productos=[
@@ -287,7 +286,8 @@ function render(){
       html+=`<div class="brand-card"><div class="brand-title">${sub.marca}</div>`;
       sub.items.forEach(i=>{
         let nombre=sub.marca+" "+i[0], precio=parseInt(i[1]), pid=idify(nombre);
-        carrito[nombre]=0;
+        carrito[pid]=0;
+        precios[pid]=precio;
         html+=`
         <div class="item brand-item">
          <div>
@@ -295,12 +295,11 @@ function render(){
           <small>$${precio}</small>
          </div>
          <div class="controls">
-          <button class="minus" onclick="chg('${pid}',-1,${precio})">−</button>
+          <button class="minus" onclick="chg('${pid}',-1)">−</button>
           <span id="${pid}">0</span>
-          <button class="plus" onclick="chg('${pid}',1,${precio})">+</button>
+          <button class="plus" onclick="chg('${pid}',1)">+</button>
          </div>
         </div>`;
-        carrito[pid] = 0; // usar ID único
       });
       html+="</div>";
     });
@@ -312,6 +311,7 @@ function render(){
       }
       let nombre=i[0], precio=sec.precio>0?sec.precio:parseInt(i[1]), pid=idify(nombre);
       carrito[pid]=0;
+      precios[pid]=precio;
       html+=`
       <div class="item">
        <div>
@@ -320,9 +320,9 @@ function render(){
         ${sec.cat!=="🥟 Empanadas - $60 c/u"?`<small>$${precio}</small>`:""}
        </div>
        <div class="controls">
-        <button class="minus" onclick="chg('${pid}',-1,${precio})">−</button>
+        <button class="minus" onclick="chg('${pid}',-1)">−</button>
         <span id="${pid}">0</span>
-        <button class="plus" onclick="chg('${pid}',1,${precio})">+</button>
+        <button class="plus" onclick="chg('${pid}',1)">+</button>
        </div>
       </div>`;
     });
@@ -332,21 +332,22 @@ function render(){
  document.getElementById("menu").innerHTML=html;
 }
 
-function chg(pid,d,p){
+function chg(pid,d){
  carrito[pid]+=d;
  if(carrito[pid]<0) carrito[pid]=0;
- // actualizar total
- total=0;
- for(let k in carrito){
-  if(carrito[k]>0){
-    let pr=parseInt(document.getElementById(k).datasetPrecio || p);
-    total+=carrito[k]*p;
-  }
- }
+
  // actualizar contador
  document.getElementById(pid).innerText = carrito[pid];
+
+ // recalcular total
+ total=0;
+ for(let k in carrito){
+  total+=carrito[k]*precios[k];
+ }
+ document.getElementById("total").innerText = total;
+
  // actualizar resumen
-	resumen();
+ resumen();
 }
 
 function resumen(){
@@ -371,7 +372,7 @@ function setPago(p){
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
  document.getElementById("cambio").style.display=p=="Efectivo"?"block":"none";
-	document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
+ document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
 }
 
 function enviar(){
