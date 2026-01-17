@@ -17,11 +17,10 @@ h1{
  color:#b30000;
  margin-bottom:5px;
 }
-p.info{
- text-align:center;
- font-size:14px;
+h1 small{
+ display:block;
+ font-size:12px;
  color:#555;
- margin:2px 0 12px 0;
 }
 .section-title{
  background:#b30000;
@@ -70,15 +69,8 @@ p.info{
  font-size:18px;
  cursor:pointer;
 }
-.controls .add{background:#25D366;color:white;}
-.controls .sub{background:#b30000;color:white;}
-.controls span{
- margin:0 6px;
- font-size:16px;
- min-width:20px;
- text-align:center;
- display:inline-block;
-}
+.controls .plus{background:#25D366;color:white;}
+.controls .minus{background:#b30000;color:white;}
 .selector{
  display:flex;
  gap:10px;
@@ -121,21 +113,23 @@ button.send{
  border-radius:12px;
  margin-top:10px;
 }
-small{color:#777}
-.alert{
- background:#fff4c2;
- padding:8px 10px;
+.notice{
+ background:#fff3cd;
+ color:#856404;
+ padding:8px 12px;
  border-radius:6px;
- margin:6px 0;
+ margin:8px 0;
  font-size:14px;
 }
+small{color:#777}
 </style>
 </head>
 
 <body>
 
-<h1>👑 El Rey de las Empanadas</h1>
-<p class="info">Pedidos de 17:00 a 23:00. Lunes cerrado. Delivery 18:30 a 23:00.</p>
+<h1>👑 El Rey de las Empanadas
+<small>Horario: 17:00 a 23:00 | Lunes cerrado | Delivery: 18:30 a 23:00</small>
+</h1>
 
 <div id="menu"></div>
 
@@ -152,21 +146,22 @@ small{color:#777}
 <button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
 </div>
 
-<input id="nombre" placeholder="Nombre">
-<input id="direccion" placeholder="Dirección" style="display:none">
-<textarea id="observaciones" placeholder="Observaciones de la dirección" style="display:none"></textarea>
+<textarea id="observaciones" placeholder="Observaciones para la dirección" style="display:none"></textarea>
 
 <div class="section-title">💳 Forma de pago</div>
 <div class="selector">
 <button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
 <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
-<div id="transferMsg" class="alert" style="display:none">
-El enlace de transferencia aparece en WhatsApp para realizar el pago. Recuerda enviar el comprobante.
+
+<div id="cambio" style="display:block">
+<input id="efectivoCambio" placeholder="¿Necesita cambio?">
 </div>
-<div id="cambioMsg" class="alert" style="display:none">
-Indicar si necesita cambio para el efectivo.
+<div id="transferNotice" class="notice" style="display:none">
+El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
 </div>
+
+<input id="nombre" placeholder="Nombre">
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
@@ -178,7 +173,7 @@ let carrito={}, total=0;
 
 const productos=[
 {
- cat:"🥟 Empanadas",
+ cat:"🥟 Empanadas - $60 c/u",
  precio:60,
  items:[
   ["CARNE",""],
@@ -211,7 +206,8 @@ const productos=[
   ["Empanada Alemana","mozzarella y frankfurter"],
   ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
   ["Empanada Caribeña","mozzarella, salame y aceituna"],
-  ["Empanada Mozzarella","mozzarella, cebolla y calabresa"],
+  ["Empanada Mozzarella y panceta",""],
+  ["Empanada Mozzarella, cebolla y calabresa",""],
 
   ["QUESO",""],
   ["Empanada Jamón y queso",""],
@@ -234,48 +230,36 @@ const productos=[
 },
 {
  cat:"🍟 Otros productos",
+ precio:0,
  items:[
-  ["Papas fritas","120"],
+  ["Papas fritas (porción)","120"],
   ["Aros de cebolla (10 u.)","120"],
   ["Nuggets (10 u.)","120"]
  ]
 },
 {
  cat:"🥤 Bebidas",
+ precio:0,
  items:[
-  ["Coca-Cola","Mini","40"],
-  ["Coca-Cola","Lata","60"],
-  ["Coca-Cola","600 ml","80"],
-  ["Coca-Cola","2 litros","120"],
-
-  ["Fanta","Mini","40"],
-  ["Fanta","Lata","60"],
-  ["Fanta","600 ml","80"],
-  ["Fanta","2 litros","120"],
-
-  ["Sprite","Mini","40"],
-  ["Sprite","Lata","60"],
-  ["Sprite","600 ml","80"],
-  ["Sprite","2 litros","120"]
+  ["Coca-Cola Mini","40"], ["Coca-Cola Lata","60"], ["Coca-Cola 600 ml","80"], ["Coca-Cola 2L","120"],
+  ["Fanta Mini","40"], ["Fanta Lata","60"], ["Fanta 600 ml","80"], ["Fanta 2L","120"],
+  ["Sprite Mini","40"], ["Sprite Lata","60"], ["Sprite 600 ml","80"], ["Sprite 2L","120"]
  ]
 },
 {
- cat:"🍹 Jugos naturales",
+ cat:"🍹 Jugos Naturales",
+ precio:0,
  items:[
-  ["Jugo de Mango","","120"],
-  ["Jugo de Frutilla","","120"],
-  ["Jugo de Naranja","","120"],
-  ["Jugo de Ananá","","120"]
+  ["Jugo de Mango","120"], ["Jugo de Frutilla","120"], ["Jugo de Naranja","120"], ["Jugo de Ananá","120"]
  ]
 },
 {
  cat:"🍺 Cervezas",
+ precio:0,
  items:[
-  ["Pilsen","Lata","120"],
-  ["Pilsen","2 litros","180"],
-  ["Patricia","Lata","120"],
-  ["Patricia","2 litros","220"],
-  ["Glacial","Lata","110"]
+  ["Pilsen Lata","120"], ["Pilsen 2L","180"],
+  ["Patricia Lata","120"], ["Patricia 2L","220"],
+  ["Glacial Lata","110"]
  ]
 }
 ];
@@ -285,21 +269,23 @@ function render(){
  productos.forEach(sec=>{
   html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
   sec.items.forEach(i=>{
-   if(i[1]==="" && i[0]===i[0].toUpperCase()){html+=`<div class="sub-title">${i[0]}</div>`; return;}
-   let nombre=i[0]+(i[1]? " "+i[1]:"");
-   let desc=i[1]&&i[2]? i[2]:(i[1]? i[1]:"");
-   let precio=i[2]? parseInt(i[2]):sec.precio||0;
+   if(i[1]==="" && i[0]===i[0].toUpperCase()){
+    html+=`<div class="sub-title">${i[0]}</div>`;
+    return;
+   }
+   let nombre=i[0], precio=sec.precio>0?sec.precio:parseInt(i[1]);
    carrito[nombre]=0;
    html+=`
    <div class="item">
     <div>
      <div class="name">${nombre}</div>
-     <div class="desc">${desc}</div>
+     <div class="desc">${sec.cat==="🥟 Empanadas - $60 c/u"?i[1]:""}</div>
+     ${sec.cat!=="🥟 Empanadas - $60 c/u"?`<small>$${precio}</small>`:""}
     </div>
     <div class="controls">
-     <button class="sub" onclick="chg('${nombre}',-1,${precio})">−</button>
+     <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
      <span id="${nombre}">0</span>
-     <button class="add" onclick="chg('${nombre}',1,${precio})">+</button>
+     <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
     </div>
    </div>`;
   });
@@ -308,28 +294,31 @@ function render(){
  document.getElementById("menu").innerHTML=html;
 }
 
-let precios={};
-productos.forEach(sec=>{
- sec.items.forEach(i=>{
-  let nombre=i[0]+(i[1]? " "+i[1]:"");
-  let precio=i[2]? parseInt(i[2]):sec.precio||0;
-  precios[nombre]=precio;
- });
-});
-
 function chg(n,d,p){
  carrito[n]+=d;
  if(carrito[n]<0) carrito[n]=0;
- total=0;
- for(let k in carrito){total+=carrito[k]*precios[k];}
  document.getElementById(n).innerText=carrito[n];
- resumen();
+ total=0;
+ for(let k in carrito){
+  let pr=0;
+  productos.forEach(sec=>{
+   sec.items.forEach(it=>{
+    if(it[0]===k){
+     pr=sec.precio>0?sec.precio:parseInt(it[1]);
+    }
+   });
+  });
+  total+=carrito[k]*pr;
+ }
  document.getElementById("total").innerText=total;
+ resumen();
 }
 
 function resumen(){
  let r="";
- for(let k in carrito){if(carrito[k]>0) r+=`${carrito[k]} ${k}<br>`;}
+ for(let k in carrito){
+  if(carrito[k]>0) r+=`${carrito[k]} ${k}<br>`;
+ }
  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
@@ -337,7 +326,6 @@ function setEntrega(t){
  entrega=t;
  document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
  document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
- document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
  document.getElementById("observaciones").style.display=t=="Delivery"?"block":"none";
 }
 
@@ -345,21 +333,25 @@ function setPago(p){
  pago=p;
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
- document.getElementById("transferMsg").style.display=p=="Transferencia"?"block":"none";
- document.getElementById("cambioMsg").style.display=p=="Efectivo"?"block":"none";
+ document.getElementById("cambio").style.display=p=="Efectivo"?"block":"none";
+ document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
 }
 
 function enviar(){
- if(total===0){alert("Seleccionar productos para realizar el pedido"); return;}
+ if(total==0){
+  alert("Seleccione al menos un producto para realizar el pedido.");
+  return;
+ }
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
- for(let k in carrito){if(carrito[k]>0) msg+=`• ${carrito[k]} ${k}%0A`;}
+ for(let k in carrito){
+  if(carrito[k]>0) msg+=`• ${carrito[k]} ${k}%0A`;
+ }
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
- msg+=`%0A🚚 Entrega: ${entrega}${entrega=="Delivery"?" (inicio 18:30)":""}`;
+ msg+=`%0A🚚 Entrega: ${entrega}`;
+ if(entrega=="Delivery") msg+=`%0A📍 Observaciones: ${observaciones.value||"No indicadas"}`;
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
- if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
- if(entrega=="Delivery" && observaciones.value) msg+=`%0A📝 Observaciones: ${observaciones.value}`;
  msg+=`%0A💳 Pago: ${pago}`;
- if(pago=="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc`;
+ if(pago=="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
