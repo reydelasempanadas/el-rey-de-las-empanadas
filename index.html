@@ -256,12 +256,16 @@ const productos=[
   ["Sprite","Mini","40"],
   ["Sprite","Lata","60"],
   ["Sprite","600 ml","80"],
-  ["Sprite","2 litros","120"],
-
-  ["Jugos naturales","Mango","120"],
-  ["Jugos naturales","Frutilla","120"],
-  ["Jugos naturales","Naranja","120"],
-  ["Jugos naturales","Ananá","120"]
+  ["Sprite","2 litros","120"]
+ ]
+},
+{
+ cat:"🍹 Jugos naturales",
+ items:[
+  ["Jugo de Mango","","120"],
+  ["Jugo de Frutilla","","120"],
+  ["Jugo de Naranja","","120"],
+  ["Jugo de Ananá","","120"]
  ]
 },
 {
@@ -280,16 +284,11 @@ function render(){
  let html="";
  productos.forEach(sec=>{
   html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
-  let lastCat="";
   sec.items.forEach(i=>{
-   // Empanadas y otros productos
-   if(i.length===2 && i[1]===""){
-    html+=`<div class="sub-title">${i[0]}</div>`;
-    return;
-   }
-   let nombre= i[0]+(i.length===3? " "+i[1]:"");
-   let desc= i.length===3? i[2]:i[1];
-   let precio=i.length===3? parseInt(i[2]):sec.precio||parseInt(i[1]);
+   if(i[1]==="" && i[0]===i[0].toUpperCase()){html+=`<div class="sub-title">${i[0]}</div>`; return;}
+   let nombre=i[0]+(i[1]? " "+i[1]:"");
+   let desc=i[1]&&i[2]? i[2]:(i[1]? i[1]:"");
+   let precio=i[2]? parseInt(i[2]):sec.precio||0;
    carrito[nombre]=0;
    html+=`
    <div class="item">
@@ -309,30 +308,28 @@ function render(){
  document.getElementById("menu").innerHTML=html;
 }
 
+let precios={};
+productos.forEach(sec=>{
+ sec.items.forEach(i=>{
+  let nombre=i[0]+(i[1]? " "+i[1]:"");
+  let precio=i[2]? parseInt(i[2]):sec.precio||0;
+  precios[nombre]=precio;
+ });
+});
+
 function chg(n,d,p){
  carrito[n]+=d;
  if(carrito[n]<0) carrito[n]=0;
  total=0;
- for(let k in carrito){
-  total+=carrito[k]*((k in precios)?precios[k]:0);
- }
+ for(let k in carrito){total+=carrito[k]*precios[k];}
  document.getElementById(n).innerText=carrito[n];
- let t=0;
- for(let k in carrito){
-  if(carrito[k]>0){
-   t+=carrito[k]*((k in precios)?precios[k]:0);
-  }
- }
- total=t;
- document.getElementById("total").innerText=total;
  resumen();
+ document.getElementById("total").innerText=total;
 }
 
 function resumen(){
  let r="";
- for(let k in carrito){
-  if(carrito[k]>0) r+=`${carrito[k]} ${k}<br>`;
- }
+ for(let k in carrito){if(carrito[k]>0) r+=`${carrito[k]} ${k}<br>`;}
  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
@@ -348,26 +345,14 @@ function setPago(p){
  pago=p;
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
-	document.getElementById("transferMsg").style.display=p=="Transferencia"?"block":"none";
-	document.getElementById("cambioMsg").style.display=p=="Efectivo"?"block":"none";
+ document.getElementById("transferMsg").style.display=p=="Transferencia"?"block":"none";
+ document.getElementById("cambioMsg").style.display=p=="Efectivo"?"block":"none";
 }
-
-let precios={};
-// Crear precios automáticos
-productos.forEach(sec=>{
- sec.items.forEach(i=>{
-  let nombre=i[0]+(i.length===3? " "+i[1]:"");
-  let precio=i.length===3? parseInt(i[2]):sec.precio||parseInt(i[1]);
-  precios[nombre]=precio;
- });
-});
 
 function enviar(){
  if(total===0){alert("Seleccionar productos para realizar el pedido"); return;}
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
- for(let k in carrito){
-  if(carrito[k]>0) msg+=`• ${carrito[k]} ${k}%0A`;
- }
+ for(let k in carrito){if(carrito[k]>0) msg+=`• ${carrito[k]} ${k}%0A`;}
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
  msg+=`%0A🚚 Entrega: ${entrega}${entrega=="Delivery"?" (inicio 18:30)":""}`;
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
