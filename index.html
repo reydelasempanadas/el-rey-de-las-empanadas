@@ -6,82 +6,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{
- font-family:Arial,sans-serif;
- background:#f4f4f4;
- margin:0;
- padding:10px;
-}
+body{font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:10px}
 h1{text-align:center;color:#b30000}
 h1 small{display:block;font-size:12px;color:#555}
 
 .section-title{
- background:#b30000;
- color:white;
- padding:8px 12px;
- border-radius:8px;
- margin-bottom:10px;
- font-size:18px;
+ background:#b30000;color:white;
+ padding:8px 12px;border-radius:8px;
+ margin-bottom:10px;font-size:18px;
 }
 
 .sub-title{
- font-weight:bold;
- color:#b30000;
- margin:12px 0 6px;
- font-size:15px;
+ font-weight:bold;color:#b30000;
+ margin:12px 0 6px;font-size:15px;
  border-bottom:1px solid #eee;
 }
 
 .card{
- background:white;
- padding:15px;
- border-radius:12px;
- margin-bottom:20px;
+ background:white;padding:15px;
+ border-radius:12px;margin-bottom:20px;
  box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
 
 .item{
- display:flex;
- justify-content:space-between;
- align-items:center;
- padding:8px 0;
+ display:flex;justify-content:space-between;
+ align-items:center;padding:8px 0;
  border-bottom:1px dashed #eee;
 }
 
 .item:last-child{border-bottom:none}
-
 .name{font-weight:bold}
 .desc{font-size:12px;color:#777}
 
 .controls button{
- width:30px;height:30px;border:none;border-radius:6px;
- font-size:18px;cursor:pointer;
+ width:30px;height:30px;border:none;
+ border-radius:6px;font-size:18px;cursor:pointer;
 }
 .plus{background:#25D366;color:white}
 .minus{background:#b30000;color:white}
 
-.no-stock{
- color:#999;
- font-style:italic;
- font-size:14px;
-}
-
 .total{
- background:white;
- padding:15px;
- border-radius:12px;
+ background:white;padding:15px;border-radius:12px;
  box-shadow:0 3px 8px rgba(0,0,0,.15);
 }
 
 button.send{
- width:100%;
- padding:15px;
- background:#25D366;
- color:white;
- font-size:20px;
- border:none;
- border-radius:12px;
- margin-top:10px;
+ width:100%;padding:15px;background:#25D366;
+ color:white;font-size:20px;border:none;
+ border-radius:12px;margin-top:10px;
 }
 </style>
 </head>
@@ -102,65 +74,77 @@ button.send{
 </div>
 
 <script>
-// ================== CONFIG ==================
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?output=csv";
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?output=csv";
 
-// ================== CSV PARSER ==================
+let carrito={},precios={},total=0;
+
+// ===== CSV PARSER SEGURO =====
 function parseCSV(text){
  let rows=[],row=[],current="",inQuotes=false;
  for(let i=0;i<text.length;i++){
   let c=text[i],n=text[i+1];
   if(c=='"'&&inQuotes&&n=='"'){current+='"';i++;}
   else if(c=='"'){inQuotes=!inQuotes;}
-  else if(c==','&&!inQuotes){row.push(current);current="";}
-  else if(c=='\n'&&!inQuotes){row.push(current);rows.push(row);row=[];current="";}
-  else{current+=c;}
+  else if(c==','&&!inQuotes){row.push(current.trim());current="";}
+  else if(c=='\n'&&!inQuotes){
+    row.push(current.trim());
+    rows.push(row);
+    row=[];current="";
+  } else current+=c;
  }
- row.push(current);rows.push(row);
+ row.push(current.trim());
+ rows.push(row);
  return rows;
 }
 
-// ================== VARIABLES ==================
-let carrito={},precios={},total=0;
-
-// ================== CARGA ==================
+// ===== CARGA DE DATOS =====
 fetch(CSV_URL)
 .then(r=>r.text())
 .then(text=>{
- const rows=parseCSV(text.trim());
+ const rows=parseCSV(text);
  const headers=rows[0];
  const data=rows.slice(1);
 
- const map={};
- data.forEach(r=>{
-  const obj={};
-  headers.forEach((h,i)=>obj[h]=r[i]);
-  if(obj.stock!=="TRUE") return;
+ const menu={};
 
-  if(!map[obj.categoria]) map[obj.categoria]={};
-  if(!map[obj.categoria][obj.subcategoria]) map[obj.categoria][obj.subcategoria]=[];
-  map[obj.categoria][obj.subcategoria].push(obj);
+ data.forEach(r=>{
+  if(r.length<5) return;
+
+  let obj={};
+  headers.forEach((h,i)=>obj[h]=r[i]);
+
+  if(!obj.categoria || obj.stock!=="TRUE") return;
+
+  if(!menu[obj.categoria]) menu[obj.categoria]={};
+  if(!menu[obj.categoria][obj.subcategoria||""]) menu[obj.categoria][obj.subcategoria||""]=[];
+
+  menu[obj.categoria][obj.subcategoria||""].push(obj);
  });
 
- render(map);
+ render(menu);
+})
+.catch(err=>{
+ console.error("Error cargando menú:",err);
+ alert("Error cargando el menú");
 });
 
-// ================== RENDER ==================
-function render(data){
+// ===== RENDER =====
+function render(menu){
  let html="";
- for(let cat in data){
+ for(let cat in menu){
   html+=`<div class="card"><div class="section-title">${cat}</div>`;
-  for(let sub in data[cat]){
+  for(let sub in menu[cat]){
    if(sub) html+=`<div class="sub-title">${sub}</div>`;
-   data[cat][sub].forEach(p=>{
-    const id=p.nombre.replace(/\s+/g,'_');
+   menu[cat][sub].forEach(p=>{
+    let id=p.nombre.replace(/\s+/g,"_");
     carrito[id]=0;
     precios[id]=parseInt(p.precio);
+
     html+=`
     <div class="item">
      <div>
       <div class="name">${p.nombre}</div>
-      <div class="desc">${p.descripcion}</div>
+      <div class="desc">${p.descripcion||""}</div>
       <small>$${p.precio}</small>
      </div>
      <div class="controls">
@@ -176,23 +160,23 @@ function render(data){
  document.getElementById("menu").innerHTML=html;
 }
 
-// ================== CARRITO ==================
+// ===== CARRITO =====
 function chg(id,d){
  carrito[id]+=d;
  if(carrito[id]<0) carrito[id]=0;
  document.getElementById(id).innerText=carrito[id];
 
  total=0;
- for(let k in carrito) total+=carrito[k]*precios[k];
- document.getElementById("total").innerText=total;
-
  let r="";
- for(let k in carrito)
+ for(let k in carrito){
+  total+=carrito[k]*precios[k];
   if(carrito[k]>0) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
+ }
+ document.getElementById("total").innerText=total;
  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
-// ================== WHATSAPP ==================
+// ===== WHATSAPP =====
 function enviar(){
  if(total===0){alert("Seleccione productos");return;}
  let msg="🧾 *Pedido*\n\n";
