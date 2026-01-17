@@ -239,11 +239,10 @@ const productos=[
 },
 {
  cat:"🥤 Bebidas",
- precio:0,
- items:[
-  ["Coca-Cola Mini","40"], ["Coca-Cola Lata","60"], ["Coca-Cola 600 ml","80"], ["Coca-Cola 2L","120"],
-  ["Fanta Mini","40"], ["Fanta Lata","60"], ["Fanta 600 ml","80"], ["Fanta 2L","120"],
-  ["Sprite Mini","40"], ["Sprite Lata","60"], ["Sprite 600 ml","80"], ["Sprite 2L","120"]
+ subcats:[
+   {marca:"Coca-Cola", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]},
+   {marca:"Fanta", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]},
+   {marca:"Sprite", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]}
  ]
 },
 {
@@ -268,27 +267,49 @@ function render(){
  let html="";
  productos.forEach(sec=>{
   html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
-  sec.items.forEach(i=>{
-   if(i[1]==="" && i[0]===i[0].toUpperCase()){
-    html+=`<div class="sub-title">${i[0]}</div>`;
-    return;
-   }
-   let nombre=i[0], precio=sec.precio>0?sec.precio:parseInt(i[1]);
-   carrito[nombre]=0;
-   html+=`
-   <div class="item">
-    <div>
-     <div class="name">${nombre}</div>
-     <div class="desc">${sec.cat==="🥟 Empanadas - $60 c/u"?i[1]:""}</div>
-     ${sec.cat!=="🥟 Empanadas - $60 c/u"?`<small>$${precio}</small>`:""}
-    </div>
-    <div class="controls">
-     <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
-     <span id="${nombre}">0</span>
-     <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
-    </div>
-   </div>`;
-  });
+  if(sec.subcats){
+    sec.subcats.forEach(sub=>{
+      html+=`<div class="sub-title">${sub.marca}</div>`;
+      sub.items.forEach(i=>{
+        let nombre=sub.marca+" "+i[0], precio=parseInt(i[1]);
+        carrito[nombre]=0;
+        html+=`
+        <div class="item">
+         <div>
+          <div class="name">${i[0]}</div>
+          <small>$${precio}</small>
+         </div>
+         <div class="controls">
+          <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
+          <span id="${nombre}">0</span>
+          <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
+         </div>
+        </div>`;
+      });
+    });
+  } else {
+    sec.items.forEach(i=>{
+      if(i[1]==="" && i[0]===i[0].toUpperCase()){
+        html+=`<div class="sub-title">${i[0]}</div>`;
+        return;
+      }
+      let nombre=i[0], precio=sec.precio>0?sec.precio:parseInt(i[1]);
+      carrito[nombre]=0;
+      html+=`
+      <div class="item">
+       <div>
+        <div class="name">${nombre}</div>
+        <div class="desc">${sec.cat==="🥟 Empanadas - $60 c/u"?i[1]:""}</div>
+        ${sec.cat!=="🥟 Empanadas - $60 c/u"?`<small>$${precio}</small>`:""}
+       </div>
+       <div class="controls">
+        <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
+        <span id="${nombre}">0</span>
+        <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
+       </div>
+      </div>`;
+    });
+  }
   html+="</div>";
  });
  document.getElementById("menu").innerHTML=html;
@@ -297,16 +318,21 @@ function render(){
 function chg(n,d,p){
  carrito[n]+=d;
  if(carrito[n]<0) carrito[n]=0;
- document.getElementById(n).innerText=carrito[n];
  total=0;
  for(let k in carrito){
   let pr=0;
   productos.forEach(sec=>{
-   sec.items.forEach(it=>{
-    if(it[0]===k){
-     pr=sec.precio>0?sec.precio:parseInt(it[1]);
+    if(sec.subcats){
+      sec.subcats.forEach(sub=>{
+        sub.items.forEach(it=>{
+          if(sub.marca+" "+it[0]===k) pr=parseInt(it[1]);
+        });
+      });
+    } else {
+      sec.items.forEach(it=>{
+        if(it[0]===k) pr=sec.precio>0?sec.precio:parseInt(it[1]);
+      });
     }
-   });
   });
   total+=carrito[k]*pr;
  }
