@@ -285,23 +285,20 @@ function render(){
  let html="";
  productos.forEach(sec=>{
   html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
+  let categorias={};
   sec.items.forEach(i=>{
-   if(i[1]==="" && i[0]===i[0].toUpperCase()){
-    html+=`<div class="sub-title">${i[0]}</div>`;
-    return;
-   }
-   let nombre=i[0], precio=parseInt(i[1].replace(/\D/g,'')) || sec.precio;
+   let nombre=i[0], desc=i[1];
    if(carrito[nombre]===undefined) carrito[nombre]=0;
    html+=`
    <div class="item">
     <div>
      <div class="name">${nombre}</div>
-     <div class="desc">${i[1]?i[1]:""}</div>
+     <div class="desc">${desc}</div>
     </div>
     <div class="controls">
-     <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
+     <button class="minus" onclick="chg('${nombre}',-1,${parseInt(desc.replace(/\D/g,''))||sec.precio})">−</button>
      <span id="${nombre}">0</span>
-     <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
+     <button class="plus" onclick="chg('${nombre}',1,${parseInt(desc.replace(/\D/g,''))||sec.precio})">+</button>
     </div>
    </div>`;
   });
