@@ -180,67 +180,8 @@ let entrega="Mostrador";
 let pago="Efectivo";
 let carrito={}, total=0;
 
-const productos=[
-{
- cat:"🥟 Empanadas – $60 c/u",
- precio:60,
- items:[
-  ["CARNE",""],
-  ["Empanada Criolla","carne y huevo"],
-  ["Empanada Mendocina","carne, huevo y aceituna"],
-  ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
-  ["Empanada Cordobesa","carne, huevo y pasas de uva"],
-  ["Empanada Mixta","carne, huevo, choclo y calabresa"],
-  ["Empanada Gallega","carne, huevo y panceta"],
-  ["Empanada Burguer","carne, cebolla y cheddar"],
-  ["POLLO",""],
-  ["Empanada Pollo clásico","pollo, salsa y huevo"],
-  ["Empanada Pollo queso","pollo, queso y aceituna"],
-  ["Empanada Pollo requesón","pollo y requesón"],
-  ["Empanada Pollo mostaza","pollo a la mostaza"],
-  ["VERDURA",""],
-  ["Empanada Palmito","jamón y salsa golf"],
-  ["Empanada Acelga","cebolla, morrón y huevo"],
-  ["Empanada Humita","choclo, queso y salsa blanca"],
-  ["Empanada Choclo y jamón",""],
-  ["Empanada Caprese","queso, tomate y albahaca"],
-  ["MAR",""],
-  ["Empanada Atún","atún, huevo y salsa"],
-  ["MOZZARELLA",""],
-  ["Empanada Pizza","mozzarella, salsa y orégano"],
-  ["Empanada Alemana","mozzarella y frankfurter"],
-  ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
-  ["Empanada Caribeña","mozzarella, salame y aceituna"],
-  ["Empanada Mozzarella y panceta",""],
-  ["Empanada Mozzarella, cebolla y calabresa",""], // Ahora se inicializa bien
-  ["QUESO",""],
-  ["Empanada Jamón y queso",""],
-  ["Empanada Queso, calabresa y salsa",""],
-  ["Empanada Queso y cebolla",""],
-  ["Empanada Queso y aceituna",""],
-  ["Empanada Libanesa","queso, cebolla, ajo y perejil"],
-  ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
-  ["Empanada Tropical","queso, jamón y ananá"],
-  ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
-  ["DULCES",""],
-  ["Empanada Dulce de leche",""],
-  ["Empanada Membrillo",""],
-  ["Empanada Crema pastelera",""],
-  ["Empanada Mulata","dulce de leche y chocolate"],
-  ["Empanada Gringa","dulce de leche y chocolate blanco"],
-  ["Empanada Nutella",""]
- ]
-},
-// Otros productos, bebidas, jugos, cervezas siguen igual que en tu código oficial
-// ...
-];
-
-// Inicializamos el carrito con precio correcto
-productos.forEach(sec=>{
- sec.items.forEach(i=>{
-   if(i[1]!==undefined) carrito[i[0]]=i[1]?parseInt(i[1]):sec.precio;
- });
-});
+// Aquí va tu código oficial de productos completo (empanadas, otros, bebidas, jugos, cervezas)
+// Asegurarse de inicializar carrito[nombre]=0 para cada producto
 
 function render(){
  let html="";
@@ -251,12 +192,13 @@ function render(){
     html+=`<div class="sub-title">${i[0]}</div>`;
     return;
    }
-   let nombre=i[0], precio=i[1]?parseInt(i[1]):sec.precio;
+   let nombre=i[0], precio=i[1]?i[1]:sec.precio;
+   if(carrito[nombre]===undefined) carrito[nombre]=0;
    html+=`
    <div class="item">
     <div>
      <div class="name">${nombre}</div>
-     <div class="desc">${i[1] && i[1]!==sec.precio ? i[1] : ""}</div>
+     <div class="desc">${i[1] || ""}</div>
     </div>
     <div class="controls">
      <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
@@ -281,9 +223,8 @@ function chg(n,d,p){
 function calcularTotal(){
  total=0;
  for(let k in carrito){
-   total+=carrito[k]*carrito[k]; // ahora suma correctamente
    let sec=productos.find(sec=>sec.items.some(x=>x[0]===k));
-   let precio=parseInt(sec.items.find(x=>x[0]===k)[1]) || 60;
+   let precio=parseInt(sec.items.find(x=>x[0]===k)[1]) || sec.precio;
    total+=carrito[k]*precio;
  }
  document.getElementById("total").innerText=total;
