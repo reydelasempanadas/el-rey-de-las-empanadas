@@ -30,13 +30,6 @@ h1 small{
  margin-bottom:10px;
  font-size:18px;
 }
-.sub-title{
- font-weight:bold;
- color:#b30000;
- margin:12px 0 6px;
- font-size:15px;
- border-bottom:1px solid #eee;
-}
 .card{
  background:white;
  padding:15px;
@@ -144,35 +137,10 @@ small{color:#777}
  margin-top:2px;
 }
 
-/* QR final */
-#qrcode{
- text-align:center;
- margin:30px 0 10px;
-}
-#qrcode-canvas{
- display:inline-block;
- padding:10px;
- border:4px solid #b30000;
- border-radius:12px;
-}
-#qrcode-text{
- font-size:16px;
- color:#b30000;
- margin-top:8px;
- margin-bottom:8px;
-}
-#share-whatsapp{
- display:inline-block;
- padding:10px 16px;
- background:#25D366;
- color:white;
- border-radius:12px;
- text-decoration:none;
+/* No disponible */
+.no-stock{
+ color:red;
  font-weight:bold;
- margin-top:5px;
-}
-#share-whatsapp:hover{
- opacity:0.9;
 }
 </style>
 </head>
@@ -210,257 +178,149 @@ small{color:#777}
 <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
 
-<div id="cambio" style="display:block">
-<textarea id="efectivoCambio" placeholder="¿Necesita cambio?" style="width:100%; padding:8px; border-radius:6px; border:1px solid #b30000;"></textarea>
+<div id="cambioNotice" class="notice" style="display:block">
+<input id="efectivoCambio" placeholder="¿Necesita cambio?">
 </div>
+
 <div id="transferNotice" class="notice" style="display:none">
 El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
 </div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
-</div>
 
-<!-- QR al final de la página -->
-<div id="qrcode">
-  <div id="qrcode-canvas"></div>
-  <div id="qrcode-text">📱 Escanea para hacer tu pedido</div>
-  <a href="#" target="_blank" id="share-whatsapp">Compartir QR por WhatsApp</a>
+<!-- QR al final -->
+<div style="text-align:center; margin-top:20px;">
+<p>📱 Escanea para hacer tu pedido</p>
+<img id="qrImg" src="" alt="QR Código Pedido" style="border:3px solid #b30000; padding:10px; border-radius:12px; width:200px;">
+<br><br>
+<a id="whatsappShare" href="" target="_blank" style="display:inline-block; padding:10px 15px; background:#25D366; color:white; border-radius:8px; text-decoration:none;">Compartir QR por WhatsApp</a>
 </div>
-
-<!-- Librería QRCode.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
+// Configuración
 let entrega="Mostrador";
 let pago="Efectivo";
-let carrito={}, precios={}, total=0;
+let carrito={}, precios={}, stock={}, total=0;
+
+// CSV público de Google Sheets
+const csvUrl="https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
 
 function idify(name){ return name.replace(/\s+/g,'_').replace(/[^\w]/g,''); }
 
-const productos=[
-{
- cat:"🥟 Empanadas - $60 c/u",
- precio:60,
- items:[
-  ["CARNE",""],
-  ["Empanada Criolla","carne y huevo"],
-  ["Empanada Mendocina","carne, huevo y aceituna"],
-  ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
-  ["Empanada Cordobesa","carne, huevo y pasas de uva"],
-  ["Empanada Mixta","carne, huevo, choclo y calabresa"],
-  ["Empanada Gallega","carne, huevo y panceta"],
-  ["Empanada Burguer","carne, cebolla y cheddar"],
-
-  ["POLLO",""],
-  ["Empanada Pollo clásico","pollo, salsa y huevo"],
-  ["Empanada Pollo queso","pollo, queso y aceituna"],
-  ["Empanada Pollo requesón","pollo y requesón"],
-  ["Empanada Pollo mostaza","pollo a la mostaza"],
-
-  ["VERDURA",""],
-  ["Empanada Palmito","jamón y salsa golf"],
-  ["Empanada Acelga","cebolla, morrón y huevo"],
-  ["Empanada Humita","choclo, queso y salsa blanca"],
-  ["Empanada Choclo y jamón",""],
-  ["Empanada Caprese","queso, tomate y albahaca"],
-
-  ["MAR",""],
-  ["Empanada Atún","atún, huevo y salsa"],
-
-  ["MOZZARELLA",""],
-  ["Empanada Pizza","mozzarella, salsa y orégano"],
-  ["Empanada Alemana","mozzarella y frankfurter"],
-  ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
-  ["Empanada Caribeña","mozzarella, salame y aceituna"],
-  ["Empanada Mozzarella y panceta",""],
-  ["Empanada Mozzarella, cebolla y calabresa",""],
-
-  ["QUESO",""],
-  ["Empanada Jamón y queso",""],
-  ["Empanada Queso, calabresa y salsa",""],
-  ["Empanada Queso y cebolla",""],
-  ["Empanada Queso y aceituna",""],
-  ["Empanada Libanesa","queso, cebolla, ajo y perejil"],
-  ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
-  ["Empanada Tropical","queso, jamón y ananá"],
-  ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
-
-  ["DULCES",""],
-  ["Empanada Dulce de leche",""],
-  ["Empanada Membrillo",""],
-  ["Empanada Crema pastelera",""],
-  ["Empanada Mulata","dulce de leche y chocolate"],
-  ["Empanada Gringa","dulce de leche y chocolate blanco"],
-  ["Empanada Nutella",""]
- ]
-},
-{
- cat:"🥤 Bebidas",
- subcats:[
-   {marca:"Coca-Cola", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]},
-   {marca:"Fanta", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]},
-   {marca:"Sprite", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]}
- ]
-},
-{
- cat:"🍹 Jugos Naturales",
- precio:0,
- items:[
-  ["Jugo de Mango","120"], ["Jugo de Frutilla","120"], ["Jugo de Naranja","120"], ["Jugo de Ananá","120"]
- ]
-},
-{
- cat:"🍺 Cervezas",
- precio:0,
- items:[
-  ["Pilsen Lata","120"], ["Pilsen 2L","180"],
-  ["Patricia Lata","120"], ["Patricia 2L","220"],
-  ["Glacial Lata","110"]
- ]
+async function fetchCSV(){
+    const res = await fetch(csvUrl);
+    const text = await res.text();
+    parseCSV(text);
 }
-];
 
-function render(){
- let html="";
- productos.forEach(sec=>{
-  html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
-  if(sec.subcats){
-    sec.subcats.forEach(sub=>{
-      html+=`<div class="brand-card"><div class="brand-title">${sub.marca}</div>`;
-      sub.items.forEach(i=>{
-        let nombre=sub.marca+" "+i[0], precio=parseInt(i[1]), pid=idify(nombre);
+function parseCSV(text){
+    const lines = text.trim().split("\n");
+    const headers = lines[0].split(",");
+    let productos=[];
+    for(let i=1;i<lines.length;i++){
+        let obj={}, line=lines[i].split(",");
+        headers.forEach((h,j)=>obj[h.trim()]=line[j].trim());
+        productos.push(obj);
+    }
+    renderMenu(productos);
+}
+
+function renderMenu(productos){
+    let html="";
+    carrito={}; precios={}; stock={};
+    productos.forEach(p=>{
+        let pid=idify(p.Producto);
         carrito[pid]=0;
-        precios[pid]=precio;
-        html+=`
-        <div class="item brand-item">
-         <div>
-          <div class="name">${i[0]}</div>
-          <small>$${precio}</small>
-         </div>
-         <div class="controls">
-          <button class="minus" onclick="chg('${pid}',-1)">−</button>
-          <span id="${pid}">0</span>
-          <button class="plus" onclick="chg('${pid}',1)">+</button>
-         </div>
+        precios[pid]=parseFloat(p.Precio)||0;
+        stock[pid]=(p.Stock.toLowerCase()==="true");
+        html+=`<div class="card">
+            <div class="item">
+                <div>
+                    <div class="name">${p.Producto}</div>
+                    <div class="desc">${p.Categoria}</div>
+                    ${!stock[pid]?`<div class="no-stock">No disponible</div>`:`<small>$${precios[pid]}</small>`}
+                </div>
+                <div class="controls">
+                    <button class="minus" onclick="chg('${pid}',-1)" ${!stock[pid]?'disabled':''}>−</button>
+                    <span id="${pid}">0</span>
+                    <button class="plus" onclick="chg('${pid}',1)" ${!stock[pid]?'disabled':''}>+</button>
+                </div>
+            </div>
         </div>`;
-      });
-      html+="</div>";
     });
-  } else {
-    sec.items.forEach(i=>{
-      if(i[1]==="" && i[0]===i[0].toUpperCase()){
-        html+=`<div class="sub-title">${i[0]}</div>`;
-        return;
-      }
-      let nombre=i[0], precio=sec.precio>0?sec.precio:parseInt(i[1]), pid=idify(nombre);
-      carrito[pid]=0;
-      precios[pid]=precio;
-      html+=`
-      <div class="item">
-       <div>
-        <div class="name">${nombre}</div>
-        <div class="desc">${sec.cat==="🥟 Empanadas - $60 c/u"?i[1]:""}</div>
-        ${sec.cat!=="🥟 Empanadas - $60 c/u"?`<small>$${precio}</small>`:""}
-       </div>
-       <div class="controls">
-        <button class="minus" onclick="chg('${pid}',-1)">−</button>
-        <span id="${pid}">0</span>
-        <button class="plus" onclick="chg('${pid}',1)">+</button>
-       </div>
-      </div>`;
-    });
-  }
-  html+="</div>";
- });
- document.getElementById("menu").innerHTML=html;
+    document.getElementById("menu").innerHTML=html;
 }
 
 function chg(pid,d){
- carrito[pid]+=d;
- if(carrito[pid]<0) carrito[pid]=0;
+    if(!stock[pid]) return;
+    carrito[pid]+=d;
+    if(carrito[pid]<0) carrito[pid]=0;
 
- document.getElementById(pid).innerText = carrito[pid];
+    document.getElementById(pid).innerText = carrito[pid];
 
- total=0;
- for(let k in carrito){
-  total+=carrito[k]*precios[k];
- }
- document.getElementById("total").innerText = total;
+    total=0;
+    for(let k in carrito){
+        total+=carrito[k]*precios[k];
+    }
+    document.getElementById("total").innerText = total;
 
- resumen();
+    resumen();
 }
 
 function resumen(){
- let r="";
- for(let k in carrito){
-  if(carrito[k]>0){
-    r+=`${carrito[k]} ${k.replace(/_/g,' ')}<br>`;
-  }
- }
- document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+    let r="";
+    for(let k in carrito){
+        if(carrito[k]>0){
+            r+=`${carrito[k]} ${k.replace(/_/g,' ')}<br>`;
+        }
+    }
+    document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
 function setEntrega(t){
- entrega=t;
- document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
- document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
+    entrega=t;
+    document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
+    document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
 
- document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
- document.getElementById("observaciones").style.display=t=="Delivery"?"block":"none";
+    document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
+    document.getElementById("observaciones").style.display=t=="Delivery"?"block":"none";
 }
 
 function setPago(p){
- pago=p;
- document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
- document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
- document.getElementById("cambio").style.display=p=="Efectivo"?"block":"none";
-	document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
+    pago=p;
+    document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
+    document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
+    document.getElementById("cambioNotice").style.display=p=="Efectivo"?"block":"none";
+    document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
 }
 
 function enviar(){
- if(total==0){
-  alert("Seleccione al menos un producto para realizar el pedido.");
-  return;
- }
- if(nombre.value.trim()===""){
-  alert("Ingrese su nombre para el pedido.");
-  return;
- }
- if(entrega=="Delivery" && direccion.value.trim()===""){
-  alert("Ingrese la dirección para el delivery.");
-  return;
- }
+    if(total==0){ alert("Seleccione al menos un producto para realizar el pedido."); return; }
+    if(nombre.value.trim()===""){ alert("Ingrese su nombre para el pedido."); return; }
 
- let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
- for(let k in carrito){
-  if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g,' ')}%0A`;
- }
- msg+=`%0A💰 Total: $${total} (envío no incluido)`;
- msg+=`%0A🚚 Entrega: ${entrega}`;
- if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value}%0A📝 Observaciones: ${observaciones.value||"No indicadas"}`;
- msg+=`%0A👤 Nombre: ${nombre.value}`;
- msg+=`%0A💳 Pago: ${pago}`;
- if(pago=="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
- window.open("https://wa.me/59892663559?text="+msg,"_blank");
+    let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
+    for(let k in carrito){ if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g,' ')}%0A`; }
+    msg+=`%0A💰 Total: $${total} (envío no incluido)`;
+    msg+=`%0A🚚 Entrega: ${entrega}`;
+    if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value}%0A📝 Observaciones: ${observaciones.value||"No indicadas"}`;
+    msg+=`%0A👤 Nombre: ${nombre.value}`;
+    msg+=`%0A💳 Pago: ${pago}`;
+    if(pago=="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
+    if(pago=="Efectivo" && efectivoCambio.value.trim()!="") msg+=`%0A💵 Cambio solicitado: ${efectivoCambio.value}`;
+    window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
-// Render menú
-render();
+// Generar QR para la página
+function generarQR(){
+    const url=window.location.href;
+    const qrUrl="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(url);
+    document.getElementById("qrImg").src=qrUrl;
+    document.getElementById("whatsappShare").href="https://wa.me/?text="+encodeURIComponent("¡Hacé tu pedido aquí! "+url);
+}
 
-// Crear QR
-let qr = new QRCode(document.getElementById("qrcode-canvas"), {
-    text: window.location.href,
-    width: 180,
-    height: 180,
-    colorDark : "#000000",
-    colorLight : "#ffffff",
-    correctLevel : QRCode.CorrectLevel.H
-});
-
-// Enlace para compartir QR por WhatsApp
-document.getElementById("share-whatsapp").href =
-  "https://wa.me/?text=" + encodeURIComponent("¡Haz tu pedido haciendo click en este enlace! " + window.location.href);
-
+// Iniciar
+fetchCSV();
+generarQR();
 </script>
 
 </body>
