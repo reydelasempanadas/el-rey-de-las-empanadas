@@ -182,7 +182,7 @@ let carrito={}, total=0;
 
 const productos=[
 {
- cat:"🥟 Empanadas",
+ cat:"🥟 Empanadas – $60 c/u",
  precio:60,
  items:[
   ["CARNE",""],
@@ -287,7 +287,7 @@ const productos=[
 }
 ];
 
-// Inicializamos carrito con todos los productos, incluyendo empanadas especiales
+// Inicializamos carrito con todos los productos
 productos.forEach(sec=>{
  sec.items.forEach(i=>{
    if(i[1]!==undefined) carrito[i[0]]=0;
@@ -330,6 +330,16 @@ function chg(n,d,p){
  resumen();
 }
 
+function calcularTotal(){
+ total=0;
+ for(let k in carrito){
+   let sec=productos.find(sec=>sec.items.some(x=>x[0]===k));
+   let precio=parseInt(sec.items.find(x=>x[0]===k)[1]) || 60;
+   total+=carrito[k]*precio;
+ }
+ document.getElementById("total").innerText=total;
+}
+
 function resumen(){
  let r="";
  for(let k in carrito){
@@ -356,14 +366,6 @@ function setPago(p){
  } else {
    caja.innerHTML=`<div class="letrero">En WhatsApp se mostrará el enlace para realizar la transferencia y deberá enviar comprobante.</div>`;
  }
-}
-
-function calcularTotal(){
- total=0;
- for(let k in carrito){
-   total+=carrito[k]*((productos.find(sec=>sec.items.some(x=>x[0]===k))?.items.find(x=>x[0]===k)[1] || 60));
- }
- document.getElementById("total").innerText=total;
 }
 
 function enviar(){
