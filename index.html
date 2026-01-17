@@ -434,6 +434,47 @@ new QRCode(document.getElementById("qrcode-canvas"), {
     correctLevel : QRCode.CorrectLevel.H
 });
 </script>
+<!-- SECCIÓN DEL QR -->
+<div class="qr-section">
+  <h2>📱 Escanea y realiza tu pedido</h2>
+  <div class="qr-container">
+    <img src="URL_DE_TU_QR.png" alt="QR Pedido El Rey de las Empanadas">
+  </div>
+  <p>Abre el enlace desde tu celular y haz tu pedido fácilmente.</p>
+</div>
 
+<style>
+.qr-section {
+  text-align: center;
+  margin: 30px 10px;
+  background: #fff9db;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.qr-section h2 {
+  color: #b30000;
+  margin-bottom: 15px;
+}
+.qr-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.qr-container img {
+  max-width: 200px;
+  width: 80%;
+  height: auto;
+  border-radius: 12px;
+  border: 2px solid #b30000;
+  padding: 5px;
+  background: white;
+}
+.qr-section p {
+  color: #555;
+  font-size: 14px;
+}
+</style>
 </body>
 </html>
