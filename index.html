@@ -17,11 +17,11 @@ h1{
  color:#b30000;
  margin-bottom:5px;
 }
-h2{
+p.info{
  text-align:center;
  font-size:14px;
  color:#555;
- margin-bottom:10px;
+ margin:2px 0 12px 0;
 }
 .section-title{
  background:#b30000;
@@ -70,14 +70,8 @@ h2{
  font-size:18px;
  cursor:pointer;
 }
-.controls button.plus{
- background:green;
- color:white;
-}
-.controls button.minus{
- background:red;
- color:white;
-}
+.controls .add{background:#25D366;color:white;}
+.controls .sub{background:#b30000;color:white;}
 .controls span{
  margin:0 6px;
  font-size:16px;
@@ -103,7 +97,7 @@ h2{
  background:#b30000;
  color:white;
 }
-input,textarea,select{
+input,select,textarea{
  width:100%;
  padding:8px;
  margin:6px 0;
@@ -126,16 +120,14 @@ button.send{
  border:none;
  border-radius:12px;
  margin-top:10px;
- cursor:pointer;
 }
 small{color:#777}
-.letrero{
- background:#fff3cd;
- color:#856404;
- padding:8px;
+.alert{
+ background:#fff4c2;
+ padding:8px 10px;
  border-radius:6px;
+ margin:6px 0;
  font-size:14px;
- margin-top:6px;
 }
 </style>
 </head>
@@ -143,7 +135,7 @@ small{color:#777}
 <body>
 
 <h1>👑 El Rey de las Empanadas</h1>
-<h2>Horario: 17 a 23 | Lunes cerrado | Delivery: 18:30 a 23:00</h2>
+<p class="info">Pedidos de 17:00 a 23:00. Lunes cerrado. Delivery 18:30 a 23:00.</p>
 
 <div id="menu"></div>
 
@@ -156,21 +148,25 @@ small{color:#777}
 
 <div class="section-title">🚚 Forma de entrega</div>
 <div class="selector">
-<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Mostrador</button>
+<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
 <button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
 </div>
 
 <input id="nombre" placeholder="Nombre">
 <input id="direccion" placeholder="Dirección" style="display:none">
-<textarea id="observaciones" placeholder="Observaciones para delivery" style="display:none"></textarea>
+<textarea id="observaciones" placeholder="Observaciones de la dirección" style="display:none"></textarea>
 
 <div class="section-title">💳 Forma de pago</div>
 <div class="selector">
 <button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
 <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
-
-<div id="cajaPago"></div>
+<div id="transferMsg" class="alert" style="display:none">
+El enlace de transferencia aparece en WhatsApp para realizar el pago. Recuerda enviar el comprobante.
+</div>
+<div id="cambioMsg" class="alert" style="display:none">
+Indicar si necesita cambio para el efectivo.
+</div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
@@ -185,7 +181,7 @@ const productos=[
  cat:"🥟 Empanadas",
  precio:60,
  items:[
-  ["Carne","carne y huevo"],
+  ["CARNE",""],
   ["Empanada Criolla","carne y huevo"],
   ["Empanada Mendocina","carne, huevo y aceituna"],
   ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
@@ -193,27 +189,31 @@ const productos=[
   ["Empanada Mixta","carne, huevo, choclo y calabresa"],
   ["Empanada Gallega","carne, huevo y panceta"],
   ["Empanada Burguer","carne, cebolla y cheddar"],
-  ["Pollo","pollo y huevo"],
+
+  ["POLLO",""],
   ["Empanada Pollo clásico","pollo, salsa y huevo"],
   ["Empanada Pollo queso","pollo, queso y aceituna"],
   ["Empanada Pollo requesón","pollo y requesón"],
   ["Empanada Pollo mostaza","pollo a la mostaza"],
-  ["Verdura","verdura y queso"],
+
+  ["VERDURA",""],
   ["Empanada Palmito","jamón y salsa golf"],
   ["Empanada Acelga","cebolla, morrón y huevo"],
   ["Empanada Humita","choclo, queso y salsa blanca"],
   ["Empanada Choclo y jamón",""],
   ["Empanada Caprese","queso, tomate y albahaca"],
-  ["Mar","atún, huevo y salsa"],
+
+  ["MAR",""],
   ["Empanada Atún","atún, huevo y salsa"],
-  ["Mozzarella","mozzarella y salsa"],
+
+  ["MOZZARELLA",""],
   ["Empanada Pizza","mozzarella, salsa y orégano"],
   ["Empanada Alemana","mozzarella y frankfurter"],
   ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
   ["Empanada Caribeña","mozzarella, salame y aceituna"],
-  ["Empanada Mozzarella y panceta",""],
-  ["Empanada Mozzarella, cebolla y calabresa",""],
-  ["Queso","queso"],
+  ["Empanada Mozzarella","mozzarella, cebolla y calabresa"],
+
+  ["QUESO",""],
   ["Empanada Jamón y queso",""],
   ["Empanada Queso, calabresa y salsa",""],
   ["Empanada Queso y cebolla",""],
@@ -222,7 +222,8 @@ const productos=[
   ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
   ["Empanada Tropical","queso, jamón y ananá"],
   ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
-  ["Dulces",""],
+
+  ["DULCES",""],
   ["Empanada Dulce de leche",""],
   ["Empanada Membrillo",""],
   ["Empanada Crema pastelera",""],
@@ -233,50 +234,44 @@ const productos=[
 },
 {
  cat:"🍟 Otros productos",
- precio:0,
  items:[
-  ["Papas fritas (porción)","$120"],
-  ["Aros de cebolla (10 u.)","$120"],
-  ["Nuggets (10 u.)","$120"]
+  ["Papas fritas","120"],
+  ["Aros de cebolla (10 u.)","120"],
+  ["Nuggets (10 u.)","120"]
  ]
 },
 {
  cat:"🥤 Bebidas",
- precio:0,
  items:[
-  ["Coca-Cola Mini","$40"],
-  ["Coca-Cola Lata","$60"],
-  ["Coca-Cola 600 ml","$80"],
-  ["Coca-Cola 2 litros","$120"],
-  ["Fanta Mini","$40"],
-  ["Fanta Lata","$60"],
-  ["Fanta 600 ml","$80"],
-  ["Fanta 2 litros","$120"],
-  ["Sprite Mini","$40"],
-  ["Sprite Lata","$60"],
-  ["Sprite 600 ml","$80"],
-  ["Sprite 2 litros","$120"]
- ]
-},
-{
- cat:"🍹 Jugos naturales",
- precio:120,
- items:[
-  ["Mango","$120"],
-  ["Frutilla","$120"],
-  ["Naranja","$120"],
-  ["Ananá","$120"]
+  ["Coca-Cola","Mini","40"],
+  ["Coca-Cola","Lata","60"],
+  ["Coca-Cola","600 ml","80"],
+  ["Coca-Cola","2 litros","120"],
+
+  ["Fanta","Mini","40"],
+  ["Fanta","Lata","60"],
+  ["Fanta","600 ml","80"],
+  ["Fanta","2 litros","120"],
+
+  ["Sprite","Mini","40"],
+  ["Sprite","Lata","60"],
+  ["Sprite","600 ml","80"],
+  ["Sprite","2 litros","120"],
+
+  ["Jugos naturales","Mango","120"],
+  ["Jugos naturales","Frutilla","120"],
+  ["Jugos naturales","Naranja","120"],
+  ["Jugos naturales","Ananá","120"]
  ]
 },
 {
  cat:"🍺 Cervezas",
- precio:0,
  items:[
-  ["Pilsen Lata","$120"],
-  ["Pilsen 2 litros","$180"],
-  ["Patricia Lata","$120"],
-  ["Patricia 2 litros","$220"],
-  ["Glacial Lata","$110"]
+  ["Pilsen","Lata","120"],
+  ["Pilsen","2 litros","180"],
+  ["Patricia","Lata","120"],
+  ["Patricia","2 litros","220"],
+  ["Glacial","Lata","110"]
  ]
 }
 ];
@@ -285,10 +280,17 @@ function render(){
  let html="";
  productos.forEach(sec=>{
   html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
-  let categorias={};
+  let lastCat="";
   sec.items.forEach(i=>{
-   let nombre=i[0], desc=i[1];
-   if(carrito[nombre]===undefined) carrito[nombre]=0;
+   // Empanadas y otros productos
+   if(i.length===2 && i[1]===""){
+    html+=`<div class="sub-title">${i[0]}</div>`;
+    return;
+   }
+   let nombre= i[0]+(i.length===3? " "+i[1]:"");
+   let desc= i.length===3? i[2]:i[1];
+   let precio=i.length===3? parseInt(i[2]):sec.precio||parseInt(i[1]);
+   carrito[nombre]=0;
    html+=`
    <div class="item">
     <div>
@@ -296,9 +298,9 @@ function render(){
      <div class="desc">${desc}</div>
     </div>
     <div class="controls">
-     <button class="minus" onclick="chg('${nombre}',-1,${parseInt(desc.replace(/\D/g,''))||sec.precio})">−</button>
+     <button class="sub" onclick="chg('${nombre}',-1,${precio})">−</button>
      <span id="${nombre}">0</span>
-     <button class="plus" onclick="chg('${nombre}',1,${parseInt(desc.replace(/\D/g,''))||sec.precio})">+</button>
+     <button class="add" onclick="chg('${nombre}',1,${precio})">+</button>
     </div>
    </div>`;
   });
@@ -310,19 +312,20 @@ function render(){
 function chg(n,d,p){
  carrito[n]+=d;
  if(carrito[n]<0) carrito[n]=0;
- document.getElementById(n).innerText=carrito[n];
- calcularTotal();
- resumen();
-}
-
-function calcularTotal(){
  total=0;
  for(let k in carrito){
-   let sec=productos.find(sec=>sec.items.some(x=>x[0]===k));
-   let precio=parseInt(sec.items.find(x=>x[0]===k)[1].replace(/\D/g,'')) || sec.precio;
-   total+=carrito[k]*precio;
+  total+=carrito[k]*((k in precios)?precios[k]:0);
  }
+ document.getElementById(n).innerText=carrito[n];
+ let t=0;
+ for(let k in carrito){
+  if(carrito[k]>0){
+   t+=carrito[k]*((k in precios)?precios[k]:0);
+  }
+ }
+ total=t;
  document.getElementById("total").innerText=total;
+ resumen();
 }
 
 function resumen(){
@@ -345,30 +348,33 @@ function setPago(p){
  pago=p;
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
- const caja=document.getElementById("cajaPago");
- if(p=="Efectivo"){
-   caja.innerHTML=`<input placeholder="¿Necesita cambio?" id="cambio">`;
- } else {
-   caja.innerHTML=`<div class="letrero">En WhatsApp se mostrará el enlace para realizar la transferencia y deberá enviar comprobante.</div>`;
- }
+	document.getElementById("transferMsg").style.display=p=="Transferencia"?"block":"none";
+	document.getElementById("cambioMsg").style.display=p=="Efectivo"?"block":"none";
 }
 
+let precios={};
+// Crear precios automáticos
+productos.forEach(sec=>{
+ sec.items.forEach(i=>{
+  let nombre=i[0]+(i.length===3? " "+i[1]:"");
+  let precio=i.length===3? parseInt(i[2]):sec.precio||parseInt(i[1]);
+  precios[nombre]=precio;
+ });
+});
+
 function enviar(){
- if(Object.values(carrito).every(x=>x===0)){
-   alert("Debe seleccionar productos");
-   return;
- }
+ if(total===0){alert("Seleccionar productos para realizar el pedido"); return;}
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
  for(let k in carrito){
-  if(carrito[k]>0) msg+=`${carrito[k]} ${k}%0A`;
+  if(carrito[k]>0) msg+=`• ${carrito[k]} ${k}%0A`;
  }
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
- msg+=`%0A🚚 Entrega: ${entrega}`+(entrega==="Delivery"?" (Delivery inicia a las 18:30)":"");
+ msg+=`%0A🚚 Entrega: ${entrega}${entrega=="Delivery"?" (inicio 18:30)":""}`;
  msg+=`%0A👤 Nombre: ${nombre.value||"No indicado"}`;
- if(entrega==="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}%0A📝 Observaciones: ${observaciones.value||"Ninguna"}`;
+ if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value||"No indicada"}`;
+ if(entrega=="Delivery" && observaciones.value) msg+=`%0A📝 Observaciones: ${observaciones.value}`;
  msg+=`%0A💳 Pago: ${pago}`;
- if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (enviar comprobante)`;
- if(pago==="Efectivo") msg+=`%0A💵 Cambio: ${cambio.value||"No indicado"}`;
+ if(pago=="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc`;
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
