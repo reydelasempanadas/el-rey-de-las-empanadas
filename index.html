@@ -181,16 +181,13 @@ small{color:#777}
 <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
 
-<!-- Pregunta cambio -->
-<div id="preguntaCambio" class="input-area" style="display:none">
-<select id="necesitaCambio" onchange="toggleCambio()">
- <option value="">¿Necesitas cambio?</option>
- <option value="si">Sí</option>
- <option value="no">No</option>
-</select>
+<!-- NUEVO: Pregunta ¿Necesita cambio? -->
+<div class="section-title">💵 ¿Necesita cambio?</div>
+<div class="selector">
+  <button id="btnCambioSi" onclick="toggleCambio(true)">Sí</button>
+  <button id="btnCambioNo" onclick="toggleCambio(false)" class="active">No</button>
 </div>
 
-<!-- Cuadro monto de cambio -->
 <div class="input-area" id="cambio" style="display:none">
 <input id="efectivoCambio" placeholder="Monto de cambio" />
 </div>
@@ -222,10 +219,51 @@ const productos=[
   ["Empanada Mixta","carne, huevo, choclo y calabresa"],
   ["Empanada Gallega","carne, huevo y panceta"],
   ["Empanada Burguer","carne, cebolla y cheddar"],
-  // Más empanadas...
+
+  ["POLLO",""],
+  ["Empanada Pollo clásico","pollo, salsa y huevo"],
+  ["Empanada Pollo queso","pollo, queso y aceituna"],
+  ["Empanada Pollo requesón","pollo y requesón"],
+  ["Empanada Pollo mostaza","pollo a la mostaza"],
+
+  ["VERDURA",""],
+  ["Empanada Palmito","jamón y salsa golf"],
+  ["Empanada Acelga","cebolla, morrón y huevo"],
+  ["Empanada Humita","choclo, queso y salsa blanca"],
+  ["Empanada Choclo y jamón",""],
+  ["Empanada Caprese","queso, tomate y albahaca"],
+
+  ["MAR",""],
+  ["Empanada Atún","atún, huevo y salsa"],
+
+  ["MOZZARELLA",""],
+  ["Empanada Pizza","mozzarella, salsa y orégano"],
+  ["Empanada Alemana","mozzarella y frankfurter"],
+  ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
+  ["Empanada Caribeña","mozzarella, salame y aceituna"],
+  ["Empanada Mozzarella y panceta",""],
+  ["Empanada Mozzarella, cebolla y calabresa",""],
+
+  ["QUESO",""],
+  ["Empanada Jamón y queso",""],
+  ["Empanada Queso, calabresa y salsa",""],
+  ["Empanada Queso y cebolla",""],
+  ["Empanada Queso y aceituna",""],
+  ["Empanada Libanesa","queso, cebolla, ajo y perejil"],
+  ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
+  ["Empanada Tropical","queso, jamón y ananá"],
+  ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+
+  ["DULCES",""],
+  ["Empanada Dulce de leche",""],
+  ["Empanada Membrillo",""],
+  ["Empanada Crema pastelera",""],
+  ["Empanada Mulata","dulce de leche y chocolate"],
+  ["Empanada Gringa","dulce de leche y chocolate blanco"],
+  ["Empanada Nutella",""]
  ]
 },
-// Bebidas y jugos aquí como estaba en código oficial
+// Mantener aquí bebidas, jugos y cervezas tal como en código oficial
 ];
 
 function render(){
@@ -321,15 +359,14 @@ function setPago(p){
  pago=p;
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
-
- document.getElementById("preguntaCambio").style.display=p=="Efectivo"?"block":"none";
- document.getElementById("cambio").style.display="none";
+ document.getElementById("cambio").style.display=(p=="Efectivo" && document.getElementById("btnCambioSi").classList.contains("active"))?"block":"none";
  document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
 }
 
-function toggleCambio(){
- const val = document.getElementById("necesitaCambio").value;
- document.getElementById("cambio").style.display= val=="si"?"block":"none";
+function toggleCambio(necesita){
+  document.getElementById("cambio").style.display = necesita ? "block" : "none";
+  document.getElementById("btnCambioSi").classList.toggle("active", necesita);
+  document.getElementById("btnCambioNo").classList.toggle("active", !necesita);
 }
 
 function enviar(){
@@ -356,6 +393,12 @@ function enviar(){
  msg+=`%0A👤 Nombre: ${nombre.value}`;
  msg+=`%0A💳 Pago: ${pago}`;
  if(pago=="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
+ if(pago=="Efectivo" && document.getElementById("btnCambioSi").classList.contains("active")){
+   let cambio=document.getElementById("efectivoCambio").value||"No indicado";
+   msg+=`%0A💵 Necesita cambio: Sí - $${cambio}`;
+ } else if(pago=="Efectivo"){
+   msg+=`%0A💵 Necesita cambio: No`;
+ }
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
