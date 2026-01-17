@@ -147,11 +147,18 @@ small{color:#777}
 /* QR */
 #qrcode{
  text-align:center;
- margin-top:20px;
- padding:15px;
- background:white;
+ margin:20px 0;
+}
+#qrcode-canvas{
+ display:inline-block;
+ padding:10px;
+ border:4px solid #b30000; /* borde rojo */
  border-radius:12px;
- box-shadow:0 3px 8px rgba(0,0,0,.15);
+}
+#qrcode-text{
+ font-size:16px;
+ color:#b30000;
+ margin-top:8px;
 }
 </style>
 </head>
@@ -161,6 +168,12 @@ small{color:#777}
 <h1>👑 El Rey de las Empanadas
 <small>Horario: 17:00 a 23:00 | Lunes cerrado | Delivery: 18:30 a 23:00</small>
 </h1>
+
+<!-- QR -->
+<div id="qrcode">
+  <div id="qrcode-canvas"></div>
+  <div id="qrcode-text">📱 Escanea para hacer tu pedido</div>
+</div>
 
 <div id="menu"></div>
 
@@ -189,8 +202,8 @@ small{color:#777}
 <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
 
-<div id="cambioNotice" class="notice" style="display:block">
-<input id="efectivoCambio" placeholder="¿Necesita cambio?">
+<div id="cambio" style="display:block">
+<textarea id="efectivoCambio" placeholder="¿Necesita cambio?" style="width:100%; padding:8px; border-radius:6px; border:1px solid #b30000;"></textarea>
 </div>
 <div id="transferNotice" class="notice" style="display:none">
 El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
@@ -199,13 +212,7 @@ El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
-<!-- QR -->
-<div id="qrcode">
-  <div class="section-title">📱 Escanea para ingresar</div>
-  <div id="qrcode-canvas"></div>
-</div>
-
-<!-- Librería QR -->
+<!-- QRCode.js librería -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
@@ -391,7 +398,7 @@ function setPago(p){
  pago=p;
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
- document.getElementById("cambioNotice").style.display=p=="Efectivo"?"block":"none";
+ document.getElementById("cambio").style.display=p=="Efectivo"?"block":"none";
 	document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
 }
 
@@ -422,9 +429,10 @@ function enviar(){
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
+// Render menú
 render();
 
-// Generar QR apuntando a esta página
+// Crear QR
 new QRCode(document.getElementById("qrcode-canvas"), {
     text: window.location.href,
     width: 180,
