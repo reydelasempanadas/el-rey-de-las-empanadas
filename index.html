@@ -192,6 +192,9 @@ let entrega="Mostrador";
 let pago="Efectivo";
 let carrito={}, total=0;
 
+// Generar IDs únicos para cada producto para evitar duplicados
+function idify(name){ return name.replace(/\s+/g,'_').replace(/[^\w]/g,''); }
+
 const productos=[
 {
  cat:"🥟 Empanadas - $60 c/u",
@@ -283,7 +286,7 @@ function render(){
     sec.subcats.forEach(sub=>{
       html+=`<div class="brand-card"><div class="brand-title">${sub.marca}</div>`;
       sub.items.forEach(i=>{
-        let nombre=sub.marca+" "+i[0], precio=parseInt(i[1]);
+        let nombre=sub.marca+" "+i[0], precio=parseInt(i[1]), pid=idify(nombre);
         carrito[nombre]=0;
         html+=`
         <div class="item brand-item">
@@ -292,11 +295,12 @@ function render(){
           <small>$${precio}</small>
          </div>
          <div class="controls">
-          <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
-          <span id="${nombre}">0</span>
-          <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
+          <button class="minus" onclick="chg('${pid}',-1,${precio})">−</button>
+          <span id="${pid}">0</span>
+          <button class="plus" onclick="chg('${pid}',1,${precio})">+</button>
          </div>
         </div>`;
+        carrito[pid] = 0; // usar ID único
       });
       html+="</div>";
     });
@@ -306,8 +310,8 @@ function render(){
         html+=`<div class="sub-title">${i[0]}</div>`;
         return;
       }
-      let nombre=i[0], precio=sec.precio>0?sec.precio:parseInt(i[1]);
-      carrito[nombre]=0;
+      let nombre=i[0], precio=sec.precio>0?sec.precio:parseInt(i[1]), pid=idify(nombre);
+      carrito[pid]=0;
       html+=`
       <div class="item">
        <div>
@@ -316,9 +320,9 @@ function render(){
         ${sec.cat!=="🥟 Empanadas - $60 c/u"?`<small>$${precio}</small>`:""}
        </div>
        <div class="controls">
-        <button class="minus" onclick="chg('${nombre}',-1,${precio})">−</button>
-        <span id="${nombre}">0</span>
-        <button class="plus" onclick="chg('${nombre}',1,${precio})">+</button>
+        <button class="minus" onclick="chg('${pid}',-1,${precio})">−</button>
+        <span id="${pid}">0</span>
+        <button class="plus" onclick="chg('${pid}',1,${precio})">+</button>
        </div>
       </div>`;
     });
@@ -328,35 +332,29 @@ function render(){
  document.getElementById("menu").innerHTML=html;
 }
 
-function chg(n,d,p){
- carrito[n]+=d;
- if(carrito[n]<0) carrito[n]=0;
+function chg(pid,d,p){
+ carrito[pid]+=d;
+ if(carrito[pid]<0) carrito[pid]=0;
+ // actualizar total
  total=0;
  for(let k in carrito){
-  let pr=0;
-  productos.forEach(sec=>{
-    if(sec.subcats){
-      sec.subcats.forEach(sub=>{
-        sub.items.forEach(it=>{
-          if(sub.marca+" "+it[0]===k) pr=parseInt(it[1]);
-        });
-      });
-    } else {
-      sec.items.forEach(it=>{
-        if(it[0]===k) pr=sec.precio>0?sec.precio:parseInt(it[1]);
-      });
-    }
-  });
-  total+=carrito[k]*pr;
+  if(carrito[k]>0){
+    let pr=parseInt(document.getElementById(k).datasetPrecio || p);
+    total+=carrito[k]*p;
+  }
  }
- document.getElementById("total").innerText=total;
- resumen();
+ // actualizar contador
+ document.getElementById(pid).innerText = carrito[pid];
+ // actualizar resumen
+	resumen();
 }
 
 function resumen(){
  let r="";
  for(let k in carrito){
-  if(carrito[k]>0) r+=`${carrito[k]} ${k}<br>`;
+  if(carrito[k]>0){
+    r+=`${carrito[k]} ${k.replace(/_/g,' ')}<br>`;
+  }
  }
  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
@@ -373,7 +371,7 @@ function setPago(p){
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
  document.getElementById("cambio").style.display=p=="Efectivo"?"block":"none";
- document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
+	document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
 }
 
 function enviar(){
@@ -383,7 +381,7 @@ function enviar(){
  }
  let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
  for(let k in carrito){
-  if(carrito[k]>0) msg+=`• ${carrito[k]} ${k}%0A`;
+  if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g,' ')}%0A`;
  }
  msg+=`%0A💰 Total: $${total} (envío no incluido)`;
  msg+=`%0A🚚 Entrega: ${entrega}`;
