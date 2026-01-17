@@ -113,13 +113,21 @@ button.send{
  border-radius:12px;
  margin-top:10px;
 }
-.notice{
+.notice, .notice-input{
  background:#fff3cd;
  color:#856404;
  padding:8px 12px;
  border-radius:6px;
  margin:8px 0;
  font-size:14px;
+}
+.notice-input input{
+ width:100%;
+ border:none;
+ background:transparent;
+ font-size:16px;
+ color:#856404;
+ outline:none;
 }
 small{color:#777}
 
@@ -144,14 +152,16 @@ small{color:#777}
  margin-top:2px;
 }
 
-/* QR */
-#qrcode{
+/* QR centrado */
+.qr-section{
  text-align:center;
- margin-top:20px;
- padding:15px;
- background:white;
+ margin:20px 0;
+}
+.qr-section img{
+ max-width:250px;
+ width:80%;
+ border:5px solid #b30000;
  border-radius:12px;
- box-shadow:0 3px 8px rgba(0,0,0,.15);
 }
 </style>
 </head>
@@ -161,6 +171,13 @@ small{color:#777}
 <h1>👑 El Rey de las Empanadas
 <small>Horario: 17:00 a 23:00 | Lunes cerrado | Delivery: 18:30 a 23:00</small>
 </h1>
+
+<!-- Sección QR -->
+<div class="qr-section">
+ <div class="section-title">📱 Escanea y realiza tu pedido</div>
+ <img src="tu-codigo-qr.png" alt="QR para pedidos">
+ <small>Abre la página de pedidos directamente desde tu celular</small>
+</div>
 
 <div id="menu"></div>
 
@@ -189,24 +206,17 @@ small{color:#777}
 <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
 
-<div id="cambioNotice" class="notice" style="display:block">
-<input id="efectivoCambio" placeholder="¿Necesita cambio?">
+<!-- ¿Necesitas cambio? al estilo aviso -->
+<div id="cambio" class="notice-input" style="display:block">
+ <input id="efectivoCambio" placeholder="¿Necesita cambio?">
 </div>
+
 <div id="transferNotice" class="notice" style="display:none">
 El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
 </div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
-
-<!-- QR -->
-<div id="qrcode">
-  <div class="section-title">📱 Escanea para ingresar</div>
-  <div id="qrcode-canvas"></div>
-</div>
-
-<!-- Librería QR -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
 let entrega="Mostrador";
@@ -391,8 +401,8 @@ function setPago(p){
  pago=p;
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
- document.getElementById("cambioNotice").style.display=p=="Efectivo"?"block":"none";
-	document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
+ document.getElementById("cambio").style.display=p=="Efectivo"?"block":"none";
+ document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
 }
 
 function enviar(){
@@ -419,62 +429,12 @@ function enviar(){
  msg+=`%0A👤 Nombre: ${nombre.value}`;
  msg+=`%0A💳 Pago: ${pago}`;
  if(pago=="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
+ if(pago=="Efectivo") msg+=`%0A💵 Cambio solicitado: ${efectivoCambio.value||"No"}`
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
 render();
-
-// Generar QR apuntando a esta página
-new QRCode(document.getElementById("qrcode-canvas"), {
-    text: window.location.href,
-    width: 180,
-    height: 180,
-    colorDark : "#000000",
-    colorLight : "#ffffff",
-    correctLevel : QRCode.CorrectLevel.H
-});
 </script>
-<!-- SECCIÓN DEL QR -->
-<div class="qr-section">
-  <h2>📱 Escanea y realiza tu pedido</h2>
-  <div class="qr-container">
-    <img src="URL_DE_TU_QR.png" alt="QR Pedido El Rey de las Empanadas">
-  </div>
-  <p>Abre el enlace desde tu celular y haz tu pedido fácilmente.</p>
-</div>
 
-<style>
-.qr-section {
-  text-align: center;
-  margin: 30px 10px;
-  background: #fff9db;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-.qr-section h2 {
-  color: #b30000;
-  margin-bottom: 15px;
-}
-.qr-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 15px;
-}
-.qr-container img {
-  max-width: 200px;
-  width: 80%;
-  height: auto;
-  border-radius: 12px;
-  border: 2px solid #b30000;
-  padding: 5px;
-  background: white;
-}
-.qr-section p {
-  color: #555;
-  font-size: 14px;
-}
-</style>
 </body>
 </html>
