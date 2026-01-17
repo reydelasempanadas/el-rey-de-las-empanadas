@@ -89,7 +89,7 @@ h1 small{
  background:#b30000;
  color:white;
 }
-input,select,textarea{
+.input-area input, .input-area textarea{
  width:100%;
  padding:8px;
  margin:6px 0;
@@ -122,6 +122,27 @@ button.send{
  font-size:14px;
 }
 small{color:#777}
+
+/* Marca resaltada */
+.brand-card{
+ background:#f9f9f9;
+ border:1px solid #ddd;
+ border-radius:8px;
+ padding:8px;
+ margin:6px 0;
+}
+.brand-title{
+ font-weight:bold;
+ font-size:14px;
+ color:#b30000;
+ margin-bottom:4px;
+}
+.brand-item small{
+ display:block;
+ font-size:12px;
+ color:#777;
+ margin-top:2px;
+}
 </style>
 </head>
 
@@ -229,15 +250,6 @@ const productos=[
  ]
 },
 {
- cat:"🍟 Otros productos",
- precio:0,
- items:[
-  ["Papas fritas (porción)","120"],
-  ["Aros de cebolla (10 u.)","120"],
-  ["Nuggets (10 u.)","120"]
- ]
-},
-{
  cat:"🥤 Bebidas",
  subcats:[
    {marca:"Coca-Cola", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]},
@@ -269,12 +281,12 @@ function render(){
   html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
   if(sec.subcats){
     sec.subcats.forEach(sub=>{
-      html+=`<div class="sub-title">${sub.marca}</div>`;
+      html+=`<div class="brand-card"><div class="brand-title">${sub.marca}</div>`;
       sub.items.forEach(i=>{
         let nombre=sub.marca+" "+i[0], precio=parseInt(i[1]);
         carrito[nombre]=0;
         html+=`
-        <div class="item">
+        <div class="item brand-item">
          <div>
           <div class="name">${i[0]}</div>
           <small>$${precio}</small>
@@ -286,6 +298,7 @@ function render(){
          </div>
         </div>`;
       });
+      html+="</div>";
     });
   } else {
     sec.items.forEach(i=>{
