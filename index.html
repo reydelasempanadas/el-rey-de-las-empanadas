@@ -121,6 +121,13 @@ button.send{
  margin:8px 0;
  font-size:14px;
 }
+.notice input{
+ width:100%;
+ border:none;
+ background:transparent;
+ font-size:16px;
+ padding:4px 0;
+}
 small{color:#777}
 
 /* Marca resaltada */
@@ -179,9 +186,11 @@ small{color:#777}
 <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
 
-<div id="cambio" style="display:block">
-<input id="efectivoCambio" placeholder="¿Necesita cambio?">
+<!-- Aviso editable de ¿Necesita cambio? -->
+<div id="cambioNotice" class="notice" style="display:block">
+  <input id="efectivoCambio" placeholder="¿Necesita cambio?">
 </div>
+
 <div id="transferNotice" class="notice" style="display:none">
 El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
 </div>
@@ -372,8 +381,10 @@ function setPago(p){
  pago=p;
  document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
  document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
- document.getElementById("cambio").style.display=p=="Efectivo"?"block":"none";
-	document.getElementById("transferNotice").style.display=p=="Transferencia"?"block":"none";
+
+ // Mostrar u ocultar avisos al estilo notice
+	document.getElementById("cambioNotice").style.display = p=="Efectivo" ? "block" : "none";
+	document.getElementById("transferNotice").style.display = p=="Transferencia" ? "block" : "none";
 }
 
 function enviar(){
@@ -399,6 +410,7 @@ function enviar(){
  if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value}%0A📝 Observaciones: ${observaciones.value||"No indicadas"}`;
  msg+=`%0A👤 Nombre: ${nombre.value}`;
  msg+=`%0A💳 Pago: ${pago}`;
+ if(pago=="Efectivo" && efectivoCambio.value.trim()!=="") msg+=`%0A💵 Cambio solicitado: $${efectivoCambio.value}`;
  if(pago=="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
