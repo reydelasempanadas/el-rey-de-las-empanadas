@@ -12,16 +12,9 @@ body{
  margin:0;
  padding:10px;
 }
-h1{
- text-align:center;
- color:#b30000;
- margin-bottom:5px;
-}
-h1 small{
- display:block;
- font-size:12px;
- color:#555;
-}
+h1{text-align:center;color:#b30000}
+h1 small{display:block;font-size:12px;color:#555}
+
 .card{
  background:white;
  padding:15px;
@@ -48,39 +41,52 @@ h1 small{
 .name{font-weight:bold}
 .desc{font-size:12px;color:#777}
 .controls button{
- width:30px;
- height:30px;
- border:none;
- border-radius:6px;
- font-size:18px;
- cursor:pointer;
+ width:30px;height:30px;border:none;
+ border-radius:6px;font-size:18px;cursor:pointer
 }
 .plus{background:#25D366;color:white}
 .minus{background:#b30000;color:white}
-.disabled{
- opacity:.4;
- pointer-events:none;
+.disabled{opacity:.4;pointer-events:none}
+.no-stock{color:#b30000;font-weight:bold;font-size:12px}
+
+.selector{
+ display:flex;gap:10px;margin:10px 0
 }
-.no-stock{
- color:#b30000;
- font-size:12px;
- font-weight:bold;
+.selector button{
+ flex:1;padding:10px;font-size:16px;
+ border-radius:8px;border:1px solid #ccc;
+ background:#eee;cursor:pointer
 }
+.selector button.active{
+ background:#b30000;color:white
+}
+
+.input-area input,.input-area textarea{
+ width:100%;padding:10px;margin:6px 0;
+ font-size:16px;border-radius:6px;
+ border:none;background:#fff3cd
+}
+
+.notice{
+ background:#fff3cd;
+ color:#856404;
+ padding:10px;
+ border-radius:8px;
+ margin:10px 0;
+ font-size:14px
+}
+
 .total{
  background:white;
  padding:15px;
  border-radius:12px;
- box-shadow:0 3px 8px rgba(0,0,0,.15);
+ box-shadow:0 3px 8px rgba(0,0,0,.15)
 }
 .send{
- width:100%;
- padding:15px;
- background:#25D366;
- color:white;
- font-size:20px;
- border:none;
- border-radius:12px;
- margin-top:10px;
+ width:100%;padding:15px;
+ background:#25D366;color:white;
+ font-size:20px;border:none;
+ border-radius:12px;margin-top:10px
 }
 </style>
 </head>
@@ -88,84 +94,104 @@ h1 small{
 <body>
 
 <h1>👑 El Rey de las Empanadas
-<small>Pedidos online</small>
+<small>Delivery 18:30 a 23:00</small>
 </h1>
 
 <div id="menu"></div>
 
 <div class="total">
 <div class="section-title">🛒 Resumen</div>
-<div id="resumen"><small>No hay productos seleccionados</small></div>
+<div id="resumen"><small>No hay productos</small></div>
 <p><b>Total:</b> $<span id="total">0</span></p>
+
+<div class="section-title">🚚 Forma de entrega</div>
+<div class="selector">
+<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Mostrador</button>
+<button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
+</div>
+
+<div class="input-area">
+<input id="nombre" placeholder="Nombre">
+<input id="direccion" placeholder="Dirección" style="display:none">
+<textarea id="observaciones" placeholder="Observaciones" style="display:none"></textarea>
+</div>
+
+<div class="section-title">💳 Forma de pago</div>
+<div class="selector">
+<button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
+<button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
+</div>
+
+<div id="cambioBox" class="notice">
+<b>¿Necesita cambio?</b>
+<input id="cambio" placeholder="Ej: cambio para $1000">
+</div>
+
+<div id="transferNotice" class="notice" style="display:none">
+El enlace de transferencia se envía por WhatsApp
+</div>
+
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
 <script>
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?output=csv";
+const SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?output=csv";
 
-let carrito = {};
-let precios = {};
-let total = 0;
+let carrito={},precios={},total=0;
+let entrega="Mostrador",pago="Efectivo";
 
-function idify(txt){
- return txt.replace(/\s+/g,'_').replace(/[^\w]/g,'').toLowerCase();
-}
+function idify(t){return t.replace(/\s+/g,"_").replace(/[^\w]/g,"").toLowerCase()}
 
-fetch(SHEET_URL)
- .then(r=>r.text())
- .then(csv=>{
-  const rows = csv.split("\n").map(r=>r.split(","));
-  const headers = rows[0].map(h=>h.toLowerCase().trim());
+fetch(SHEET_URL).then(r=>r.text()).then(csv=>{
+ const rows=csv.split("\n").map(r=>r.split(","));
+ const h=rows[0].map(x=>x.trim().toLowerCase());
 
-  const idx = {
-    producto: headers.indexOf("producto"),
-    categoria: headers.indexOf("categoría"),
-    precio: headers.indexOf("precio"),
-    stock: headers.indexOf("stock"),
-    descripcion: headers.indexOf("descripción")
-  };
+ const i={
+  p:h.indexOf("producto"),
+  c:h.indexOf("categoría"),
+  pr:h.indexOf("precio"),
+  s:h.indexOf("stock"),
+  d:h.indexOf("descripción")
+ };
 
-  const data = rows.slice(1).map(r=>({
-    producto:r[idx.producto],
-    categoria:r[idx.categoria],
-    precio:parseInt(r[idx.precio]),
-    stock:r[idx.stock]?.toLowerCase()=="true",
-    descripcion:r[idx.descripcion]
-  }));
+ const data=rows.slice(1).map(r=>({
+  producto:r[i.p],
+  categoria:r[i.c],
+  precio:parseInt(r[i.pr]),
+  stock:r[i.s]?.toLowerCase()=="true",
+  descripcion:r[i.d]||""
+ }));
 
-  renderMenu(data);
- });
+ render(data);
+});
 
-function renderMenu(data){
- const menu = document.getElementById("menu");
- const categorias = [...new Set(data.map(p=>p.categoria))];
+function render(data){
+ const menu=document.getElementById("menu");
+ const cats=[...new Set(data.map(x=>x.categoria))];
 
- categorias.forEach(cat=>{
-  const card = document.createElement("div");
+ cats.forEach(cat=>{
+  const card=document.createElement("div");
   card.className="card";
   card.innerHTML=`<div class="section-title">${cat}</div>`;
 
-  data.filter(p=>p.categoria==cat).forEach(p=>{
-   const pid = idify(p.producto);
-   carrito[pid]=0;
-   precios[pid]=p.precio;
+  data.filter(x=>x.categoria==cat).forEach(p=>{
+   const id=idify(p.producto);
+   carrito[id]=0; precios[id]=p.precio;
 
-   const item = document.createElement("div");
-   item.className="item"+(p.stock?"":" disabled");
-
-   item.innerHTML=`
+   const div=document.createElement("div");
+   div.className="item"+(p.stock?"":" disabled");
+   div.innerHTML=`
     <div>
      <div class="name">${p.producto}</div>
-     <div class="desc">${p.descripcion||""}</div>
+     <div class="desc">${p.descripcion}</div>
      ${p.stock?`<small>$${p.precio}</small>`:`<div class="no-stock">No disponible</div>`}
     </div>
     <div class="controls">
-     <button class="minus" onclick="chg('${pid}',-1)">−</button>
-     <span id="${pid}">0</span>
-     <button class="plus" onclick="chg('${pid}',1)">+</button>
-    </div>
-   `;
-   card.appendChild(item);
+     <button class="minus" onclick="chg('${id}',-1)">−</button>
+     <span id="${id}">0</span>
+     <button class="plus" onclick="chg('${id}',1)">+</button>
+    </div>`;
+   card.appendChild(div);
   });
   menu.appendChild(card);
  });
@@ -173,30 +199,46 @@ function renderMenu(data){
 
 function chg(id,d){
  carrito[id]+=d;
- if(carrito[id]<0) carrito[id]=0;
+ if(carrito[id]<0)carrito[id]=0;
  document.getElementById(id).innerText=carrito[id];
-
- total=0;
- for(let k in carrito) total+=carrito[k]*precios[k];
+ total=Object.keys(carrito).reduce((s,k)=>s+carrito[k]*precios[k],0);
  document.getElementById("total").innerText=total;
  resumen();
 }
 
 function resumen(){
  let r="";
- for(let k in carrito){
-  if(carrito[k]>0) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
- }
- document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+ for(let k in carrito) if(carrito[k]>0) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
+ document.getElementById("resumen").innerHTML=r||"<small>No hay productos</small>";
+}
+
+function setEntrega(t){
+ entrega=t;
+ btnMostrador.classList.toggle("active",t=="Mostrador");
+ btnDelivery.classList.toggle("active",t=="Delivery");
+ direccion.style.display=t=="Delivery"?"block":"none";
+ observaciones.style.display=t=="Delivery"?"block":"none";
+}
+
+function setPago(p){
+ pago=p;
+ btnEfectivo.classList.toggle("active",p=="Efectivo");
+ btnTransferencia.classList.toggle("active",p=="Transferencia");
+ transferNotice.style.display=p=="Transferencia"?"block":"none";
 }
 
 function enviar(){
- if(total==0){ alert("Seleccione productos"); return; }
- let msg="🧾 Pedido%0A%0A";
- for(let k in carrito){
-  if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
- }
- msg+=`%0A💰 Total: $${total}`;
+ if(total==0)return alert("Seleccione productos");
+ if(!nombre.value)return alert("Ingrese nombre");
+ if(entrega=="Delivery"&&!direccion.value)return alert("Ingrese dirección");
+
+ let msg="🧾 Pedido%0A";
+ for(let k in carrito) if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
+ msg+=`%0A💰 Total $${total}`;
+ msg+=`%0A🚚 ${entrega}`;
+ msg+=`%0A💳 ${pago}`;
+ if(cambio.value) msg+=`%0A💵 Cambio: ${cambio.value}`;
+
  window.open("https://wa.me/59892663559?text="+msg);
 }
 </script>
