@@ -45,54 +45,8 @@ button.send{width:100%;padding:15px;background:#25D366;color:white;font-size:20p
 
 <div id="menu"></div>
 
-<div class="total">
-<div class="section-title">🛒 Resumen del pedido</div>
-<div id="resumen"><small>No hay productos seleccionados</small></div>
-<p><b>Total:</b> $<span id="total">0</span></p>
-
-<div id="avisoEnvio" class="notice" style="display:none">
-⏳ Esperar confirmación del costo total con envío
-</div>
-
-<div class="section-title">🚚 Forma de entrega</div>
-<div class="selector">
-<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
-<button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
-</div>
-
-<div class="input-area">
-<input id="nombre" placeholder="Nombre">
-<input id="direccion" placeholder="Dirección" style="display:none">
-<textarea id="observaciones" placeholder="Observaciones para delivery" style="display:none"></textarea>
-</div>
-
-<div class="section-title">💳 Forma de pago</div>
-<div class="selector">
-<button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
-<button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
-</div>
-
-<div id="transferNotice" class="notice" style="display:none">
-📎 El enlace para la transferencia será enviado por WhatsApp. Enviar comprobante.
-</div>
-
-<div id="cambioBox" class="cambio-box">
-<input id="efectivoCambio" placeholder="¿Necesitás cambio? Indicá con cuánto pagás">
-</div>
-
-<button class="send" onclick="enviar()">📲 Enviar pedido</button>
-</div>
-
-<div class="qr-box">
-<p><b>📲 Escaneá para hacer tu pedido</b></p>
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://reydelasempanadas.github.io/el-rey-de-las-empanadas/">
-<a href="https://reydelasempanadas.github.io/el-rey-de-las-empanadas/" target="_blank">
-👉 Click en el enlace para hacer tu pedido
-</a>
-</div>
-
 <script>
-let entrega="Mostrador",pago="Efectivo",carrito={},precios={},total=0;
+let carrito={},precios={},total=0;
 function idify(t){return t.replace(/\s+/g,'_').replace(/[^\w]/g,'')}
 
 const productos=[
@@ -100,40 +54,46 @@ const productos=[
 cat:"🥟 Empanadas - $60 c/u",
 precio:60,
 items:[
-["CLÁSICAS",""],
-["Empanada Criolla","Carne, cebolla y condimentos"],
-["Empanada Jamón y Queso","Jamón y mozzarella"],
-["Empanada Queso","Mozzarella"],
-["Empanada Mozzarella","Mozzarella"],
-["Empanada Cebolla y Queso","Cebolla y mozzarella"],
-["Empanada Calabresa","Calabresa y salsa"],
-["Empanada Pollo","Pollo condimentado"],
-["Empanada Pollo con Queso","Pollo y mozzarella"],
-["Empanada Caprese","Mozzarella, tomate y albahaca"],
+["CARNE",""],
+["Empanada Criolla","carne y huevo"],
+["Empanada Mendocina","carne, huevo y aceituna"],
+["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
+["Empanada Cordobesa","carne, huevo y pasas"],
+["Empanada Mixta","carne, huevo y calabresa"],
 
-["ESPECIALES",""],
-["Empanada Carne Picante","Carne con toque picante"],
-["Empanada Roquefort","Queso roquefort"],
-["Empanada Jamón, Queso y Ananá","Jamón, mozzarella y ananá"]
+["POLLO",""],
+["Empanada Pollo Clásico","pollo y huevo"],
+["Empanada Pollo Queso","pollo y mozzarella"],
+
+["VERDURA",""],
+["Empanada Humita","choclo y queso"],
+["Empanada Caprese","queso, tomate y albahaca"],
+
+["QUESO",""],
+["Empanada Jamón y Queso",""],
+["Empanada Queso y Cebolla",""],
+["Empanada Mozzarella, cebolla y calabresa",""],
+
+["DULCES",""],
+["Empanada Dulce de leche",""],
+["Empanada Nutella",""]
 ]
 },
 {
 cat:"🍟 Fritos",
 items:[
-["Papas Fritas",120],
-["Papas Bastón",120],
-["Aros de Cebolla",120],
-["Bastones de Muzza",120],
+["Papas fritas",120],
+["Aros de cebolla",120],
+["Bastones de muzza",120],
 ["Nuggets",120]
 ]
 },
 {
 cat:"🥤 Bebidas",
 subcats:[
-{marca:"Coca-Cola",items:[["500 ml",80],["1,5 L",150],["2,25 L",180]]},
-{marca:"Fanta",items:[["500 ml",80],["1,5 L",150]]},
-{marca:"Sprite",items:[["500 ml",80],["1,5 L",150]]},
-{marca:"Agua",items:[["Sin gas 500 ml",60],["Con gas 500 ml",60]]}
+{marca:"Coca-Cola",items:[["500 ml",80],["1.5 L",150]]},
+{marca:"Sprite",items:[["500 ml",80],["1.5 L",150]]},
+{marca:"Fanta",items:[["500 ml",80]]}
 ]
 }
 ];
@@ -154,18 +114,19 @@ function render(){
    });
   }else{
    sec.items.forEach(i=>{
-    if(i[1]===""&&i[0]===i[0].toUpperCase()){
-      h+=`<div class="sub-title">${i[0]}</div>`;return;
+    if(i[1]==="" && i[0]===i[0].toUpperCase()){
+      h+=`<div class="sub-title">${i[0]}</div>`;
+    } else {
+      let id=idify(i[0]);
+      carrito[id]=0;
+      precios[id]=sec.precio||i[1];
+      h+=item(i[0],i[1],id);
     }
-    let id=idify(i[0]);
-    carrito[id]=0;
-    precios[id]=sec.precio||i[1];
-    h+=item(i[0],i[1],id);
    });
   }
   h+="</div>";
  });
- menu.innerHTML=h;
+ document.getElementById("menu").innerHTML=h;
 }
 
 function item(n,d,id){
@@ -181,41 +142,6 @@ function item(n,d,id){
 function chg(id,d){
  carrito[id]=Math.max(0,carrito[id]+d);
  document.getElementById(id).innerText=carrito[id];
- total=0;
- for(let k in carrito) total+=carrito[k]*precios[k];
- document.getElementById("total").innerText=total;
- resumen();
-}
-
-function resumen(){
- let r="";
- for(let k in carrito)
-  if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
- document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
-}
-
-function setEntrega(t){
- entrega=t;
- btnMostrador.classList.toggle("active",t=="Mostrador");
- btnDelivery.classList.toggle("active",t=="Delivery");
- direccion.style.display=observaciones.style.display=t=="Delivery"?"block":"none";
- avisoEnvio.style.display=t=="Delivery"?"block":"none";
-}
-
-function setPago(p){
- pago=p;
- btnEfectivo.classList.toggle("active",p=="Efectivo");
- btnTransferencia.classList.toggle("active",p=="Transferencia");
- cambioBox.style.display=p=="Efectivo"?"block":"none";
- transferNotice.style.display=p=="Transferencia"?"block":"none";
-}
-
-function enviar(){
- if(!total||!nombre.value)return alert("Complete el pedido");
- let m="🧾 *Pedido*%0A";
- for(let k in carrito) if(carrito[k]) m+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
- m+=`%0A💰 Total: $${total}`+(entrega=="Delivery"?" + envío":"");
- window.open("https://wa.me/59892663559?text="+m,"_blank");
 }
 
 render();
