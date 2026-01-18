@@ -28,7 +28,7 @@ h1 small{display:block;font-size:12px;color:#555}
 }
 .item:last-child{border-bottom:none}
 .name{font-weight:bold}
-.desc{font-size:12px;color:#777}
+.desc{font-size:12px;color:#777;margin-top:2px}
 .price{font-size:13px;color:#555}
 
 .controls button{
@@ -50,8 +50,9 @@ h1 small{display:block;font-size:12px;color:#555}
 .selector button.active{background:#b30000;color:white}
 
 .input-area input,.input-area textarea{
- width:100%;padding:8px;margin:6px 0;
- border-radius:6px;border:1px solid #ccc
+ width:100%;padding:10px;margin:8px 0;
+ border-radius:8px;border:1px solid #ccc;
+ font-size:15px
 }
 
 .total{
@@ -61,8 +62,25 @@ h1 small{display:block;font-size:12px;color:#555}
 
 .notice{
  background:#fff3cd;color:#b30000;
- padding:10px;border-radius:6px;
- text-align:center;font-weight:bold;margin:10px 0
+ padding:12px;border-radius:8px;
+ text-align:center;font-weight:bold;margin:12px 0
+}
+
+/* CAMBIO MÁS VISIBLE */
+.cambio-box{
+ background:#fff3cd;
+ border:2px solid #b30000;
+ border-radius:10px;
+ padding:12px;
+ margin-top:10px
+}
+.cambio-box input{
+ width:100%;
+ border:none;
+ background:transparent;
+ font-size:16px;
+ font-weight:bold;
+ outline:none
 }
 
 .qr-box{
@@ -99,28 +117,31 @@ button.send{
 ⏳ Esperar confirmación del costo total con envío
 </div>
 
-<div class="section-title">🚚 Entrega</div>
+<div class="section-title">🚚 Forma de entrega</div>
 <div class="selector">
-<button class="active" onclick="setEntrega('Mostrador')">Mostrador</button>
-<button onclick="setEntrega('Delivery')">Delivery</button>
+<button id="bMostrador" class="active" onclick="setEntrega('Mostrador')">Mostrador</button>
+<button id="bDelivery" onclick="setEntrega('Delivery')">Delivery</button>
 </div>
 
 <div class="input-area">
 <input id="nombre" placeholder="Nombre">
 <input id="direccion" placeholder="Dirección" style="display:none">
+<textarea id="obsDelivery" placeholder="📝 Observaciones para delivery" style="display:none"></textarea>
 </div>
 
-<div class="section-title">💳 Pago</div>
+<div class="section-title">💳 Forma de pago</div>
 <div class="selector">
-<button class="active" onclick="setPago('Efectivo')">Efectivo</button>
-<button onclick="setPago('Transferencia')">Transferencia</button>
+<button id="bEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
+<button id="bTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
 
 <div id="transferNotice" class="notice" style="display:none">
-El enlace de transferencia se envía por WhatsApp
+El enlace de transferencia aparecerá en WhatsApp. Enviar comprobante.
 </div>
 
-<input id="cambio" placeholder="¿Necesita cambio?">
+<div id="cambioBox" class="cambio-box">
+<input id="cambio" placeholder="💵 ¿Necesitás cambio? Indicá con cuánto vas a pagar">
+</div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
@@ -134,21 +155,31 @@ El enlace de transferencia se envía por WhatsApp
 </div>
 
 <script>
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?output=csv";
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?output=csv";
 
 let carrito={}, precios={}, total=0, entrega="Mostrador", pago="Efectivo";
 
 fetch(CSV_URL)
 .then(r=>r.text())
 .then(t=>{
- const rows=t.split("\n").slice(1).map(r=>r.split(","));
+ const rows=t.split("\n").slice(1);
  const data={};
 
- rows.forEach(r=>{
+ rows.forEach(l=>{
+  const r=l.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/)
+          .map(v=>v.replace(/^"|"$/g,"").trim());
   let [prod,cat,sub,precio,stock,desc]=r;
+  if(!prod||!cat||!sub) return;
+
   if(!data[cat]) data[cat]={};
   if(!data[cat][sub]) data[cat][sub]=[];
-  data[cat][sub].push({prod,precio:Number(precio),stock:stock==="TRUE",desc});
+
+  data[cat][sub].push({
+   prod,
+   precio:Number(precio)||0,
+   stock:stock==="TRUE",
+   desc:desc||""
+  });
  });
 
  renderMenu(data);
@@ -168,7 +199,7 @@ function renderMenu(data){
     <div class="item">
      <div>
       <div class="name">${p.prod}</div>
-      <div class="desc">${p.desc||""}</div>
+      ${p.desc?`<div class="desc">${p.desc}</div>`:""}
       <div class="price">$${p.precio}</div>
       ${!p.stock?'<div class="sin-stock">Sin stock</div>':""}
      </div>
@@ -197,18 +228,33 @@ function chg(id,d){
 
 function setEntrega(t){
  entrega=t;
+ bMostrador.classList.toggle("active",t==="Mostrador");
+ bDelivery.classList.toggle("active",t==="Delivery");
  direccion.style.display=t==="Delivery"?"block":"none";
+ obsDelivery.style.display=t==="Delivery"?"block":"none";
  avisoEnvio.style.display=t==="Delivery"?"block":"none";
 }
 
 function setPago(p){
  pago=p;
+ bEfectivo.classList.toggle("active",p==="Efectivo");
+ bTransferencia.classList.toggle("active",p==="Transferencia");
  transferNotice.style.display=p==="Transferencia"?"block":"none";
 }
 
 function enviar(){
- let msg="🧾 Pedido%0A";
- if(entrega==="Delivery") msg+="🚨 SE NECESITA COTIZAR CON ENVÍO%0A";
+ let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
+ for(let k in carrito){
+  if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
+ }
+ if(entrega==="Delivery") msg+="%0A🚨 *SE NECESITA COTIZAR CON ENVÍO*";
+ msg+=`%0A💰 Total: $${total}`;
+ msg+=`%0A🚚 Entrega: ${entrega}`;
+ if(entrega==="Delivery") msg+=`%0A📍 Dirección: ${direccion.value}%0A📝 Obs: ${obsDelivery.value||"—"}`;
+ msg+=`%0A👤 Nombre: ${nombre.value}`;
+ msg+=`%0A💳 Pago: ${pago}`;
+ if(cambio.value) msg+=`%0A💵 Cambio: ${cambio.value}`;
+ if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
  window.open("https://wa.me/59892663559?text="+msg);
 }
 </script>
