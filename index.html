@@ -6,32 +6,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{font-family:Arial;background:#f4f4f4;margin:0;padding:10px}
-h1{text-align:center;color:#b30000}
-h1 small{display:block;font-size:12px;color:#555}
-
+body{
+ font-family:Arial,sans-serif;
+ background:#f4f4f4;
+ margin:0;
+ padding:10px;
+}
+h1{
+ text-align:center;
+ color:#b30000;
+ margin-bottom:5px;
+}
+h1 small{
+ display:block;
+ font-size:12px;
+ color:#555;
+}
 .section-title{
- background:#b30000;color:white;padding:8px 12px;
- border-radius:8px;margin:15px 0;font-size:18px
+ background:#b30000;
+ color:white;
+ padding:8px 12px;
+ border-radius:8px;
+ margin-bottom:10px;
+ font-size:18px;
 }
 .sub-title{
- color:#b30000;font-weight:bold;margin:10px 0 5px;
- border-bottom:1px solid #eee
+ font-weight:bold;
+ color:#b30000;
+ margin:12px 0 6px;
+ font-size:15px;
+ border-bottom:1px solid #eee;
 }
 .card{
- background:white;padding:15px;border-radius:12px;
- margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.1)
+ background:white;
+ padding:15px;
+ border-radius:12px;
+ margin-bottom:20px;
+ box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
 .item{
- display:flex;justify-content:space-between;
- align-items:center;padding:8px 0;border-bottom:1px dashed #eee;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:8px 0;
+ border-bottom:1px dashed #eee;
  gap:10px;
 }
 .item:last-child{border-bottom:none}
-
-.name{font-weight:bold}
+.name{font-weight:bold;font-size:15px}
 .desc{font-size:12px;color:#777;margin-top:2px}
-.price{font-size:13px;color:#555}
 
 .controls{
  display:flex;
@@ -40,41 +63,74 @@ h1 small{display:block;font-size:12px;color:#555}
  min-width:90px;
  justify-content:flex-end;
 }
-
 .controls button{
- width:30px;height:30px;border:none;
- border-radius:6px;font-size:18px;cursor:pointer;
+ width:30px;
+ height:30px;
+ border:none;
+ border-radius:6px;
+ font-size:18px;
+ cursor:pointer;
  flex-shrink:0;
 }
-.plus{background:#25D366;color:white}
-.minus{background:#b30000;color:white}
+.controls .plus{background:#25D366;color:white}
+.controls .minus{background:#b30000;color:white}
 
-.sin-stock{
- color:red;font-weight:bold;font-size:13px
+.selector{
+ display:flex;
+ gap:10px;
+ margin:10px 0;
 }
-
-.selector{display:flex;gap:10px;margin:10px 0}
 .selector button{
- flex:1;padding:10px;border-radius:8px;
- border:1px solid #ccc
+ flex:1;
+ padding:10px;
+ font-size:16px;
+ border-radius:8px;
+ border:1px solid #ccc;
+ background:#eee;
+ cursor:pointer;
 }
-.selector button.active{background:#b30000;color:white}
+.selector button.active{
+ background:#b30000;
+ color:white;
+}
 
-.input-area input,.input-area textarea{
- width:100%;padding:10px;margin:8px 0;
- border-radius:8px;border:1px solid #ccc;
- font-size:15px
+.input-area input,
+.input-area textarea{
+ width:100%;
+ padding:10px;
+ margin:6px 0;
+ font-size:16px;
+ border-radius:6px;
+ border:1px solid #ccc;
+ box-sizing:border-box;
 }
 
 .total{
- background:white;padding:15px;border-radius:12px;
- box-shadow:0 3px 8px rgba(0,0,0,.15)
+ background:white;
+ padding:15px;
+ border-radius:12px;
+ box-shadow:0 3px 8px rgba(0,0,0,.15);
+}
+
+button.send{
+ width:100%;
+ padding:15px;
+ background:#25D366;
+ color:white;
+ font-size:20px;
+ border:none;
+ border-radius:12px;
+ margin-top:10px;
 }
 
 .notice{
- background:#fff3cd;color:#b30000;
- padding:12px;border-radius:8px;
- text-align:center;font-weight:bold;margin:12px 0
+ background:#fff3cd;
+ color:#b30000;
+ padding:10px 12px;
+ border-radius:8px;
+ margin:10px 0;
+ font-size:14px;
+ text-align:center;
 }
 
 .cambio-box{
@@ -82,28 +138,35 @@ h1 small{display:block;font-size:12px;color:#555}
  border:1px solid #e0a800;
  border-radius:8px;
  padding:8px;
- margin-top:10px
+ margin-top:10px;
 }
 .cambio-box input{
  width:100%;
  border:none;
  background:transparent;
  font-size:14px;
- outline:none
+ outline:none;
 }
 
 .qr-box{
- margin-top:25px;background:#fff;
+ margin-top:30px;
+ background:#fff;
  border:3px solid #b30000;
- border-radius:14px;padding:20px;text-align:center
+ border-radius:14px;
+ padding:20px;
+ text-align:center;
 }
-.qr-box img{width:220px;margin:10px auto;display:block}
-.qr-box a{color:#25D366;font-weight:bold;text-decoration:none}
-
-button.send{
- width:100%;padding:15px;
- background:#25D366;color:white;
- font-size:20px;border:none;border-radius:12px
+.qr-box img{
+ width:220px;
+ margin:10px auto;
+ display:block;
+}
+.qr-box a{
+ color:#25D366;
+ font-weight:bold;
+ text-decoration:none;
+ display:block;
+ margin-top:8px;
 }
 </style>
 </head>
@@ -117,10 +180,10 @@ button.send{
 <div id="menu"></div>
 
 <div class="total">
-<div class="section-title">🛒 Resumen</div>
-<div id="resumen">Sin productos</div>
+<div class="section-title">🛒 Resumen del pedido</div>
+<div id="resumen"><small>No hay productos seleccionados</small></div>
 
-<p><b>Total:</b> <span id="total">$0</span></p>
+<p><b>Total:</b> $<span id="total">0</span></p>
 
 <div id="avisoEnvio" class="notice" style="display:none">
 ⏳ Esperar confirmación del costo total con envío
@@ -128,44 +191,142 @@ button.send{
 
 <div class="section-title">🚚 Forma de entrega</div>
 <div class="selector">
-<button id="bMostrador" class="active" onclick="setEntrega('Mostrador')">Mostrador</button>
-<button id="bDelivery" onclick="setEntrega('Delivery')">Delivery</button>
+<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
+<button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
 </div>
 
 <div class="input-area">
 <input id="nombre" placeholder="Nombre">
 <input id="direccion" placeholder="Dirección" style="display:none">
-<textarea id="obsDelivery" placeholder="📝 Observaciones para delivery" style="display:none"></textarea>
+<textarea id="observaciones" placeholder="📝 Observaciones para delivery" style="display:none"></textarea>
 </div>
 
 <div class="section-title">💳 Forma de pago</div>
 <div class="selector">
-<button id="bEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
-<button id="bTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
+<button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
+<button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
 </div>
 
 <div id="transferNotice" class="notice" style="display:none">
-📎 El enlace para la transferencia será enviado por WhatsApp
+📎 El enlace para la transferencia será enviado por WhatsApp. Enviar comprobante.
 </div>
 
 <div id="cambioBox" class="cambio-box">
-<input id="cambio" placeholder="¿Necesitás cambio? Indicá con cuánto pagás">
+<input id="efectivoCambio" placeholder="¿Necesitás cambio? Indicá con cuánto pagás">
 </div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
 <div class="qr-box">
-<p>📲 Escaneá para hacer tu pedido</p>
+<p><b>📲 Escaneá para hacer tu pedido</b></p>
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://reydelasempanadas.github.io/el-rey-de-las-empanadas/">
 <a href="https://reydelasempanadas.github.io/el-rey-de-las-empanadas/" target="_blank">
 👉 Click en el enlace para hacer tu pedido
 </a>
 </div>
 
-<!-- JS SIN CAMBIOS -->
 <script>
-/* el mismo JS exactamente que antes */
+let entrega="Mostrador";
+let pago="Efectivo";
+let carrito={}, precios={}, total=0;
+
+function idify(name){return name.replace(/\s+/g,'_').replace(/[^\w]/g,'');}
+
+const productos=[{
+ cat:"🥟 Empanadas - $60 c/u",
+ precio:60,
+ items:[
+  ["CARNE",""],
+  ["Empanada Criolla","carne y huevo"],
+  ["Empanada Mendocina","carne, huevo y aceituna"],
+  ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
+  ["Empanada Cordobesa","carne, huevo y pasas de uva"],
+  ["Empanada Mixta","carne, huevo, choclo y calabresa"],
+  ["Empanada Gallega","carne, huevo y panceta"],
+  ["Empanada Burguer","carne, cebolla y cheddar"],
+  ["MOZZARELLA",""],
+  ["Empanada Mozzarella, cebolla y calabresa",""]
+ ]
+}];
+
+function render(){
+ let html="";
+ productos.forEach(sec=>{
+  html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
+  sec.items.forEach(i=>{
+   if(i[1]==="" && i[0]===i[0].toUpperCase()){
+    html+=`<div class="sub-title">${i[0]}</div>`;
+    return;
+   }
+   let nombre=i[0], pid=idify(nombre);
+   carrito[pid]=0; precios[pid]=sec.precio;
+   html+=`
+   <div class="item">
+    <div>
+     <div class="name">${nombre}</div>
+     <div class="desc">${i[1]}</div>
+    </div>
+    <div class="controls">
+     <button class="minus" onclick="chg('${pid}',-1)">−</button>
+     <span id="${pid}">0</span>
+     <button class="plus" onclick="chg('${pid}',1)">+</button>
+    </div>
+   </div>`;
+  });
+  html+="</div>";
+ });
+ document.getElementById("menu").innerHTML=html;
+}
+
+function chg(pid,d){
+ carrito[pid]=Math.max(0,carrito[pid]+d);
+ document.getElementById(pid).innerText=carrito[pid];
+ total=0;
+ for(let k in carrito){total+=carrito[k]*precios[k];}
+ document.getElementById("total").innerText=total;
+ resumen();
+}
+
+function resumen(){
+ let r="";
+ for(let k in carrito){
+  if(carrito[k]>0) r+=`${carrito[k]} ${k.replace(/_/g,' ')}<br>`;
+ }
+ document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+}
+
+function setEntrega(t){
+ entrega=t;
+ btnMostrador.classList.toggle("active",t=="Mostrador");
+ btnDelivery.classList.toggle("active",t=="Delivery");
+ direccion.style.display=observaciones.style.display=t=="Delivery"?"block":"none";
+ document.getElementById("avisoEnvio").style.display=t=="Delivery"?"block":"none";
+}
+
+function setPago(p){
+ pago=p;
+ btnEfectivo.classList.toggle("active",p=="Efectivo");
+ btnTransferencia.classList.toggle("active",p=="Transferencia");
+ cambioBox.style.display=p=="Efectivo"?"block":"none";
+ transferNotice.style.display=p=="Transferencia"?"block":"none";
+}
+
+function enviar(){
+ if(total==0||nombre.value.trim()=="") return alert("Complete el pedido");
+ let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
+ for(let k in carrito){if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g,' ')}%0A`;}
+ msg+=`%0A💰 Total: $${total}`;
+ if(entrega=="Delivery") msg+=" + envío (a cotizar)";
+ msg+=`%0A🚚 Entrega: ${entrega}`;
+ msg+=`%0A👤 Nombre: ${nombre.value}`;
+ msg+=`%0A💳 Pago: ${pago}`;
+ if(pago=="Efectivo"&&efectivoCambio.value) msg+=`%0A💵 Cambio: ${efectivoCambio.value}`;
+ if(pago=="Transferencia") msg+=`%0A📎 Enviar comprobante`;
+ window.open("https://wa.me/59892663559?text="+msg,"_blank");
+}
+
+render();
 </script>
 
 </body>
