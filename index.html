@@ -29,8 +29,6 @@ button.send{width:100%;padding:15px;background:#25D366;color:white;font-size:20p
 .notice{background:#fff3cd;color:#b30000;padding:10px;border-radius:8px;margin:10px 0;font-size:14px;text-align:center}
 .cambio-box{background:#fff3cd;border:1px solid #e0a800;border-radius:8px;padding:8px;margin-top:10px}
 .cambio-box input{width:100%;border:none;background:transparent;font-size:14px}
-.brand-card{background:#f9f9f9;border:1px solid #ddd;border-radius:8px;padding:8px;margin:8px 0}
-.brand-title{font-weight:bold;color:#b30000;margin-bottom:4px}
 .qr-box{margin-top:30px;background:#fff;border:3px solid #b30000;border-radius:14px;padding:20px;text-align:center}
 .qr-box img{width:220px;margin:10px auto;display:block}
 .qr-box a{color:#25D366;font-weight:bold;text-decoration:none}
@@ -97,21 +95,56 @@ let carrito={},precios={},total=0;
 
 function idify(t){return t.replace(/\s+/g,'_').replace(/[^\w]/g,'')}
 
-const productos=[/* TODO EL MENÚ TAL COMO LO CONFIGURASTE */];
+const productos=[
+{
+cat:"🥟 Empanadas - $60 c/u",
+precio:60,
+items:[
+["CARNE",""],
+["Empanada Criolla","carne y huevo"],
+["Empanada Mendocina","carne, huevo y aceituna"],
+["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
+["Empanada Cordobesa","carne, huevo y pasas"],
+["Empanada Mixta","carne, huevo, choclo y calabresa"],
+["Empanada Gallega","carne, huevo y panceta"],
+["Empanada Burguer","carne, cebolla y cheddar"],
 
-function item(n,d,id){
-return `<div class="item">
-<div>
-<div class="name">${n}</div>
-<div class="desc">${d}</div>
-</div>
-<div class="controls">
-<button class="minus" onclick="chg('${id}',-1)">−</button>
-<span id="${id}">0</span>
-<button class="plus" onclick="chg('${id}',1)">+</button>
-</div>
-</div>`;
+["POLLO",""],
+["Empanada Pollo clásico","pollo, salsa y huevo"],
+["Empanada Pollo queso","pollo, queso y aceituna"],
+["Empanada Pollo requesón","pollo y requesón"],
+["Empanada Pollo mostaza","pollo a la mostaza"],
+
+["VERDURA",""],
+["Empanada Palmito","jamón y salsa golf"],
+["Empanada Acelga","cebolla, morrón y huevo"],
+["Empanada Humita","choclo, queso y salsa blanca"],
+["Empanada Choclo y jamón",""],
+["Empanada Caprese","queso, tomate y albahaca"],
+
+["MOZZARELLA",""],
+["Empanada Pizza","mozzarella, salsa y orégano"],
+["Empanada Alemana","mozzarella y frankfurter"],
+["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
+["Empanada Caribeña","mozzarella, salame y aceituna"],
+["Empanada Mozzarella y panceta",""],
+["Empanada Mozzarella, cebolla y calabresa",""],
+
+["QUESO",""],
+["Empanada Jamón y queso",""],
+["Empanada Queso, calabresa y salsa",""],
+["Empanada Queso y cebolla",""],
+["Empanada Queso y aceituna",""],
+["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+
+["DULCES",""],
+["Empanada Dulce de leche",""],
+["Empanada Membrillo",""],
+["Empanada Crema pastelera",""],
+["Empanada Nutella",""]
+]
 }
+];
 
 function render(){
 let h="";
@@ -125,7 +158,17 @@ return;
 let id=idify(i[0]);
 carrito[id]=0;
 precios[id]=sec.precio;
-h+=item(i[0],i[1],id);
+h+=`<div class="item">
+<div>
+<div class="name">${i[0]}</div>
+<div class="desc">${i[1]}</div>
+</div>
+<div class="controls">
+<button class="minus" onclick="chg('${id}',-1)">−</button>
+<span id="${id}">0</span>
+<button class="plus" onclick="chg('${id}',1)">+</button>
+</div>
+</div>`;
 });
 h+="</div>";
 });
