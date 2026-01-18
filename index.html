@@ -30,6 +30,13 @@ h1 small{
  margin-bottom:10px;
  font-size:18px;
 }
+.sub-title{
+ font-weight:bold;
+ color:#b30000;
+ margin:12px 0 6px;
+ font-size:15px;
+ border-bottom:1px solid #eee;
+}
 .card{
  background:white;
  padding:15px;
@@ -45,21 +52,98 @@ h1 small{
  border-bottom:1px dashed #eee;
 }
 .item:last-child{border-bottom:none}
-.name{font-weight:bold;font-size:15px}
-.desc{font-size:12px;color:#777}
+.name{
+ font-weight:bold;
+ font-size:15px;
+}
+.desc{
+ font-size:12px;
+ color:#777;
+ margin-top:2px;
+}
 .controls button{
- width:30px;height:30px;border:none;border-radius:6px;
- font-size:18px;cursor:pointer
+ width:30px;
+ height:30px;
+ border:none;
+ border-radius:6px;
+ font-size:18px;
+ cursor:pointer;
 }
-.plus{background:#25D366;color:white}
-.minus{background:#b30000;color:white}
+.controls .plus{background:#25D366;color:white;}
+.controls .minus{background:#b30000;color:white;}
+.selector{
+ display:flex;
+ gap:10px;
+ margin:10px 0;
+}
+.selector button{
+ flex:1;
+ padding:10px;
+ font-size:16px;
+ border-radius:8px;
+ border:1px solid #ccc;
+ background:#eee;
+ cursor:pointer;
+}
+.selector button.active{
+ background:#b30000;
+ color:white;
+}
+.input-area input, .input-area textarea{
+ width:100%;
+ padding:8px;
+ margin:6px 0;
+ font-size:16px;
+ border-radius:6px;
+ border:1px solid #ccc;
+}
 .total{
- background:white;padding:15px;border-radius:12px;
- box-shadow:0 3px 8px rgba(0,0,0,.15)
+ background:white;
+ padding:15px;
+ border-radius:12px;
+ box-shadow:0 3px 8px rgba(0,0,0,.15);
 }
-.send{
- width:100%;padding:15px;background:#25D366;
- color:white;font-size:20px;border:none;border-radius:12px
+button.send{
+ width:100%;
+ padding:15px;
+ background:#25D366;
+ color:white;
+ font-size:20px;
+ border:none;
+ border-radius:12px;
+ margin-top:10px;
+}
+.notice{
+ background:#fff3cd;
+ color:#856404;
+ padding:8px 12px;
+ border-radius:6px;
+ margin:8px 0;
+ font-size:14px;
+}
+.notice input{
+ width:100%;
+ border:none;
+ background:transparent;
+ font-size:16px;
+}
+.qr-box{
+ text-align:center;
+ background:white;
+ padding:20px;
+ border-radius:12px;
+ margin-top:20px;
+ border:2px dashed #b30000;
+}
+.qr-box img{
+ max-width:180px;
+}
+.qr-box a{
+ display:block;
+ margin-top:10px;
+ font-weight:bold;
+ color:#25D366;
+ text-decoration:none;
 }
 </style>
 </head>
@@ -67,106 +151,148 @@ h1 small{
 <body>
 
 <h1>👑 El Rey de las Empanadas
-<small>Horario: 17:00 a 23:00 | Lunes cerrado</small>
+<small>Horario: 17:00 a 23:00 | Lunes cerrado | Delivery: 18:30 a 23:00</small>
 </h1>
 
 <div id="menu"></div>
 
 <div class="total">
-<h3>🛒 Resumen</h3>
-<div id="resumen"><small>No hay productos</small></div>
-<b>Total: $<span id="total">0</span></b>
-<br><br>
+<div class="section-title">🛒 Resumen del pedido</div>
+<div id="resumen"><small>No hay productos seleccionados</small></div>
+
+<p><b>Total:</b> $<span id="total">0</span></p>
+<small>Envío no incluido</small>
+
+<div class="section-title">🚚 Forma de entrega</div>
+<div class="selector">
+<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
+<button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
+</div>
+
+<div class="input-area">
+<input id="nombre" placeholder="Nombre">
+<input id="direccion" placeholder="Dirección" style="display:none">
+<textarea id="observaciones" placeholder="Observaciones" style="display:none"></textarea>
+</div>
+
+<div class="section-title">💳 Forma de pago</div>
+<div class="selector">
+<button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
+<button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
+</div>
+
+<div id="cambioNotice" class="notice">
+<input id="efectivoCambio" placeholder="¿Necesita cambio?">
+</div>
+
+<div id="transferNotice" class="notice" style="display:none">
+El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
+</div>
+
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
+<div class="qr-box">
+<p><b>📷 Escaneá para hacer tu pedido</b></p>
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://reydelasempanadas.github.io/el-rey-de-las-empanadas/">
+<a href="https://wa.me/?text=Click%20en%20el%20enlace%20para%20hacer%20tu%20pedido%20https://reydelasempanadas.github.io/el-rey-de-las-empanadas/" target="_blank">
+📤 Compartir por WhatsApp
+</a>
+</div>
+
 <script>
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
+let carrito={}, precios={}, total=0;
+let entrega="Mostrador", pago="Efectivo";
 
-let carrito = {};
-let precios = {};
-let total = 0;
+function idify(t){return t.replace(/\s+/g,'_').replace(/[^\w]/g,'');}
 
-function idify(t){
- return t.replace(/\s+/g,'_').replace(/[^\w]/g,'');
-}
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
 
 fetch(CSV_URL)
-.then(r => r.text())
-.then(csv => {
- const rows = csv.split("\n").slice(1);
- const data = {};
+.then(r=>r.text())
+.then(txt=>{
+ const rows=txt.split("\n").slice(1);
+ const data={};
 
- rows.forEach(r => {
-   const [producto,categoria,precio,stock,desc] = r.split(",");
-   if(stock?.trim() !== "Disponible") return;
+ rows.forEach(r=>{
+  const c=r.split(",");
+  if(c.length<5) return;
 
-   if(!data[categoria]) data[categoria] = [];
-   data[categoria].push({
-     producto,
-     precio: parseInt(precio),
-     desc: desc || ""
-   });
+  const producto=c[0];
+  const categoria=c[1];
+  const precio=parseInt(c[2]);
+  const stock=(c[3]||"").toLowerCase().trim();
+  const desc=c[4];
+
+  if(stock.includes("no")) return;
+
+  if(!data[categoria]) data[categoria]=[];
+  data[categoria].push({producto,precio,desc});
  });
 
- renderMenu(data);
+ let html="";
+ Object.keys(data).forEach(cat=>{
+  html+=`<div class="card"><div class="section-title">${cat}</div>`;
+  data[cat].forEach(p=>{
+   const id=idify(p.producto);
+   carrito[id]=0; precios[id]=p.precio;
+   html+=`
+   <div class="item">
+    <div>
+     <div class="name">${p.producto}</div>
+     <div class="desc">${p.desc||""}</div>
+     <small>$${p.precio}</small>
+    </div>
+    <div class="controls">
+     <button class="minus" onclick="chg('${id}',-1)">−</button>
+     <span id="${id}">0</span>
+     <button class="plus" onclick="chg('${id}',1)">+</button>
+    </div>
+   </div>`;
+  });
+  html+="</div>";
+ });
+ document.getElementById("menu").innerHTML=html;
 });
 
-function renderMenu(data){
- let html = "";
-
- Object.keys(data).forEach(cat=>{
-   html += `<div class="card"><div class="section-title">${cat}</div>`;
-   data[cat].forEach(p=>{
-     const id = idify(p.producto);
-     carrito[id]=0;
-     precios[id]=p.precio;
-
-     html += `
-     <div class="item">
-      <div>
-       <div class="name">${p.producto}</div>
-       <div class="desc">${p.desc}</div>
-       <small>$${p.precio}</small>
-      </div>
-      <div class="controls">
-       <button class="minus" onclick="chg('${id}',-1)">−</button>
-       <span id="${id}">0</span>
-       <button class="plus" onclick="chg('${id}',1)">+</button>
-      </div>
-     </div>`;
-   });
-   html += "</div>";
- });
-
- document.getElementById("menu").innerHTML = html;
+function chg(id,d){
+ carrito[id]=Math.max(0,carrito[id]+d);
+ document.getElementById(id).innerText=carrito[id];
+ total=0;
+ for(let k in carrito) total+=carrito[k]*precios[k];
+ document.getElementById("total").innerText=total;
+ resumen();
 }
 
-function chg(id,d){
- carrito[id]+=d;
- if(carrito[id]<0) carrito[id]=0;
- document.getElementById(id).innerText = carrito[id];
+function resumen(){
+ let r="";
+ for(let k in carrito) if(carrito[k]>0) r+=`${carrito[k]} ${k.replace(/_/g,' ')}<br>`;
+ document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+}
 
- total = 0;
- let resumen = "";
- for(let k in carrito){
-   if(carrito[k]>0){
-     total += carrito[k]*precios[k];
-     resumen += `${carrito[k]} ${k.replace(/_/g,' ')}<br>`;
-   }
- }
- document.getElementById("total").innerText = total;
- document.getElementById("resumen").innerHTML = resumen || "<small>No hay productos</small>";
+function setEntrega(t){
+ entrega=t;
+ btnMostrador.classList.toggle("active",t=="Mostrador");
+ btnDelivery.classList.toggle("active",t=="Delivery");
+ direccion.style.display=t=="Delivery"?"block":"none";
+ observaciones.style.display=t=="Delivery"?"block":"none";
+}
+
+function setPago(p){
+ pago=p;
+ btnEfectivo.classList.toggle("active",p=="Efectivo");
+ btnTransferencia.classList.toggle("active",p=="Transferencia");
+ cambioNotice.style.display=p=="Efectivo"?"block":"none";
+ transferNotice.style.display=p=="Transferencia"?"block":"none";
 }
 
 function enviar(){
- if(total==0){alert("Agregá productos");return;}
+ if(total==0) return alert("Seleccione productos");
+ if(nombre.value.trim()=="") return alert("Ingrese nombre");
  let msg="Pedido:%0A";
- for(let k in carrito){
-  if(carrito[k]>0) msg+=`${carrito[k]} ${k.replace(/_/g,' ')}%0A`;
- }
- msg+=`Total: $${total}`;
- window.open("https://wa.me/59892663559?text="+msg,"_blank");
+ for(let k in carrito) if(carrito[k]>0) msg+=`${carrito[k]} ${k.replace(/_/g,' ')}%0A`;
+ msg+=`Total $${total}`;
+ window.open("https://wa.me/59892663559?text="+msg);
 }
 </script>
 
