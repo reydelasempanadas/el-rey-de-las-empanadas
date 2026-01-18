@@ -92,12 +92,51 @@ button.send{width:100%;padding:15px;background:#25D366;color:white;font-size:20p
 </div>
 
 <script>
-let entrega="Mostrador",pago="Efectivo";
-let carrito={},precios={},total=0;
-
+let entrega="Mostrador",pago="Efectivo",carrito={},precios={},total=0;
 function idify(t){return t.replace(/\s+/g,'_').replace(/[^\w]/g,'')}
 
-const productos=[/* === MENÚ COMPLETO TAL CUAL DEFINISTE === */ /* (idéntico al anterior, no modificado) */];
+const productos=[
+{
+cat:"🥟 Empanadas - $60 c/u",
+precio:60,
+items:[
+["CLÁSICAS",""],
+["Empanada Criolla","Carne, cebolla y condimentos"],
+["Empanada Jamón y Queso","Jamón y mozzarella"],
+["Empanada Queso","Mozzarella"],
+["Empanada Mozzarella","Mozzarella"],
+["Empanada Cebolla y Queso","Cebolla y mozzarella"],
+["Empanada Calabresa","Calabresa y salsa"],
+["Empanada Pollo","Pollo condimentado"],
+["Empanada Pollo con Queso","Pollo y mozzarella"],
+["Empanada Caprese","Mozzarella, tomate y albahaca"],
+
+["ESPECIALES",""],
+["Empanada Carne Picante","Carne con toque picante"],
+["Empanada Roquefort","Queso roquefort"],
+["Empanada Jamón, Queso y Ananá","Jamón, mozzarella y ananá"]
+]
+},
+{
+cat:"🍟 Fritos",
+items:[
+["Papas Fritas",120],
+["Papas Bastón",120],
+["Aros de Cebolla",120],
+["Bastones de Muzza",120],
+["Nuggets",120]
+]
+},
+{
+cat:"🥤 Bebidas",
+subcats:[
+{marca:"Coca-Cola",items:[["500 ml",80],["1,5 L",150],["2,25 L",180]]},
+{marca:"Fanta",items:[["500 ml",80],["1,5 L",150]]},
+{marca:"Sprite",items:[["500 ml",80],["1,5 L",150]]},
+{marca:"Agua",items:[["Sin gas 500 ml",60],["Con gas 500 ml",60]]}
+]
+}
+];
 
 function render(){
  let h="";
@@ -115,14 +154,18 @@ function render(){
    });
   }else{
    sec.items.forEach(i=>{
-    if(i[1]===""&&i[0]===i[0].toUpperCase()){h+=`<div class="sub-title">${i[0]}</div>`;return;}
-    let id=idify(i[0]);carrito[id]=0;precios[id]=sec.precio||i[1];
+    if(i[1]===""&&i[0]===i[0].toUpperCase()){
+      h+=`<div class="sub-title">${i[0]}</div>`;return;
+    }
+    let id=idify(i[0]);
+    carrito[id]=0;
+    precios[id]=sec.precio||i[1];
     h+=item(i[0],i[1],id);
    });
   }
   h+="</div>";
  });
- document.getElementById("menu").innerHTML=h;
+ menu.innerHTML=h;
 }
 
 function item(n,d,id){
@@ -146,7 +189,8 @@ function chg(id,d){
 
 function resumen(){
  let r="";
- for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
+ for(let k in carrito)
+  if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
@@ -168,7 +212,7 @@ function setPago(p){
 
 function enviar(){
  if(!total||!nombre.value)return alert("Complete el pedido");
- let m="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
+ let m="🧾 *Pedido*%0A";
  for(let k in carrito) if(carrito[k]) m+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
  m+=`%0A💰 Total: $${total}`+(entrega=="Delivery"?" + envío":"");
  window.open("https://wa.me/59892663559?text="+m,"_blank");
