@@ -71,6 +71,32 @@ h1 small{
 }
 .controls .plus{background:#25D366;color:white;}
 .controls .minus{background:#b30000;color:white;}
+.selector{
+ display:flex;
+ gap:10px;
+ margin:10px 0;
+}
+.selector button{
+ flex:1;
+ padding:10px;
+ font-size:16px;
+ border-radius:8px;
+ border:1px solid #ccc;
+ background:#eee;
+ cursor:pointer;
+}
+.selector button.active{
+ background:#b30000;
+ color:white;
+}
+.input-area input, .input-area textarea{
+ width:100%;
+ padding:8px;
+ margin:6px 0;
+ font-size:16px;
+ border-radius:6px;
+ border:1px solid #ccc;
+}
 .total{
  background:white;
  padding:15px;
@@ -87,130 +113,243 @@ button.send{
  border-radius:12px;
  margin-top:10px;
 }
+.notice{
+ background:#fff3cd;
+ color:#b30000;
+ padding:10px 12px;
+ border-radius:6px;
+ margin:8px 0;
+ font-size:14px;
+ font-weight:bold;
+}
+.notice input{
+ width:100%;
+ border:none;
+ background:transparent;
+ font-size:16px;
+}
 small{color:#777}
+
+.brand-card{
+ background:#f9f9f9;
+ border:1px solid #ddd;
+ border-radius:8px;
+ padding:8px;
+ margin:6px 0;
+}
+.brand-title{
+ font-weight:bold;
+ font-size:14px;
+ color:#b30000;
+ margin-bottom:4px;
+}
 </style>
 </head>
 
 <body>
 
 <h1>👑 El Rey de las Empanadas
-<small>Horario: 17:00 a 23:00 | Lunes cerrado</small>
+<small>Horario: 17:00 a 23:00 | Lunes cerrado | Delivery: 18:30 a 23:00</small>
 </h1>
 
 <div id="menu"></div>
 
 <div class="total">
- <div class="section-title">🛒 Resumen del pedido</div>
- <div id="resumen"><small>No hay productos seleccionados</small></div>
- <p><b>Total:</b> $<span id="total">0</span></p>
- <button class="send" onclick="enviar()">📲 Enviar pedido</button>
+<div class="section-title">🛒 Resumen del pedido</div>
+<div id="resumen"><small>No hay productos seleccionados</small></div>
+
+<p><b>Total:</b> <span id="totalTexto">$0</span></p>
+
+<div id="envioNotice" class="notice" style="display:none">
+🚚 Esperar confirmación del costo total con envío
+</div>
+
+<div class="section-title">🚚 Forma de entrega</div>
+<div class="selector">
+<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
+<button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
+</div>
+
+<div class="input-area">
+<input id="nombre" placeholder="Nombre">
+<input id="direccion" placeholder="Dirección" style="display:none">
+<textarea id="observaciones" placeholder="Observaciones sobre la dirección" style="display:none"></textarea>
+</div>
+
+<div class="section-title">💳 Forma de pago</div>
+<div class="selector">
+<button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
+<button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
+</div>
+
+<div id="cambioNotice" class="notice">
+<input id="efectivoCambio" placeholder="¿Necesita cambio?">
+</div>
+
+<div id="transferNotice" class="notice" style="display:none">
+El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
+</div>
+
+<button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
 <script>
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
+let entrega="Mostrador";
+let pago="Efectivo";
+let carrito={}, precios={}, total=0;
 
-let carrito = {}, precios = {}, total = 0;
+function idify(name){ return name.replace(/\s+/g,'_').replace(/[^\w]/g,''); }
 
-function idify(t){
- return t.replace(/\s+/g,'_').replace(/[^\w]/g,'');
+const productos=[
+{
+ cat:"🥟 Empanadas - $60 c/u",
+ precio:60,
+ items:[
+  ["CARNE",""],
+  ["Empanada Criolla","carne y huevo"],
+  ["Empanada Mendocina","carne, huevo y aceituna"],
+  ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
+  ["Empanada Cordobesa","carne, huevo y pasas de uva"],
+  ["Empanada Mixta","carne, huevo, choclo y calabresa"],
+  ["Empanada Gallega","carne, huevo y panceta"],
+  ["Empanada Burguer","carne, cebolla y cheddar"],
+
+  ["POLLO",""],
+  ["Empanada Pollo clásico","pollo, salsa y huevo"],
+  ["Empanada Pollo queso","pollo, queso y aceituna"],
+  ["Empanada Pollo requesón","pollo y requesón"],
+  ["Empanada Pollo mostaza","pollo a la mostaza"],
+
+  ["VERDURA",""],
+  ["Empanada Palmito","jamón y salsa golf"],
+  ["Empanada Acelga","cebolla, morrón y huevo"],
+  ["Empanada Humita","choclo, queso y salsa blanca"],
+  ["Empanada Choclo y jamón",""],
+  ["Empanada Caprese","queso, tomate y albahaca"],
+
+  ["MAR",""],
+  ["Empanada Atún","atún, huevo y salsa"],
+
+  ["MOZZARELLA",""],
+  ["Empanada Pizza","mozzarella, salsa y orégano"],
+  ["Empanada Alemana","mozzarella y frankfurter"],
+  ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
+  ["Empanada Caribeña","mozzarella, salame y aceituna"],
+  ["Empanada Mozzarella y panceta",""],
+  ["Empanada Mozzarella, cebolla y calabresa",""],
+
+  ["QUESO",""],
+  ["Empanada Jamón y queso",""],
+  ["Empanada Queso, calabresa y salsa",""],
+  ["Empanada Queso y cebolla",""],
+  ["Empanada Queso y aceituna",""],
+  ["Empanada Libanesa","queso, cebolla, ajo y perejil"],
+  ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
+  ["Empanada Tropical","queso, jamón y ananá"],
+  ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
+
+  ["DULCES",""],
+  ["Empanada Dulce de leche",""],
+  ["Empanada Membrillo",""],
+  ["Empanada Crema pastelera",""],
+  ["Empanada Mulata","dulce de leche y chocolate"],
+  ["Empanada Gringa","dulce de leche y chocolate blanco"],
+  ["Empanada Nutella",""]
+ ]
 }
+];
 
-/* ===== CSV parser robusto ===== */
-function parseCSV(text){
- let rows = [], row = [], cur = "", inside = false;
- for(let c of text){
-  if(c === '"') inside = !inside;
-  else if(c === ',' && !inside){ row.push(cur); cur = ""; }
-  else if(c === '\n' && !inside){ row.push(cur); rows.push(row); row=[]; cur=""; }
-  else cur += c;
- }
- row.push(cur); rows.push(row);
- return rows;
-}
-
-fetch(CSV_URL)
-.then(r => r.text())
-.then(text => {
- const rows = parseCSV(text);
- rows.shift(); // encabezado
-
- const menu = {};
-
- rows.forEach(c => {
-  if(c.length < 6) return;
-
-  const producto = c[0].trim();
-  const categoria = c[1].trim();
-  const subcat = c[2].trim();
-  const precio = parseInt(c[3]);
-  const stock = c[4].toLowerCase();
-  const desc = c[5].trim();
-
-  if(!producto || isNaN(precio)) return;
-  if(stock.includes("no") || stock === "false") return;
-
-  if(!menu[categoria]) menu[categoria] = {};
-  if(!menu[categoria][subcat]) menu[categoria][subcat] = [];
-
-  menu[categoria][subcat].push({producto, precio, desc});
- });
-
- render(menu);
-});
-
-function render(menu){
- let html = "";
- Object.keys(menu).forEach(cat=>{
-  html += `<div class="card"><div class="section-title">${cat}</div>`;
-  Object.keys(menu[cat]).forEach(sub=>{
-   html += `<div class="sub-title">${sub}</div>`;
-   menu[cat][sub].forEach(p=>{
-    const id = idify(p.producto);
-    carrito[id]=0; precios[id]=p.precio;
-    html += `
-    <div class="item">
-     <div>
-      <div class="name">${p.producto}</div>
-      <div class="desc">${p.desc}</div>
-      <small>$${p.precio}</small>
-     </div>
-     <div class="controls">
-      <button class="minus" onclick="chg('${id}',-1)">−</button>
-      <span id="${id}">0</span>
-      <button class="plus" onclick="chg('${id}',1)">+</button>
-     </div>
-    </div>`;
-   });
+function render(){
+ let html="";
+ productos.forEach(sec=>{
+  html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
+  sec.items.forEach(i=>{
+   if(i[1]==="" && i[0]===i[0].toUpperCase()){
+    html+=`<div class="sub-title">${i[0]}</div>`;
+    return;
+   }
+   let pid=idify(i[0]);
+   carrito[pid]=0;
+   precios[pid]=sec.precio;
+   html+=`
+   <div class="item">
+    <div>
+     <div class="name">${i[0]}</div>
+     <div class="desc">${i[1]}</div>
+    </div>
+    <div class="controls">
+     <button class="minus" onclick="chg('${pid}',-1)">−</button>
+     <span id="${pid}">0</span>
+     <button class="plus" onclick="chg('${pid}',1)">+</button>
+    </div>
+   </div>`;
   });
-  html += `</div>`;
+  html+="</div>";
  });
- document.getElementById("menu").innerHTML = html;
+ document.getElementById("menu").innerHTML=html;
 }
 
-function chg(id,d){
- carrito[id]=Math.max(0,carrito[id]+d);
- document.getElementById(id).innerText=carrito[id];
+function chg(pid,d){
+ carrito[pid]+=d;
+ if(carrito[pid]<0) carrito[pid]=0;
+ document.getElementById(pid).innerText=carrito[pid];
  total=0;
  for(let k in carrito) total+=carrito[k]*precios[k];
- document.getElementById("total").innerText=total;
+ actualizarTotal();
  resumen();
+}
+
+function actualizarTotal(){
+ if(entrega==="Delivery"){
+  totalTexto.innerText=`$${total} + envío`;
+  envioNotice.style.display="block";
+ }else{
+  totalTexto.innerText=`$${total}`;
+  envioNotice.style.display="none";
+ }
 }
 
 function resumen(){
  let r="";
- for(let k in carrito)
-  if(carrito[k]>0) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
- document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+ for(let k in carrito) if(carrito[k]>0) r+=`${carrito[k]} ${k.replace(/_/g,' ')}<br>`;
+ resumenDiv.innerHTML=r||"<small>No hay productos seleccionados</small>";
+}
+
+function setEntrega(t){
+ entrega=t;
+ btnMostrador.classList.toggle("active",t=="Mostrador");
+ btnDelivery.classList.toggle("active",t=="Delivery");
+ direccion.style.display=t=="Delivery"?"block":"none";
+ observaciones.style.display=t=="Delivery"?"block":"none";
+ actualizarTotal();
+}
+
+function setPago(p){
+ pago=p;
+ btnEfectivo.classList.toggle("active",p=="Efectivo");
+ btnTransferencia.classList.toggle("active",p=="Transferencia");
+ cambioNotice.style.display=p=="Efectivo"?"block":"none";
+ transferNotice.style.display=p=="Transferencia"?"block":"none";
 }
 
 function enviar(){
- if(total===0){ alert("Seleccione productos"); return; }
- let msg="🧾 Pedido:%0A";
- for(let k in carrito)
-  if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
+ if(total==0){alert("Seleccione al menos un producto.");return;}
+ if(nombre.value.trim()===""){alert("Ingrese su nombre.");return;}
+ if(entrega=="Delivery" && direccion.value.trim()===""){alert("Ingrese la dirección.");return;}
+
+ let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
+ for(let k in carrito) if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g,' ')}%0A`;
  msg+=`%0A💰 Total: $${total}`;
+ if(entrega==="Delivery") msg+=`%0A🚨 *SE NECESITA COTIZAR CON ENVÍO* 🚨`;
+ msg+=`%0A🚚 Entrega: ${entrega}`;
+ if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value}`;
+ msg+=`%0A👤 Nombre: ${nombre.value}`;
+ msg+=`%0A💳 Pago: ${pago}`;
+ if(pago=="Efectivo" && efectivoCambio.value) msg+=`%0A💵 Cambio: ${efectivoCambio.value}`;
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
+
+render();
 </script>
 
 </body>
