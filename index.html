@@ -30,13 +30,6 @@ h1 small{
  margin-bottom:10px;
  font-size:18px;
 }
-.sub-title{
- font-weight:bold;
- color:#b30000;
- margin:12px 0 6px;
- font-size:15px;
- border-bottom:1px solid #eee;
-}
 .card{
  background:white;
  padding:15px;
@@ -52,103 +45,21 @@ h1 small{
  border-bottom:1px dashed #eee;
 }
 .item:last-child{border-bottom:none}
-.name{
- font-weight:bold;
- font-size:15px;
-}
-.desc{
- font-size:12px;
- color:#777;
- margin-top:2px;
-}
+.name{font-weight:bold;font-size:15px}
+.desc{font-size:12px;color:#777}
 .controls button{
- width:30px;
- height:30px;
- border:none;
- border-radius:6px;
- font-size:18px;
- cursor:pointer;
+ width:30px;height:30px;border:none;border-radius:6px;
+ font-size:18px;cursor:pointer
 }
-.controls .plus{background:#25D366;color:white;}
-.controls .minus{background:#b30000;color:white;}
-.selector{
- display:flex;
- gap:10px;
- margin:10px 0;
-}
-.selector button{
- flex:1;
- padding:10px;
- font-size:16px;
- border-radius:8px;
- border:1px solid #ccc;
- background:#eee;
- cursor:pointer;
-}
-.selector button.active{
- background:#b30000;
- color:white;
-}
-.input-area input, .input-area textarea{
- width:100%;
- padding:8px;
- margin:6px 0;
- font-size:16px;
- border-radius:6px;
- border:1px solid #ccc;
-}
+.plus{background:#25D366;color:white}
+.minus{background:#b30000;color:white}
 .total{
- background:white;
- padding:15px;
- border-radius:12px;
- box-shadow:0 3px 8px rgba(0,0,0,.15);
+ background:white;padding:15px;border-radius:12px;
+ box-shadow:0 3px 8px rgba(0,0,0,.15)
 }
-button.send{
- width:100%;
- padding:15px;
- background:#25D366;
- color:white;
- font-size:20px;
- border:none;
- border-radius:12px;
- margin-top:10px;
-}
-.notice{
- background:#fff3cd;
- color:#856404;
- padding:8px 12px;
- border-radius:6px;
- margin:8px 0;
- font-size:14px;
-}
-.notice input{
- width:100%;
- border:none;
- background:transparent;
- font-size:16px;
- padding:4px 0;
-}
-small{color:#777}
-
-/* Marca resaltada */
-.brand-card{
- background:#f9f9f9;
- border:1px solid #ddd;
- border-radius:8px;
- padding:8px;
- margin:6px 0;
-}
-.brand-title{
- font-weight:bold;
- font-size:14px;
- color:#b30000;
- margin-bottom:4px;
-}
-.brand-item small{
- display:block;
- font-size:12px;
- color:#777;
- margin-top:2px;
+.send{
+ width:100%;padding:15px;background:#25D366;
+ color:white;font-size:20px;border:none;border-radius:12px
 }
 </style>
 </head>
@@ -156,320 +67,108 @@ small{color:#777}
 <body>
 
 <h1>👑 El Rey de las Empanadas
-<small>Horario: 17:00 a 23:00 | Lunes cerrado | Delivery: 18:30 a 23:00</small>
+<small>Horario: 17:00 a 23:00 | Lunes cerrado</small>
 </h1>
 
 <div id="menu"></div>
 
 <div class="total">
-<div class="section-title">🛒 Resumen del pedido</div>
-<div id="resumen"><small>No hay productos seleccionados</small></div>
-
-<p><b>Total:</b> $<span id="total">0</span></p>
-<small>Envío no incluido</small>
-
-<div class="section-title">🚚 Forma de entrega</div>
-<div class="selector">
-<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
-<button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
-</div>
-
-<div class="input-area">
-<input id="nombre" placeholder="Nombre">
-<input id="direccion" placeholder="Dirección" style="display:none">
-<textarea id="observaciones" placeholder="Observaciones sobre la dirección" style="display:none"></textarea>
-</div>
-
-<div class="section-title">💳 Forma de pago</div>
-<div class="selector">
-<button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
-<button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
-</div>
-
-<!-- Aviso editable de ¿Necesita cambio? -->
-<div id="cambioNotice" class="notice" style="display:block">
-  <input id="efectivoCambio" placeholder="¿Necesita cambio?">
-</div>
-
-<div id="transferNotice" class="notice" style="display:none">
-El enlace de transferencia aparecerá en WhatsApp. Pedir comprobante.
-</div>
-
+<h3>🛒 Resumen</h3>
+<div id="resumen"><small>No hay productos</small></div>
+<b>Total: $<span id="total">0</span></b>
+<br><br>
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
 <script>
-let entrega="Mostrador";
-let pago="Efectivo";
-let carrito={}, precios={}, total=0;
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
 
-function idify(name){ return name.replace(/\s+/g,'_').replace(/[^\w]/g,''); }
+let carrito = {};
+let precios = {};
+let total = 0;
 
-const productos=[
-{
- cat:"🥟 Empanadas - $60 c/u",
- precio:60,
- items:[
-  ["CARNE",""],
-  ["Empanada Criolla","carne y huevo"],
-  ["Empanada Mendocina","carne, huevo y aceituna"],
-  ["Empanada Mexicana","carne, huevo, aceituna y pimienta"],
-  ["Empanada Cordobesa","carne, huevo y pasas de uva"],
-  ["Empanada Mixta","carne, huevo, choclo y calabresa"],
-  ["Empanada Gallega","carne, huevo y panceta"],
-  ["Empanada Burguer","carne, cebolla y cheddar"],
-
-  ["POLLO",""],
-  ["Empanada Pollo clásico","pollo, salsa y huevo"],
-  ["Empanada Pollo queso","pollo, queso y aceituna"],
-  ["Empanada Pollo requesón","pollo y requesón"],
-  ["Empanada Pollo mostaza","pollo a la mostaza"],
-
-  ["VERDURA",""],
-  ["Empanada Palmito","jamón y salsa golf"],
-  ["Empanada Acelga","cebolla, morrón y huevo"],
-  ["Empanada Humita","choclo, queso y salsa blanca"],
-  ["Empanada Choclo y jamón",""],
-  ["Empanada Caprese","queso, tomate y albahaca"],
-
-  ["MAR",""],
-  ["Empanada Atún","atún, huevo y salsa"],
-
-  ["MOZZARELLA",""],
-  ["Empanada Pizza","mozzarella, salsa y orégano"],
-  ["Empanada Alemana","mozzarella y frankfurter"],
-  ["Empanada Napolitana","mozzarella, jamón, morrón y longaniza"],
-  ["Empanada Caribeña","mozzarella, salame y aceituna"],
-  ["Empanada Mozzarella y panceta",""],
-  ["Empanada Mozzarella, cebolla y calabresa",""],
-
-  ["QUESO",""],
-  ["Empanada Jamón y queso",""],
-  ["Empanada Queso, calabresa y salsa",""],
-  ["Empanada Queso y cebolla",""],
-  ["Empanada Queso y aceituna",""],
-  ["Empanada Libanesa","queso, cebolla, ajo y perejil"],
-  ["Empanada Toscana","queso, panceta, cebolla y aceituna"],
-  ["Empanada Tropical","queso, jamón y ananá"],
-  ["Empanada 4 Quesos","catupiri, roquefort, mozzarella y parmesano"],
-
-  ["DULCES",""],
-  ["Empanada Dulce de leche",""],
-  ["Empanada Membrillo",""],
-  ["Empanada Crema pastelera",""],
-  ["Empanada Mulata","dulce de leche y chocolate"],
-  ["Empanada Gringa","dulce de leche y chocolate blanco"],
-  ["Empanada Nutella",""]
- ]
-},
-{
- cat:"🥤 Bebidas",
- subcats:[
-   {marca:"Coca-Cola", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]},
-   {marca:"Fanta", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]},
-   {marca:"Sprite", items:[["Mini","40"], ["Lata","60"], ["600 ml","80"], ["2L","120"]]}
- ]
-},
-{
- cat:"🍹 Jugos Naturales",
- precio:0,
- items:[
-  ["Jugo de Mango","120"], ["Jugo de Frutilla","120"], ["Jugo de Naranja","120"], ["Jugo de Ananá","120"]
- ]
-},
-{
- cat:"🍺 Cervezas",
- precio:0,
- items:[
-  ["Pilsen Lata","120"], ["Pilsen 2L","180"],
-  ["Patricia Lata","120"], ["Patricia 2L","220"],
-  ["Glacial Lata","110"]
- ]
+function idify(t){
+ return t.replace(/\s+/g,'_').replace(/[^\w]/g,'');
 }
-];
 
-function render(){
- let html="";
- productos.forEach(sec=>{
-  html+=`<div class="card"><div class="section-title">${sec.cat}</div>`;
-  if(sec.subcats){
-    sec.subcats.forEach(sub=>{
-      html+=`<div class="brand-card"><div class="brand-title">${sub.marca}</div>`;
-      sub.items.forEach(i=>{
-        let nombre=sub.marca+" "+i[0], precio=parseInt(i[1]), pid=idify(nombre);
-        carrito[pid]=0;
-        precios[pid]=precio;
-        html+=`
-        <div class="item brand-item">
-         <div>
-          <div class="name">${i[0]}</div>
-          <small>$${precio}</small>
-         </div>
-         <div class="controls">
-          <button class="minus" onclick="chg('${pid}',-1)">−</button>
-          <span id="${pid}">0</span>
-          <button class="plus" onclick="chg('${pid}',1)">+</button>
-         </div>
-        </div>`;
-      });
-      html+="</div>";
-    });
-  } else {
-    sec.items.forEach(i=>{
-      if(i[1]==="" && i[0]===i[0].toUpperCase()){
-        html+=`<div class="sub-title">${i[0]}</div>`;
-        return;
-      }
-      let nombre=i[0], precio=sec.precio>0?sec.precio:parseInt(i[1]), pid=idify(nombre);
-      carrito[pid]=0;
-      precios[pid]=precio;
-      html+=`
-      <div class="item">
-       <div>
-        <div class="name">${nombre}</div>
-        <div class="desc">${sec.cat==="🥟 Empanadas - $60 c/u"?i[1]:""}</div>
-        ${sec.cat!=="🥟 Empanadas - $60 c/u"?`<small>$${precio}</small>`:""}
-       </div>
-       <div class="controls">
-        <button class="minus" onclick="chg('${pid}',-1)">−</button>
-        <span id="${pid}">0</span>
-        <button class="plus" onclick="chg('${pid}',1)">+</button>
-       </div>
-      </div>`;
-    });
-  }
-  html+="</div>";
+fetch(CSV_URL)
+.then(r => r.text())
+.then(csv => {
+ const rows = csv.split("\n").slice(1);
+ const data = {};
+
+ rows.forEach(r => {
+   const [producto,categoria,precio,stock,desc] = r.split(",");
+   if(stock?.trim() !== "Disponible") return;
+
+   if(!data[categoria]) data[categoria] = [];
+   data[categoria].push({
+     producto,
+     precio: parseInt(precio),
+     desc: desc || ""
+   });
  });
- document.getElementById("menu").innerHTML=html;
+
+ renderMenu(data);
+});
+
+function renderMenu(data){
+ let html = "";
+
+ Object.keys(data).forEach(cat=>{
+   html += `<div class="card"><div class="section-title">${cat}</div>`;
+   data[cat].forEach(p=>{
+     const id = idify(p.producto);
+     carrito[id]=0;
+     precios[id]=p.precio;
+
+     html += `
+     <div class="item">
+      <div>
+       <div class="name">${p.producto}</div>
+       <div class="desc">${p.desc}</div>
+       <small>$${p.precio}</small>
+      </div>
+      <div class="controls">
+       <button class="minus" onclick="chg('${id}',-1)">−</button>
+       <span id="${id}">0</span>
+       <button class="plus" onclick="chg('${id}',1)">+</button>
+      </div>
+     </div>`;
+   });
+   html += "</div>";
+ });
+
+ document.getElementById("menu").innerHTML = html;
 }
 
-function chg(pid,d){
- carrito[pid]+=d;
- if(carrito[pid]<0) carrito[pid]=0;
+function chg(id,d){
+ carrito[id]+=d;
+ if(carrito[id]<0) carrito[id]=0;
+ document.getElementById(id).innerText = carrito[id];
 
- document.getElementById(pid).innerText = carrito[pid];
-
- total=0;
+ total = 0;
+ let resumen = "";
  for(let k in carrito){
-  total+=carrito[k]*precios[k];
+   if(carrito[k]>0){
+     total += carrito[k]*precios[k];
+     resumen += `${carrito[k]} ${k.replace(/_/g,' ')}<br>`;
+   }
  }
  document.getElementById("total").innerText = total;
-
- resumen();
-}
-
-function resumen(){
- let r="";
- for(let k in carrito){
-  if(carrito[k]>0){
-    r+=`${carrito[k]} ${k.replace(/_/g,' ')}<br>`;
-  }
- }
- document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
-}
-
-function setEntrega(t){
- entrega=t;
- document.getElementById("btnMostrador").classList.toggle("active",t=="Mostrador");
- document.getElementById("btnDelivery").classList.toggle("active",t=="Delivery");
-
- document.getElementById("direccion").style.display=t=="Delivery"?"block":"none";
- document.getElementById("observaciones").style.display=t=="Delivery"?"block":"none";
-}
-
-function setPago(p){
- pago=p;
- document.getElementById("btnEfectivo").classList.toggle("active",p=="Efectivo");
- document.getElementById("btnTransferencia").classList.toggle("active",p=="Transferencia");
-
- // Mostrar u ocultar avisos al estilo notice
-	document.getElementById("cambioNotice").style.display = p=="Efectivo" ? "block" : "none";
-	document.getElementById("transferNotice").style.display = p=="Transferencia" ? "block" : "none";
+ document.getElementById("resumen").innerHTML = resumen || "<small>No hay productos</small>";
 }
 
 function enviar(){
- if(total==0){
-  alert("Seleccione al menos un producto para realizar el pedido.");
-  return;
- }
- if(nombre.value.trim()===""){
-  alert("Ingrese su nombre para el pedido.");
-  return;
- }
- if(entrega=="Delivery" && direccion.value.trim()===""){
-  alert("Ingrese la dirección para el delivery.");
-  return;
- }
-
- let msg="🧾 *Pedido - El Rey de las Empanadas*%0A%0A";
+ if(total==0){alert("Agregá productos");return;}
+ let msg="Pedido:%0A";
  for(let k in carrito){
-  if(carrito[k]>0) msg+=`• ${carrito[k]} ${k.replace(/_/g,' ')}%0A`;
+  if(carrito[k]>0) msg+=`${carrito[k]} ${k.replace(/_/g,' ')}%0A`;
  }
- msg+=`%0A💰 Total: $${total} (envío no incluido)`;
- msg+=`%0A🚚 Entrega: ${entrega}`;
- if(entrega=="Delivery") msg+=`%0A📍 Dirección: ${direccion.value}%0A📝 Observaciones: ${observaciones.value||"No indicadas"}`;
- msg+=`%0A👤 Nombre: ${nombre.value}`;
- msg+=`%0A💳 Pago: ${pago}`;
- if(pago=="Efectivo" && efectivoCambio.value.trim()!=="") msg+=`%0A💵 Cambio solicitado: $${efectivoCambio.value}`;
- if(pago=="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
+ msg+=`Total: $${total}`;
  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
-
-render();
 </script>
-
-<!-- ====== SECCIÓN CÓDIGO QR ====== -->
-<div style="
-  background:white;
-  margin:25px auto 10px;
-  padding:20px;
-  max-width:360px;
-  border-radius:14px;
-  text-align:center;
-  box-shadow:0 3px 8px rgba(0,0,0,.15);
-">
-
-  <div style="
-    border:3px solid #b30000;
-    border-radius:14px;
-    padding:15px;
-    display:inline-block;
-  ">
-    <img
-      src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data= https://reydelasempanadas.github.io/el-rey-de-las-empanadas/"
-      alt="Código QR pedido"
-      style="display:block;margin:auto;"
-    >
-  </div>
-
-  <p style="
-    margin-top:12px;
-    font-size:16px;
-    font-weight:bold;
-    color:#b30000;
-  ">
-    📱 Escaneá para hacer tu pedido
-  </p>
-
-  <a
-    href="https://wa.me/?text=Click%20en%20el%20enlace%20para%20hacer%20tu%20pedido:%20 https://reydelasempanadas.github.io/el-rey-de-las-empanadas/"
-    target="_blank"
-    style="
-      display:inline-block;
-      margin-top:10px;
-      padding:10px 16px;
-      background:#25D366;
-      color:white;
-      text-decoration:none;
-      border-radius:10px;
-      font-size:16px;
-    "
-  >
-    📤 Compartir menú por WhatsApp
-  </a>
-
-</div>
-<!-- ====== FIN SECCIÓN CÓDIGO QR ====== -->
 
 </body>
 </html>
