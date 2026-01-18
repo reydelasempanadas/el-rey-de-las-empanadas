@@ -66,20 +66,20 @@ h1 small{display:block;font-size:12px;color:#555}
  text-align:center;font-weight:bold;margin:12px 0
 }
 
-/* CAMBIO MÁS VISIBLE */
+/* AJUSTE CAMBIO */
 .cambio-box{
  background:#fff3cd;
- border:2px solid #b30000;
- border-radius:10px;
- padding:12px;
+ border:1px solid #e0a800;
+ border-radius:8px;
+ padding:8px;
  margin-top:10px
 }
 .cambio-box input{
  width:100%;
  border:none;
  background:transparent;
- font-size:16px;
- font-weight:bold;
+ font-size:14px;
+ font-weight:normal;
  outline:none
 }
 
@@ -140,7 +140,7 @@ El enlace de transferencia aparecerá en WhatsApp. Enviar comprobante.
 </div>
 
 <div id="cambioBox" class="cambio-box">
-<input id="cambio" placeholder="💵 ¿Necesitás cambio? Indicá con cuánto vas a pagar">
+<input id="cambio" placeholder="¿Necesitás cambio? Indicá con cuánto pagás">
 </div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
@@ -240,6 +240,7 @@ function setPago(p){
  bEfectivo.classList.toggle("active",p==="Efectivo");
  bTransferencia.classList.toggle("active",p==="Transferencia");
  transferNotice.style.display=p==="Transferencia"?"block":"none";
+ cambioBox.style.display=p==="Transferencia"?"none":"block";
 }
 
 function enviar(){
@@ -253,8 +254,8 @@ function enviar(){
  if(entrega==="Delivery") msg+=`%0A📍 Dirección: ${direccion.value}%0A📝 Obs: ${obsDelivery.value||"—"}`;
  msg+=`%0A👤 Nombre: ${nombre.value}`;
  msg+=`%0A💳 Pago: ${pago}`;
- if(cambio.value) msg+=`%0A💵 Cambio: ${cambio.value}`;
- if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: http://transferencia.cccc (Enviar comprobante)`;
+ if(pago==="Efectivo" && cambio.value) msg+=`%0A💵 Cambio: ${cambio.value}`;
+ if(pago==="Transferencia") msg+=`%0A📎 TRANSFERENCIA: Enviar comprobante`;
  window.open("https://wa.me/59892663559?text="+msg);
 }
 </script>
