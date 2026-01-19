@@ -138,14 +138,22 @@ h+="</div>";
 menu.innerHTML=h;
 }
 
-function chg(id,d){
-carrito[id]=Math.max(0,carrito[id]+d);
-document.getElementById(id).innerText=carrito[id];
-total=0;
-for(let k in carrito) total+=carrito[k]*60;
-document.getElementById("total").innerText=total;
-resumen();
+total = 0;
+for(let k in carrito){
+    if(carrito[k]){
+        // Encontrar el precio del producto k
+        let precioItem = 0;
+        for(let s of productos){
+            for(let i of s.items){
+                if(i[0].replace(/\s/g,"_")===k){
+                    precioItem = s.precio || i[1] || 0;
+                }
+            }
+        }
+        total += carrito[k] * precioItem;
+    }
 }
+document.getElementById("total").innerText = total;
 
 function resumen(){
 let r="";
