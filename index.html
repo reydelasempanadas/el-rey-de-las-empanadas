@@ -36,7 +36,7 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 <body>
 
 <h1>👑 El Rey de las Empanadas
-<small>Lunes cerrado · Pedidos de 17 a 23 hs · Delivery de 18:30 a 23 hs </small>
+<small>Lunes cerrado · Pedidos de 17 a 23 hs</small>
 </h1>
 
 <div id="menu"></div>
@@ -87,20 +87,20 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 </a>
 </div>
 
-<!-- PapaParse para leer Google Sheet CSV -->
+<!-- PapaParse -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
 <script>
 let carrito={}, total=0, entrega="Mostrador", pago="Efectivo";
 let productos=[];
 
-// URL pública CSV de Google Sheets
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
 
 // Leer CSV y armar productos
 Papa.parse(csvURL, {
     download: true,
     header: true,
+    skipEmptyLines: true,
     complete: function(results) {
         const data = results.data;
         let categorias = {};
@@ -109,7 +109,7 @@ Papa.parse(csvURL, {
             let nombre = (p.Nombre||"").trim();
             if(!nombre) return;
             let desc = (p.Descripcion||"").trim();
-            let cat = (p.Categoria||"").trim();
+            let cat = (p.Categoria||"Sin Categoría").trim();
             let precio = Number(p.Precio) || 0;
             let stock = Number(p.Stock) || 0;
 
@@ -122,26 +122,27 @@ Papa.parse(csvURL, {
             items: categorias[cat]
         }));
 
-        render(productos);
+        render();
     }
 });
 
 // Renderizar menú
-function render(prods){
+function render(){
     let h="";
-    prods.forEach(s=>{
+    productos.forEach(s=>{
         h+=`<div class="card"><div class="section-title">${s.cat}</div>`;
         s.items.forEach(i=>{
             if(i.length===1){h+=`<div class="sub-title">${i[0]}</div>`;return;}
-            let id=i[0].replace(/\s/g,"_");
-            carrito[id]=0;
+            let id = i[0].replace(/\s/g,"_").replace(/[^a-zA-Z0-9_]/g,"");
+            carrito[id] = 0;
+            let disabled = i[3]<=0 ? "disabled" : "";
             h+=`<div class="item">
-            <div><div class="name">${i[0]}</div><div class="desc">${i[1]||""}</div></div>
-            <div class="controls">
-                <button class="minus" onclick="chg('${id}',-1)">−</button>
-                <span id="${id}">0</span>
-                <button class="plus" onclick="chg('${id}',1)">+</button>
-            </div>
+                <div><div class="name">${i[0]}</div><div class="desc">${i[1]||""}</div></div>
+                <div class="controls">
+                    <button class="minus" onclick="chg('${id}',-1)">−</button>
+                    <span id="${id}">0</span>
+                    <button class="plus" ${disabled} onclick="chg('${id}',1)">+</button>
+                </div>
             </div>`;
         });
         h+="</div>";
@@ -149,7 +150,7 @@ function render(prods){
     menu.innerHTML=h;
 }
 
-// Cambiar cantidad y sumar precio individual
+// Cambiar cantidad y sumar precio
 function chg(id,d){
     carrito[id] = Math.max(0, carrito[id]+d);
     document.getElementById(id).innerText = carrito[id];
@@ -158,8 +159,8 @@ function chg(id,d){
     for(let k in carrito){
         productos.forEach(cat=>{
             cat.items.forEach(p=>{
-                let pid = p[0].replace(/\s/g,"_");
-                if(pid===k) total += carrito[k]*p[2]; // suma precio individual
+                let pid = p[0].replace(/\s/g,"_").replace(/[^a-zA-Z0-9_]/g,"");
+                if(pid===k) total += carrito[k]*p[2];
             });
         });
     }
