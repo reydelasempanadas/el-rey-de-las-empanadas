@@ -26,7 +26,6 @@ h1 small{display:block;font-size:12px;color:#555}
 .notice{background:#fff3cd;color:#b30000;padding:10px;border-radius:8px;margin:10px 0;text-align:center;font-size:14px}
 .input-area input,.input-area textarea{width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc}
 button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px;border:none;border-radius:12px;margin-top:10px}
-.brand{background:#f9f9f9;border:1px solid #ddd;border-radius:8px;padding:8px;margin-bottom:10px}
 .qr-box{margin-top:30px;background:#fff;border:3px solid #b30000;border-radius:14px;padding:20px;text-align:center}
 .qr-box img{width:220px;display:block;margin:10px auto}
 .qr-box a{color:#25D366;font-weight:bold;text-decoration:none}
@@ -47,7 +46,7 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 <p><b>Total:</b> $<span id="total">0</span></p>
 
 <div id="avisoEnvio" class="notice" style="display:none">
-⏳ Esperar confirmación del costo total con envío
+⚠️ ATENCIÓN! Enviar costo total con delivery
 </div>
 
 <div class="section-title">🚚 Forma de entrega</div>
@@ -69,142 +68,102 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 </div>
 
 <div id="transferNotice" class="notice" style="display:none">
-📎 El enlace para la transferencia será enviado por WhatsApp. Enviar comprobante.
-</div>
-
-<div id="cambioBox" class="notice">
-<input id="efectivoCambio" placeholder="¿Necesitás cambio? Indicá con cuánto pagás" style="width:100%;border:none;background:transparent">
+‼️ ATENCIÓN! Enviar enlace de transferencia
 </div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
-<div class="qr-box">
-<p><b>📲 Escaneá para hacer tu pedido</b></p>
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://reydelasempanadas.github.io/el-rey-de-las-empanadas/">
-<a href="https://reydelasempanadas.github.io/el-rey-de-las-empanadas/" target="_blank">
-👉 Click en el enlace para hacer tu pedido
-</a>
-</div>
-
-<!-- PapaParse -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
-let carrito={}, total=0, entrega="Mostrador", pago="Efectivo";
-let productos=[];
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
 
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
+let carrito={}, precios={}, total=0, entrega="Mostrador", pago="Efectivo";
 
-// Leer CSV y armar productos
-Papa.parse(csvURL, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function(results) {
-        const data = results.data;
-        let categorias = {};
-
-        data.forEach(p => {
-            let nombre = (p.Nombre||"").trim();
-            if(!nombre) return;
-            let desc = (p.Descripcion||"").trim();
-            let cat = (p.Categoria||"Sin Categoría").trim();
-            let precio = Number(p.Precio) || 0;
-            let stock = Number(p.Stock) || 0;
-
-            if(!categorias[cat]) categorias[cat] = [];
-            categorias[cat].push([nombre, desc, precio, stock]);
-        });
-
-        productos = Object.keys(categorias).map(cat => ({
-            cat,
-            items: categorias[cat]
-        }));
-
-        render();
-    }
+Papa.parse(CSV_URL,{
+ download:true,
+ header:true,
+ complete:function(r){
+   renderMenu(r.data.filter(p=>p.Stock>0));
+ }
 });
 
-// Renderizar menú
-function render(){
-    let h="";
-    productos.forEach(s=>{
-        h+=`<div class="card"><div class="section-title">${s.cat}</div>`;
-        s.items.forEach(i=>{
-            if(i.length===1){h+=`<div class="sub-title">${i[0]}</div>`;return;}
-            let id = i[0].replace(/\s/g,"_").replace(/[^a-zA-Z0-9_]/g,"");
-            carrito[id] = 0;
-            let disabled = i[3]<=0 ? "disabled" : "";
-            h+=`<div class="item">
-                <div><div class="name">${i[0]}</div><div class="desc">${i[1]||""}</div></div>
-                <div class="controls">
-                    <button class="minus" onclick="chg('${id}',-1)">−</button>
-                    <span id="${id}">0</span>
-                    <button class="plus" ${disabled} onclick="chg('${id}',1)">+</button>
-                </div>
-            </div>`;
-        });
-        h+="</div>";
-    });
-    menu.innerHTML=h;
+function renderMenu(data){
+ let agrupado={};
+
+ data.forEach(p=>{
+  if(!agrupado[p.Categoría]) agrupado[p.Categoría]={};
+  if(!agrupado[p.Categoría][p.Subcategoria]) agrupado[p.Categoría][p.Subcategoria]=[];
+  agrupado[p.Categoría][p.Subcategoria].push(p);
+ });
+
+ let h="";
+ Object.keys(agrupado).forEach(cat=>{
+  h+=`<div class="card"><div class="section-title">${cat}</div>`;
+  Object.keys(agrupado[cat]).forEach(sub=>{
+   h+=`<div class="sub-title">${sub}</div>`;
+   agrupado[cat][sub].forEach(p=>{
+    let id=p.Producto.replace(/\s/g,"_");
+    carrito[id]=0;
+    precios[id]=Number(p.Precio);
+    h+=`
+    <div class="item">
+      <div>
+        <div class="name">${p.Producto}</div>
+        <div class="desc">${p.Descripción||""}</div>
+      </div>
+      <div class="controls">
+        <button class="minus" onclick="chg('${id}',-1)">−</button>
+        <span id="${id}">0</span>
+        <button class="plus" onclick="chg('${id}',1)">+</button>
+      </div>
+    </div>`;
+   });
+  });
+  h+="</div>";
+ });
+ menu.innerHTML=h;
 }
 
-// Cambiar cantidad y sumar precio
 function chg(id,d){
-    carrito[id] = Math.max(0, carrito[id]+d);
-    document.getElementById(id).innerText = carrito[id];
-
-    total = 0;
-    for(let k in carrito){
-        productos.forEach(cat=>{
-            cat.items.forEach(p=>{
-                let pid = p[0].replace(/\s/g,"_").replace(/[^a-zA-Z0-9_]/g,"");
-                if(pid===k) total += carrito[k]*p[2];
-            });
-        });
-    }
-
-    document.getElementById("total").innerText = total;
-    resumen();
+ carrito[id]=Math.max(0,carrito[id]+d);
+ document.getElementById(id).innerText=carrito[id];
+ total=0;
+ for(let k in carrito) total+=carrito[k]*(precios[k]||0);
+ totalEl.innerText=total;
+ resumen();
 }
 
-// Mostrar resumen
 function resumen(){
-    let r="";
-    for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
-    resumen.innerHTML=r||"<small>No hay productos seleccionados</small>";
+ let r="";
+ for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
+ resumen.innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
-// Entrega
 function setEntrega(t){
-    entrega=t;
-    btnMostrador.classList.toggle("active",t==="Mostrador");
-    btnDelivery.classList.toggle("active",t==="Delivery");
-    direccion.style.display=observaciones.style.display=t==="Delivery"?"block":"none";
-    avisoEnvio.style.display=t==="Delivery"?"block":"none";
+ entrega=t;
+ btnMostrador.classList.toggle("active",t==="Mostrador");
+ btnDelivery.classList.toggle("active",t==="Delivery");
+ direccion.style.display=observaciones.style.display=t==="Delivery"?"block":"none";
+ avisoEnvio.style.display=t==="Delivery"?"block":"none";
 }
 
-// Pago
 function setPago(p){
-    pago=p;
-    btnEfectivo.classList.toggle("active",p==="Efectivo");
-    btnTransferencia.classList.toggle("active",p==="Transferencia");
-    cambioBox.style.display=p==="Efectivo"?"block":"none";
-    transferNotice.style.display=p==="Transferencia"?"block":"none";
+ pago=p;
+ btnEfectivo.classList.toggle("active",p==="Efectivo");
+ btnTransferencia.classList.toggle("active",p==="Transferencia");
+ transferNotice.style.display=p==="Transferencia"?"block":"none";
 }
 
-// Enviar pedido WhatsApp
 function enviar(){
-    if(!total||!nombre.value) return alert("Complete el pedido");
-    let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
-    for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
-    msg+=`%0A💰 Total: $${total}`;
-
-    if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
-    if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
-
-    window.open("https://wa.me/59892663559?text="+msg,"_blank");
+ if(!total||!nombre.value) return alert("Complete el pedido");
+ let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
+ for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
+ msg+=`%0A💰 Total: $${total}`;
+ if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
+ if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
+ window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 </script>
 
