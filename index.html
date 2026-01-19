@@ -170,11 +170,16 @@ transferNotice.style.display=p==="Transferencia"?"block":"none";
 }
 
 function enviar(){
-if(!total||!nombre.value) return alert("Complete el pedido");
-let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
-for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
-msg+=`%0A💰 Total: $${total}`+(entrega==="Delivery"?" + envío":"");
-window.open("https://wa.me/59892663559?text="+msg,"_blank");
+    if(!total||!nombre.value) return alert("Complete el pedido");
+    let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
+    for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
+    msg+=`%0A💰 Total: $${total}`;
+
+    // Mensajes cortos para el funcionario según entrega y pago
+    if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
+    if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
+
+    window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 
 render();
