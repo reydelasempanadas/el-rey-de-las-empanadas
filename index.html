@@ -82,88 +82,99 @@ const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9Fv
 let carrito={}, precios={}, total=0, entrega="Mostrador", pago="Efectivo";
 
 Papa.parse(CSV_URL,{
- download:true,
- header:true,
- complete:function(r){
-   renderMenu(r.data.filter(p=>p.Stock>0));
- }
+  download:true,
+  header:true,
+  complete:function(res){
+    const data=res.data.filter(p=>Number(p.Stock)>0);
+    renderMenu(data);
+  }
 });
 
 function renderMenu(data){
- let agrupado={};
+  let agrupado={};
 
- data.forEach(p=>{
-  if(!agrupado[p.Categoría]) agrupado[p.Categoría]={};
-  if(!agrupado[p.Categoría][p.Subcategoria]) agrupado[p.Categoría][p.Subcategoria]=[];
-  agrupado[p.Categoría][p.Subcategoria].push(p);
- });
+  data.forEach(p=>{
+    const cat=p["Categoría"];
+    const sub=p["Subcategoria"];
+    if(!cat||!sub) return;
 
- let h="";
- Object.keys(agrupado).forEach(cat=>{
-  h+=`<div class="card"><div class="section-title">${cat}</div>`;
-  Object.keys(agrupado[cat]).forEach(sub=>{
-   h+=`<div class="sub-title">${sub}</div>`;
-   agrupado[cat][sub].forEach(p=>{
-    let id=p.Producto.replace(/\s/g,"_");
-    carrito[id]=0;
-    precios[id]=Number(p.Precio);
-    h+=`
-    <div class="item">
-      <div>
-        <div class="name">${p.Producto}</div>
-        <div class="desc">${p.Descripción||""}</div>
-      </div>
-      <div class="controls">
-        <button class="minus" onclick="chg('${id}',-1)">−</button>
-        <span id="${id}">0</span>
-        <button class="plus" onclick="chg('${id}',1)">+</button>
-      </div>
-    </div>`;
-   });
+    if(!agrupado[cat]) agrupado[cat]={};
+    if(!agrupado[cat][sub]) agrupado[cat][sub]=[];
+    agrupado[cat][sub].push(p);
   });
-  h+="</div>";
- });
- menu.innerHTML=h;
+
+  let h="";
+  Object.keys(agrupado).forEach(cat=>{
+    h+=`<div class="card"><div class="section-title">${cat}</div>`;
+    Object.keys(agrupado[cat]).forEach(sub=>{
+      h+=`<div class="sub-title">${sub}</div>`;
+      agrupado[cat][sub].forEach(p=>{
+        let id=p["Producto"].replace(/\s/g,"_");
+        carrito[id]=0;
+        precios[id]=Number(p["Precio"]);
+        h+=`
+        <div class="item">
+          <div>
+            <div class="name">${p["Producto"]}</div>
+            <div class="desc">${p["Descripción"]||""}</div>
+          </div>
+          <div class="controls">
+            <button class="minus" onclick="chg('${id}',-1)">−</button>
+            <span id="${id}">0</span>
+            <button class="plus" onclick="chg('${id}',1)">+</button>
+          </div>
+        </div>`;
+      });
+    });
+    h+="</div>";
+  });
+
+  document.getElementById("menu").innerHTML=h;
 }
 
 function chg(id,d){
- carrito[id]=Math.max(0,carrito[id]+d);
- document.getElementById(id).innerText=carrito[id];
- total=0;
- for(let k in carrito) total+=carrito[k]*(precios[k]||0);
- totalEl.innerText=total;
- resumen();
+  carrito[id]=Math.max(0,carrito[id]+d);
+  document.getElementById(id).innerText=carrito[id];
+
+  total=0;
+  for(let k in carrito){
+    total+=carrito[k]*(precios[k]||0);
+  }
+  document.getElementById("total").innerText=total;
+  resumen();
 }
 
 function resumen(){
- let r="";
- for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
- resumen.innerHTML=r||"<small>No hay productos seleccionados</small>";
+  let r="";
+  for(let k in carrito){
+    if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
+  }
+  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
 function setEntrega(t){
- entrega=t;
- btnMostrador.classList.toggle("active",t==="Mostrador");
- btnDelivery.classList.toggle("active",t==="Delivery");
- direccion.style.display=observaciones.style.display=t==="Delivery"?"block":"none";
- avisoEnvio.style.display=t==="Delivery"?"block":"none";
+  entrega=t;
+  btnMostrador.classList.toggle("active",t==="Mostrador");
+  btnDelivery.classList.toggle("active",t==="Delivery");
+  direccion.style.display=observaciones.style.display=t==="Delivery"?"block":"none";
+  avisoEnvio.style.display=t==="Delivery"?"block":"none";
 }
 
 function setPago(p){
- pago=p;
- btnEfectivo.classList.toggle("active",p==="Efectivo");
- btnTransferencia.classList.toggle("active",p==="Transferencia");
- transferNotice.style.display=p==="Transferencia"?"block":"none";
+  pago=p;
+  btnEfectivo.classList.toggle("active",p==="Efectivo");
+  btnTransferencia.classList.toggle("active",p==="Transferencia");
+  transferNotice.style.display=p==="Transferencia"?"block":"none";
 }
 
 function enviar(){
- if(!total||!nombre.value) return alert("Complete el pedido");
- let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
- for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
- msg+=`%0A💰 Total: $${total}`;
- if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
- if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
- window.open("https://wa.me/59892663559?text="+msg,"_blank");
+  if(!total||!nombre.value) return alert("Complete el pedido");
+  let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
+  for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
+  msg+=`%0A💰 Total: $${total}`;
+  if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
+  if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
+  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 </script>
 
