@@ -5,6 +5,8 @@
 <title>El Rey de las Empanadas</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
 <style>
 body{font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:10px}
 h1{text-align:center;color:#b30000;margin-bottom:5px}
@@ -26,9 +28,6 @@ h1 small{display:block;font-size:12px;color:#555}
 .notice{background:#fff3cd;color:#b30000;padding:10px;border-radius:8px;margin:10px 0;text-align:center;font-size:14px}
 .input-area input,.input-area textarea{width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc}
 button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px;border:none;border-radius:12px;margin-top:10px}
-.qr-box{margin-top:30px;background:#fff;border:3px solid #b30000;border-radius:14px;padding:20px;text-align:center}
-.qr-box img{width:220px;display:block;margin:10px auto}
-.qr-box a{color:#25D366;font-weight:bold;text-decoration:none}
 </style>
 </head>
 
@@ -46,19 +45,19 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 <p><b>Total:</b> $<span id="total">0</span></p>
 
 <div id="avisoEnvio" class="notice" style="display:none">
-⚠️ ATENCIÓN! Enviar costo total con delivery
+⏳ ATENCIÓN: enviar costo total con delivery
 </div>
 
 <div class="section-title">🚚 Forma de entrega</div>
 <div class="selector">
-<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
+<button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro</button>
 <button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
 </div>
 
 <div class="input-area">
 <input id="nombre" placeholder="Nombre">
 <input id="direccion" placeholder="Dirección" style="display:none">
-<textarea id="observaciones" placeholder="Observaciones para delivery" style="display:none"></textarea>
+<textarea id="observaciones" placeholder="Observaciones" style="display:none"></textarea>
 </div>
 
 <div class="section-title">💳 Forma de pago</div>
@@ -68,132 +67,113 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 </div>
 
 <div id="transferNotice" class="notice" style="display:none">
-‼️ ATENCIÓN! Enviar enlace de transferencia
+‼️ ATENCIÓN: enviar enlace de transferencia
 </div>
 
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
 <script>
-const CSV_URL =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
 
-let carrito={}, precios={}, total=0, entrega="Mostrador", pago="Efectivo";
+let productos = [];
+let carrito = {};
+let entrega = "Mostrador";
+let pago = "Efectivo";
 
-Papa.parse(CSV_URL,{
+Papa.parse(SHEET_URL,{
   download:true,
   header:true,
   skipEmptyLines:true,
-  complete:function(res){
-    const data = res.data
-      .map(normalizarFila)
-      .filter(p => p.stock > 0);
-    renderMenu(data);
+  complete: res=>{
+    productos = res.data.map(p=>({
+      producto: p.Producto?.trim(),
+      categoria: p.Categoría?.trim() || p.Categoria?.trim(),
+      subcategoria: p.Subcategoria?.trim(),
+      precio: Number(p.Precio),
+      disponible: String(p.Disponible).toUpperCase()==="TRUE",
+      descripcion: p.Descripción?.trim()
+    })).filter(p=>p.disponible);
+
+    renderMenu();
   }
 });
 
-function normalizarFila(p){
-  return {
-    producto: (p.Producto || "").trim(),
-    categoria: (p["Categoría"] || p.Categoria || "").trim(),
-    subcategoria: (p.Subcategoria || "").trim(),
-    precio: Number(p.Precio || p.Recio || 0),
-    stock: Number(p.Stock || 0),
-    descripcion: (p["Descripción"] || "").trim()
-  };
-}
+function renderMenu(){
+  let html = "";
+  const cats = [...new Set(productos.map(p=>p.categoria))];
 
-function renderMenu(data){
-  if(!data.length){
-    document.getElementById("menu").innerHTML =
-      "<div class='card'><b>⚠️ No hay productos con stock</b></div>";
-    return;
-  }
+  cats.forEach(cat=>{
+    html+=`<div class="card"><div class="section-title">${cat}</div>`;
+    const subs = [...new Set(productos.filter(p=>p.categoria===cat).map(p=>p.subcategoria))];
 
-  let agrupado={};
+    subs.forEach(sub=>{
+      if(sub) html+=`<div class="sub-title">${sub}</div>`;
+      productos.filter(p=>p.categoria===cat && p.subcategoria===sub).forEach(p=>{
+        const id = p.producto.replace(/\s/g,"_");
+        carrito[id]=carrito[id]||{cant:0,precio:p.precio};
 
-  data.forEach(p=>{
-    if(!p.categoria || !p.subcategoria || !p.producto) return;
-    if(!agrupado[p.categoria]) agrupado[p.categoria]={};
-    if(!agrupado[p.categoria][p.subcategoria])
-      agrupado[p.categoria][p.subcategoria]=[];
-    agrupado[p.categoria][p.subcategoria].push(p);
-  });
-
-  let h="";
-  Object.keys(agrupado).forEach(cat=>{
-    h+=`<div class="card"><div class="section-title">${cat}</div>`;
-    Object.keys(agrupado[cat]).forEach(sub=>{
-      h+=`<div class="sub-title">${sub}</div>`;
-      agrupado[cat][sub].forEach(p=>{
-        let id=p.producto.replace(/\s/g,"_");
-        carrito[id]=0;
-        precios[id]=p.precio;
-        h+=`
+        html+=`
         <div class="item">
           <div>
-            <div class="name">${p.producto}</div>
-            <div class="desc">${p.descripcion}</div>
+            <div class="name">${p.producto} - $${p.precio}</div>
+            <div class="desc">${p.descripcion||""}</div>
           </div>
           <div class="controls">
             <button class="minus" onclick="chg('${id}',-1)">−</button>
-            <span id="${id}">0</span>
+            <span id="${id}">${carrito[id].cant}</span>
             <button class="plus" onclick="chg('${id}',1)">+</button>
           </div>
         </div>`;
       });
     });
-    h+="</div>";
+    html+="</div>";
   });
 
-  document.getElementById("menu").innerHTML=h;
+  menu.innerHTML = html;
 }
 
 function chg(id,d){
-  carrito[id]=Math.max(0,carrito[id]+d);
-  document.getElementById(id).innerText=carrito[id];
-  total=0;
-  for(let k in carrito) total+=carrito[k]*(precios[k]||0);
-  document.getElementById("total").innerText=total;
+  carrito[id].cant = Math.max(0,carrito[id].cant + d);
+  document.getElementById(id).innerText = carrito[id].cant;
   resumen();
 }
 
 function resumen(){
-  let r="";
-  for(let k in carrito)
-    if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
-  document.getElementById("resumen").innerHTML =
-    r || "<small>No hay productos seleccionados</small>";
+  let r="",total=0;
+  for(let k in carrito){
+    if(carrito[k].cant){
+      r+=`${carrito[k].cant} ${k.replace(/_/g," ")}<br>`;
+      total+=carrito[k].cant*carrito[k].precio;
+    }
+  }
+  resumen.innerHTML = r||"<small>No hay productos seleccionados</small>";
+  document.getElementById("total").innerText = total;
 }
 
 function setEntrega(t){
   entrega=t;
   btnMostrador.classList.toggle("active",t==="Mostrador");
   btnDelivery.classList.toggle("active",t==="Delivery");
-  direccion.style.display=observaciones.style.display=
-    t==="Delivery"?"block":"none";
-  avisoEnvio.style.display=t==="Delivery"?"block":"none";
+  direccion.style.display = observaciones.style.display = avisoEnvio.style.display = t==="Delivery"?"block":"none";
 }
 
 function setPago(p){
   pago=p;
   btnEfectivo.classList.toggle("active",p==="Efectivo");
   btnTransferencia.classList.toggle("active",p==="Transferencia");
-  transferNotice.style.display=p==="Transferencia"?"block":"none";
+  transferNotice.style.display = p==="Transferencia"?"block":"none";
 }
 
 function enviar(){
-  if(!total||!nombre.value) return alert("Complete el pedido");
+  let total=document.getElementById("total").innerText;
+  if(!total||!nombre.value) return alert("Completar pedido");
   let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
-  for(let k in carrito)
-    if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
+  for(let k in carrito) if(carrito[k].cant) msg+=`• ${carrito[k].cant} ${k.replace(/_/g," ")}%0A`;
   msg+=`%0A💰 Total: $${total}`;
-  if(entrega==="Delivery")
-    msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
-  if(pago==="Transferencia")
-    msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
+  if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN: enviar costo con delivery`;
+  if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN: enviar enlace transferencia`;
+
   window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 </script>
