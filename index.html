@@ -77,30 +77,49 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
-const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
+const CSV_URL =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
 
 let carrito={}, precios={}, total=0, entrega="Mostrador", pago="Efectivo";
 
 Papa.parse(CSV_URL,{
   download:true,
   header:true,
+  skipEmptyLines:true,
   complete:function(res){
-    const data=res.data.filter(p=>Number(p.Stock)>0);
+    const data = res.data
+      .map(normalizarFila)
+      .filter(p => p.stock > 0);
     renderMenu(data);
   }
 });
 
+function normalizarFila(p){
+  return {
+    producto: (p.Producto || "").trim(),
+    categoria: (p["Categoría"] || p.Categoria || "").trim(),
+    subcategoria: (p.Subcategoria || "").trim(),
+    precio: Number(p.Precio || p.Recio || 0),
+    stock: Number(p.Stock || 0),
+    descripcion: (p["Descripción"] || "").trim()
+  };
+}
+
 function renderMenu(data){
+  if(!data.length){
+    document.getElementById("menu").innerHTML =
+      "<div class='card'><b>⚠️ No hay productos con stock</b></div>";
+    return;
+  }
+
   let agrupado={};
 
   data.forEach(p=>{
-    const cat=p["Categoría"];
-    const sub=p["Subcategoria"];
-    if(!cat||!sub) return;
-
-    if(!agrupado[cat]) agrupado[cat]={};
-    if(!agrupado[cat][sub]) agrupado[cat][sub]=[];
-    agrupado[cat][sub].push(p);
+    if(!p.categoria || !p.subcategoria || !p.producto) return;
+    if(!agrupado[p.categoria]) agrupado[p.categoria]={};
+    if(!agrupado[p.categoria][p.subcategoria])
+      agrupado[p.categoria][p.subcategoria]=[];
+    agrupado[p.categoria][p.subcategoria].push(p);
   });
 
   let h="";
@@ -109,14 +128,14 @@ function renderMenu(data){
     Object.keys(agrupado[cat]).forEach(sub=>{
       h+=`<div class="sub-title">${sub}</div>`;
       agrupado[cat][sub].forEach(p=>{
-        let id=p["Producto"].replace(/\s/g,"_");
+        let id=p.producto.replace(/\s/g,"_");
         carrito[id]=0;
-        precios[id]=Number(p["Precio"]);
+        precios[id]=p.precio;
         h+=`
         <div class="item">
           <div>
-            <div class="name">${p["Producto"]}</div>
-            <div class="desc">${p["Descripción"]||""}</div>
+            <div class="name">${p.producto}</div>
+            <div class="desc">${p.descripcion}</div>
           </div>
           <div class="controls">
             <button class="minus" onclick="chg('${id}',-1)">−</button>
@@ -135,28 +154,26 @@ function renderMenu(data){
 function chg(id,d){
   carrito[id]=Math.max(0,carrito[id]+d);
   document.getElementById(id).innerText=carrito[id];
-
   total=0;
-  for(let k in carrito){
-    total+=carrito[k]*(precios[k]||0);
-  }
+  for(let k in carrito) total+=carrito[k]*(precios[k]||0);
   document.getElementById("total").innerText=total;
   resumen();
 }
 
 function resumen(){
   let r="";
-  for(let k in carrito){
+  for(let k in carrito)
     if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
-  }
-  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+  document.getElementById("resumen").innerHTML =
+    r || "<small>No hay productos seleccionados</small>";
 }
 
 function setEntrega(t){
   entrega=t;
   btnMostrador.classList.toggle("active",t==="Mostrador");
   btnDelivery.classList.toggle("active",t==="Delivery");
-  direccion.style.display=observaciones.style.display=t==="Delivery"?"block":"none";
+  direccion.style.display=observaciones.style.display=
+    t==="Delivery"?"block":"none";
   avisoEnvio.style.display=t==="Delivery"?"block":"none";
 }
 
@@ -170,10 +187,13 @@ function setPago(p){
 function enviar(){
   if(!total||!nombre.value) return alert("Complete el pedido");
   let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
-  for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
+  for(let k in carrito)
+    if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
   msg+=`%0A💰 Total: $${total}`;
-  if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
-  if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
+  if(entrega==="Delivery")
+    msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
+  if(pago==="Transferencia")
+    msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
   window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 </script>
