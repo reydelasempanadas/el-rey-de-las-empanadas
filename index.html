@@ -30,13 +30,13 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 .qr-box{margin-top:30px;background:#fff;border:3px solid #b30000;border-radius:14px;padding:20px;text-align:center}
 .qr-box img{width:220px;display:block;margin:10px auto}
 .qr-box a{color:#25D366;font-weight:bold;text-decoration:none}
-.disabled{opacity:0.5;pointer-events:none;}
 </style>
 </head>
+
 <body>
 
 <h1>👑 El Rey de las Empanadas
-<small>Lunes cerrado · Pedidos de 17 a 23 hs</small>
+<small>Lunes cerrado · Pedidos de 17 a 23 hs · Delivery de 18:30 a 23 hs </small>
 </h1>
 
 <div id="menu"></div>
@@ -87,74 +87,79 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 </a>
 </div>
 
+<!-- PapaParse para leer Google Sheet CSV -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
 <script>
 let carrito={}, total=0, entrega="Mostrador", pago="Efectivo";
-let productos = [];
+let productos=[];
 
-// URL de tu CSV público (publicar tu Sheet en CSV)
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-XXXXX/pub?gid=0&single=true&output=csv";
+// URL pública CSV de Google Sheets
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?gid=0&single=true&output=csv";
 
-async function cargarCSV(url){
-    const resp = await fetch(url);
-    const text = await resp.text();
-    const rows = text.split("\n").map(r => r.split(","));
-    let categorias = {};
-    
-    rows.forEach((row,i)=>{
-        if(i===0) return; // saltar encabezado
-        let [nombre, desc, precio, cat, stock] = row;
-        nombre = nombre.trim();
-        desc = desc.trim();
-        cat = cat.trim();
-        precio = Number(precio);
-        stock = Number(stock) || 0;
+// Leer CSV y armar productos
+Papa.parse(csvURL, {
+    download: true,
+    header: true,
+    complete: function(results) {
+        const data = results.data;
+        let categorias = {};
 
-        if(!categorias[cat]) categorias[cat] = [];
-        categorias[cat].push({nombre, desc, precio, stock});
-    });
+        data.forEach(p => {
+            let nombre = (p.Nombre||"").trim();
+            if(!nombre) return;
+            let desc = (p.Descripcion||"").trim();
+            let cat = (p.Categoria||"").trim();
+            let precio = Number(p.Precio) || 0;
+            let stock = Number(p.Stock) || 0;
 
-    // Transformar a array como antes
-    productos = Object.keys(categorias).map(cat=>{
-        return {cat, items: categorias[cat].map(p=>[p.nombre, p.desc, p.precio, p.stock])};
-    });
+            if(!categorias[cat]) categorias[cat] = [];
+            categorias[cat].push([nombre, desc, precio, stock]);
+        });
 
-    render(productos);
-}
+        productos = Object.keys(categorias).map(cat => ({
+            cat,
+            items: categorias[cat]
+        }));
 
+        render(productos);
+    }
+});
+
+// Renderizar menú
 function render(prods){
     let h="";
     prods.forEach(s=>{
         h+=`<div class="card"><div class="section-title">${s.cat}</div>`;
         s.items.forEach(i=>{
-            let [nombre, desc, precio, stock] = i;
-            let id = nombre.replace(/\s/g,"_");
-            carrito[id] = 0;
-            let disabled = stock===0 ? 'disabled' : '';
+            if(i.length===1){h+=`<div class="sub-title">${i[0]}</div>`;return;}
+            let id=i[0].replace(/\s/g,"_");
+            carrito[id]=0;
             h+=`<div class="item">
-                <div><div class="name">${nombre}</div><div class="desc">${desc||""}</div></div>
-                <div class="controls">
-                    <button class="minus" onclick="chg('${id}',-1)" ${disabled}>−</button>
-                    <span id="${id}">0</span>
-                    <button class="plus" onclick="chg('${id}',1)" ${disabled}>+</button>
-                </div>
+            <div><div class="name">${i[0]}</div><div class="desc">${i[1]||""}</div></div>
+            <div class="controls">
+                <button class="minus" onclick="chg('${id}',-1)">−</button>
+                <span id="${id}">0</span>
+                <button class="plus" onclick="chg('${id}',1)">+</button>
+            </div>
             </div>`;
         });
         h+="</div>";
     });
-    menu.innerHTML = h;
+    menu.innerHTML=h;
 }
 
+// Cambiar cantidad y sumar precio individual
 function chg(id,d){
     carrito[id] = Math.max(0, carrito[id]+d);
     document.getElementById(id).innerText = carrito[id];
 
     total = 0;
     for(let k in carrito){
-        // Buscar el precio correcto del producto
         productos.forEach(cat=>{
             cat.items.forEach(p=>{
                 let pid = p[0].replace(/\s/g,"_");
-                if(pid===k) total += carrito[k]*p[2];
+                if(pid===k) total += carrito[k]*p[2]; // suma precio individual
             });
         });
     }
@@ -163,28 +168,32 @@ function chg(id,d){
     resumen();
 }
 
+// Mostrar resumen
 function resumen(){
     let r="";
     for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
-    resumen.innerHTML = r || "<small>No hay productos seleccionados</small>";
+    resumen.innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
+// Entrega
 function setEntrega(t){
     entrega=t;
-    btnMostrador.classList.toggle("active", t==="Mostrador");
-    btnDelivery.classList.toggle("active", t==="Delivery");
-    direccion.style.display = observaciones.style.display = t==="Delivery"?"block":"none";
-    avisoEnvio.style.display = t==="Delivery"?"block":"none";
+    btnMostrador.classList.toggle("active",t==="Mostrador");
+    btnDelivery.classList.toggle("active",t==="Delivery");
+    direccion.style.display=observaciones.style.display=t==="Delivery"?"block":"none";
+    avisoEnvio.style.display=t==="Delivery"?"block":"none";
 }
 
+// Pago
 function setPago(p){
     pago=p;
-    btnEfectivo.classList.toggle("active", p==="Efectivo");
-    btnTransferencia.classList.toggle("active", p==="Transferencia");
-    cambioBox.style.display = p==="Efectivo"?"block":"none";
-    transferNotice.style.display = p==="Transferencia"?"block":"none";
+    btnEfectivo.classList.toggle("active",p==="Efectivo");
+    btnTransferencia.classList.toggle("active",p==="Transferencia");
+    cambioBox.style.display=p==="Efectivo"?"block":"none";
+    transferNotice.style.display=p==="Transferencia"?"block":"none";
 }
 
+// Enviar pedido WhatsApp
 function enviar(){
     if(!total||!nombre.value) return alert("Complete el pedido");
     let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
@@ -196,9 +205,6 @@ function enviar(){
 
     window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
-
-// Cargar CSV al iniciar
-cargarCSV(csvURL);
 </script>
 
 </body>
