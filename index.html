@@ -115,48 +115,27 @@ const productos=[
 ]}
 ];
 
-let carrito = {}, precios = {}, total = 0;
-
 function render(){
-    let h="";
-    productos.forEach(s=>{
-        h+=`<div class="card"><div class="section-title">${s.cat}</div>`;
-        s.items.forEach(i=>{
-            if(i.length===1){h+=`<div class="sub-title">${i[0]}</div>`;return;}
-            let id=i[0].replace(/\s/g,"_");
-            carrito[id]=carrito[id] || 0;
-            precios[id] = s.precio || i[1] || 0; // guardar precio real
-            h+=`<div class="item">
-                <div><div class="name">${i[0]}</div><div class="desc">${i[1]||""}</div></div>
-                <div class="controls">
-                    <button class="minus" onclick="chg('${id}',-1)">−</button>
-                    <span id="${id}">0</span>
-                    <button class="plus" onclick="chg('${id}',1)">+</button>
-                </div>
-            </div>`;
-        });
-        h+="</div>";
-    });
-    menu.innerHTML=h;
-}
-
-function chg(id,d){
-    carrito[id]=Math.max(0,carrito[id]+d);
-    document.getElementById(id).innerText=carrito[id];
-
-    total=0;
-    for(let k in carrito){
-        total += carrito[k]*precios[k]; // sumar precio real
-    }
-    document.getElementById("total").innerText=total;
-
-    resumen();
-}
-
-function resumen(){
-    let r="";
-    for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
-    resumen.innerHTML=r||"<small>No hay productos seleccionados</small>";
+let h="";
+productos.forEach(s=>{
+h+=`<div class="card"><div class="section-title">${s.cat}</div>`;
+s.items.forEach(i=>{
+if(i.length===1){h+=`<div class="sub-title">${i[0]}</div>`;return;}
+let id=i[0].replace(/\s/g,"_");
+carrito[id]=0;
+let precio=s.precio||i[1];
+h+=`<div class="item">
+<div><div class="name">${i[0]}</div><div class="desc">${i[1]||""}</div></div>
+<div class="controls">
+<button class="minus" onclick="chg('${id}',-1)">−</button>
+<span id="${id}">0</span>
+<button class="plus" onclick="chg('${id}',1)">+</button>
+</div>
+</div>`;
+});
+h+="</div>";
+});
+menu.innerHTML=h;
 }
 
 function chg(id,d){
