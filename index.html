@@ -30,9 +30,9 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 .qr-box{margin-top:30px;background:#fff;border:3px solid #b30000;border-radius:14px;padding:20px;text-align:center}
 .qr-box img{width:220px;display:block;margin:10px auto}
 .qr-box a{color:#25D366;font-weight:bold;text-decoration:none}
+.disabled{opacity:0.5;pointer-events:none;}
 </style>
 </head>
-
 <body>
 
 <h1>👑 El Rey de las Empanadas
@@ -88,85 +88,101 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 </div>
 
 <script>
-let carrito={},total=0,entrega="Mostrador",pago="Efectivo";
+let carrito={}, total=0, entrega="Mostrador", pago="Efectivo";
+let productos = [];
 
-const productos=[
-{cat:"🥟 Empanadas - $60 c/u",precio:60,items:[
-["CARNE"],["Criolla","carne y huevo"],["Mendocina","carne, huevo y aceituna"],
-["Mexicana","carne, huevo y pimienta"],["Gallega","carne y panceta"],
-["POLLO"],["Pollo clásico","pollo y huevo"],["Pollo queso","pollo y mozzarella"],
-["VERDURA"],["Humita","choclo y queso"],["Caprese","queso y tomate"],
-["QUESO"],["Jamón y queso",""],["Mozzarella, cebolla y calabresa",""],
-["DULCES"],["Dulce de leche",""],["Nutella",""]
-]},
-{cat:"🍟 Extras",precio:120,items:[
-["Papas fritas",""],["Aros de cebolla",""],["Bastones de muzza",""],["Nuggets",""]
-]},
-{cat:"🥤 Bebidas",items:[
-["Coca-Cola Lata",60],["Coca-Cola 600ml",80],["Coca-Cola 2L",120],
-["Sprite Lata",60],["Fanta Lata",60]
-]},
-{cat:"🍹 Jugos Naturales",items:[
-["Naranja",120],["Mango",120],["Frutilla",120],["Ananá",120]
-]},
-{cat:"🍺 Cervezas",items:[
-["Pilsen Lata",120],["Pilsen 2L",180],
-["Patricia Lata",120],["Patricia 2L",220],["Glacial Lata",110]
-]}
-];
+// URL de tu CSV público (publicar tu Sheet en CSV)
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-XXXXX/pub?gid=0&single=true&output=csv";
 
-function render(){
-let h="";
-productos.forEach(s=>{
-h+=`<div class="card"><div class="section-title">${s.cat}</div>`;
-s.items.forEach(i=>{
-if(i.length===1){h+=`<div class="sub-title">${i[0]}</div>`;return;}
-let id=i[0].replace(/\s/g,"_");
-carrito[id]=0;
-let precio=s.precio||i[1];
-h+=`<div class="item">
-<div><div class="name">${i[0]}</div><div class="desc">${i[1]||""}</div></div>
-<div class="controls">
-<button class="minus" onclick="chg('${id}',-1)">−</button>
-<span id="${id}">0</span>
-<button class="plus" onclick="chg('${id}',1)">+</button>
-</div>
-</div>`;
-});
-h+="</div>";
-});
-menu.innerHTML=h;
+async function cargarCSV(url){
+    const resp = await fetch(url);
+    const text = await resp.text();
+    const rows = text.split("\n").map(r => r.split(","));
+    let categorias = {};
+    
+    rows.forEach((row,i)=>{
+        if(i===0) return; // saltar encabezado
+        let [nombre, desc, precio, cat, stock] = row;
+        nombre = nombre.trim();
+        desc = desc.trim();
+        cat = cat.trim();
+        precio = Number(precio);
+        stock = Number(stock) || 0;
+
+        if(!categorias[cat]) categorias[cat] = [];
+        categorias[cat].push({nombre, desc, precio, stock});
+    });
+
+    // Transformar a array como antes
+    productos = Object.keys(categorias).map(cat=>{
+        return {cat, items: categorias[cat].map(p=>[p.nombre, p.desc, p.precio, p.stock])};
+    });
+
+    render(productos);
+}
+
+function render(prods){
+    let h="";
+    prods.forEach(s=>{
+        h+=`<div class="card"><div class="section-title">${s.cat}</div>`;
+        s.items.forEach(i=>{
+            let [nombre, desc, precio, stock] = i;
+            let id = nombre.replace(/\s/g,"_");
+            carrito[id] = 0;
+            let disabled = stock===0 ? 'disabled' : '';
+            h+=`<div class="item">
+                <div><div class="name">${nombre}</div><div class="desc">${desc||""}</div></div>
+                <div class="controls">
+                    <button class="minus" onclick="chg('${id}',-1)" ${disabled}>−</button>
+                    <span id="${id}">0</span>
+                    <button class="plus" onclick="chg('${id}',1)" ${disabled}>+</button>
+                </div>
+            </div>`;
+        });
+        h+="</div>";
+    });
+    menu.innerHTML = h;
 }
 
 function chg(id,d){
-carrito[id]=Math.max(0,carrito[id]+d);
-document.getElementById(id).innerText=carrito[id];
-total=0;
-for(let k in carrito) total+=carrito[k]*60;
-document.getElementById("total").innerText=total;
-resumen();
+    carrito[id] = Math.max(0, carrito[id]+d);
+    document.getElementById(id).innerText = carrito[id];
+
+    total = 0;
+    for(let k in carrito){
+        // Buscar el precio correcto del producto
+        productos.forEach(cat=>{
+            cat.items.forEach(p=>{
+                let pid = p[0].replace(/\s/g,"_");
+                if(pid===k) total += carrito[k]*p[2];
+            });
+        });
+    }
+
+    document.getElementById("total").innerText = total;
+    resumen();
 }
 
 function resumen(){
-let r="";
-for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
-resumen.innerHTML=r||"<small>No hay productos seleccionados</small>";
+    let r="";
+    for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
+    resumen.innerHTML = r || "<small>No hay productos seleccionados</small>";
 }
 
 function setEntrega(t){
-entrega=t;
-btnMostrador.classList.toggle("active",t==="Mostrador");
-btnDelivery.classList.toggle("active",t==="Delivery");
-direccion.style.display=observaciones.style.display=t==="Delivery"?"block":"none";
-avisoEnvio.style.display=t==="Delivery"?"block":"none";
+    entrega=t;
+    btnMostrador.classList.toggle("active", t==="Mostrador");
+    btnDelivery.classList.toggle("active", t==="Delivery");
+    direccion.style.display = observaciones.style.display = t==="Delivery"?"block":"none";
+    avisoEnvio.style.display = t==="Delivery"?"block":"none";
 }
 
 function setPago(p){
-pago=p;
-btnEfectivo.classList.toggle("active",p==="Efectivo");
-btnTransferencia.classList.toggle("active",p==="Transferencia");
-cambioBox.style.display=p==="Efectivo"?"block":"none";
-transferNotice.style.display=p==="Transferencia"?"block":"none";
+    pago=p;
+    btnEfectivo.classList.toggle("active", p==="Efectivo");
+    btnTransferencia.classList.toggle("active", p==="Transferencia");
+    cambioBox.style.display = p==="Efectivo"?"block":"none";
+    transferNotice.style.display = p==="Transferencia"?"block":"none";
 }
 
 function enviar(){
@@ -175,13 +191,14 @@ function enviar(){
     for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
     msg+=`%0A💰 Total: $${total}`;
 
-    // Mensajes cortos para el funcionario según entrega y pago
     if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
     if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
 
     window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
-render();
+
+// Cargar CSV al iniciar
+cargarCSV(csvURL);
 </script>
 
 </body>
