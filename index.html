@@ -115,27 +115,30 @@ const productos=[
 ]}
 ];
 
-function render(){
-let h="";
-productos.forEach(s=>{
-h+=`<div class="card"><div class="section-title">${s.cat}</div>`;
-s.items.forEach(i=>{
-if(i.length===1){h+=`<div class="sub-title">${i[0]}</div>`;return;}
-let id=i[0].replace(/\s/g,"_");
-carrito[id]=0;
-let precio=s.precio||i[1];
-h+=`<div class="item">
-<div><div class="name">${i[0]}</div><div class="desc">${i[1]||""}</div></div>
-<div class="controls">
-<button class="minus" onclick="chg('${id}',-1)">−</button>
-<span id="${id}">0</span>
-<button class="plus" onclick="chg('${id}',1)">+</button>
-</div>
-</div>`;
-});
-h+="</div>";
-});
-menu.innerHTML=h;
+let carrito = {};   // Cantidades
+let precios = {};   // Precios individuales
+
+function render() {
+    let h = "";
+    productos.forEach(s => {
+        h += `<div class="card"><div class="section-title">${s.cat}</div>`;
+        s.items.forEach(i => {
+            if(i.length===1){ h += `<div class="sub-title">${i[0]}</div>`; return; }
+            let id = i[0].replace(/\s/g,"_");
+            carrito[id] = carrito[id] || 0;
+            precios[id] = s.precio || i[1] || 0;
+            h += `<div class="item">
+                <div><div class="name">${i[0]}</div><div class="desc">${i[1]||""}</div></div>
+                <div class="controls">
+                    <button class="minus" onclick="chg('${id}',-1)">−</button>
+                    <span id="${id}">0</span>
+                    <button class="plus" onclick="chg('${id}',1)">+</button>
+                </div>
+            </div>`;
+        });
+        h += `</div>`;
+    });
+    menu.innerHTML = h;
 }
 
 total = 0;
