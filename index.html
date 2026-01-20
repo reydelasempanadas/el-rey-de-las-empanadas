@@ -42,6 +42,14 @@ button.send{
   width:100%;padding:15px;background:#25D366;color:#fff;
   font-size:18px;border:none;border-radius:12px;margin-top:10px
 }
+
+.qr{
+  text-align:center;
+  margin-top:20px;
+}
+.qr img{
+  max-width:200px;
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -62,8 +70,9 @@ Lunes cerrado · Pedidos de 17 a 23 hs · Delivery de 18:30 a 23 hs
   <div id="resumen"><small>No hay productos seleccionados</small></div>
   <p><b>Total:</b> $<span id="total">0</span></p>
 
+  <!-- AVISO CLIENTE DELIVERY -->
   <div id="avisoEnvio" class="notice" style="display:none">
-    ⏳ Esperar cotización de entrega (en WhatsApp enviar cotización con el envío)
+    ⏳ Esperar cotización de entrega
   </div>
 
   <div class="section-title">🚚 Forma de entrega</div>
@@ -84,8 +93,9 @@ Lunes cerrado · Pedidos de 17 a 23 hs · Delivery de 18:30 a 23 hs
     <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
   </div>
 
+  <!-- AVISO CLIENTE TRANSFERENCIA -->
   <div id="transferNotice" class="notice" style="display:none">
-    💳 Se enviará el enlace por WhatsApp (enviar enlace de transferencia por WhatsApp)
+    ⏳ Esperar que se le envíe el enlace para transferencia
   </div>
 
   <div id="cambioBox" class="notice">
@@ -95,6 +105,12 @@ Lunes cerrado · Pedidos de 17 a 23 hs · Delivery de 18:30 a 23 hs
   </div>
 
   <button class="send" onclick="enviar()">📲 Enviar pedido</button>
+</div>
+
+<!-- QR AL FINAL -->
+<div class="card qr">
+  <div class="section-title">📲 Escaneá para pagar</div>
+  <img src="QR.png" alt="QR de pago">
 </div>
 
 <script>
@@ -199,8 +215,10 @@ function enviar(){
   let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
   for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
   msg+=`%0A💰 Total: $${total}`;
-  if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Esperar cotización de entrega`;
-  if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia por WhatsApp`;
+
+  if(entrega==="Delivery") msg+=`%0A⚠️ ENVIAR COSTO CON ENVÍO`;
+  if(pago==="Transferencia") msg+=`%0A‼️ ENVIAR ENLACE PARA TRANSFERENCIA`;
+
   window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 </script>
