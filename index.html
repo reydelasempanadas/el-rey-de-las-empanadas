@@ -50,7 +50,9 @@ button.send{
 <body>
 
 <h1>👑 El Rey de las Empanadas
-<small>Lunes cerrado · Pedidos de 17 a 23 hs</small>
+<small>
+Lunes cerrado · Pedidos de 17 a 23 hs · Delivery de 18:30 a 23 hs
+</small>
 </h1>
 
 <div id="menu"></div>
@@ -61,7 +63,7 @@ button.send{
   <p><b>Total:</b> $<span id="total">0</span></p>
 
   <div id="avisoEnvio" class="notice" style="display:none">
-    ⚠️ ATENCIÓN: enviar costo total con delivery
+    ⏳ Esperar cotización de entrega (en WhatsApp enviar cotización con el envío)
   </div>
 
   <div class="section-title">🚚 Forma de entrega</div>
@@ -83,11 +85,12 @@ button.send{
   </div>
 
   <div id="transferNotice" class="notice" style="display:none">
-    ‼️ ATENCIÓN: enviar enlace de transferencia
+    💳 Se enviará el enlace por WhatsApp (enviar enlace de transferencia por WhatsApp)
   </div>
 
   <div id="cambioBox" class="notice">
-    <input id="efectivoCambio" placeholder="¿Necesitás cambio? Indicá con cuánto pagás"
+    <input id="efectivoCambio"
+           placeholder="¿Necesitás cambio? Indicá con cuánto pagás"
            style="width:100%;border:none;background:transparent">
   </div>
 
@@ -98,31 +101,25 @@ button.send{
 const CSV_URL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?output=csv";
 
-let productos = {};
-let carrito = {};
-let precios = {};
-let total = 0;
-let entrega = "Mostrador";
-let pago = "Efectivo";
+let productos={}, carrito={}, precios={}, total=0;
+let entrega="Mostrador", pago="Efectivo";
 
 Papa.parse(CSV_URL,{
   download:true,
   header:true,
   skipEmptyLines:true,
   complete:(res)=>{
-    productos = {};
-    carrito = {};
-    precios = {};
+    productos={}; carrito={}; precios={};
 
     res.data.forEach(f=>{
       if(!f["Producto"]) return;
 
-      const enStock = String(f["Stock"]).toUpperCase() === "TRUE";
+      const enStock = String(f["Stock"]).toUpperCase()==="TRUE";
       const cat = f["Categoría"].trim();
-      const sub = (f["Subcategoría"] || "").trim();
+      const sub = (f["Subcategoría"]||"").trim();
 
-      if(!productos[cat]) productos[cat] = {};
-      if(!productos[cat][sub]) productos[cat][sub] = [];
+      if(!productos[cat]) productos[cat]={};
+      if(!productos[cat][sub]) productos[cat][sub]=[];
 
       productos[cat][sub].push({
         nombre:f["Producto"].trim(),
@@ -144,8 +141,7 @@ function renderMenu(){
       if(sub) h+=`<div class="sub-title">${sub}</div>`;
       productos[cat][sub].forEach(p=>{
         const id=p.nombre.replace(/\s+/g,"_");
-        carrito[id]=0;
-        precios[id]=p.precio;
+        carrito[id]=0; precios[id]=p.precio;
 
         h+=`
         <div class="item">
@@ -203,8 +199,8 @@ function enviar(){
   let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
   for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
   msg+=`%0A💰 Total: $${total}`;
-  if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
-  if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
+  if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Esperar cotización de entrega`;
+  if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia por WhatsApp`;
   window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 </script>
