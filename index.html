@@ -9,23 +9,24 @@
 body{font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:10px}
 h1{text-align:center;color:#b30000;margin-bottom:5px}
 h1 small{display:block;font-size:12px;color:#555}
+
 .card{background:#fff;padding:15px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
 .section-title{background:#b30000;color:#fff;padding:8px 12px;border-radius:8px;font-size:18px;margin-bottom:10px}
 .sub-title{font-weight:bold;color:#b30000;margin:12px 0 6px;border-bottom:1px solid #eee}
+
 .item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed #eee}
 .item:last-child{border-bottom:none}
+
 .name{font-weight:bold}
 .desc{font-size:12px;color:#777}
+.sin-stock{color:#b30000;font-weight:bold;font-size:13px}
+
 .controls{display:flex;align-items:center;gap:6px}
 .controls button{width:30px;height:30px;border:none;border-radius:6px;font-size:18px;color:#fff}
+.controls button:disabled{background:#ccc}
+
 .plus{background:#25D366}
 .minus{background:#b30000}
-.selector{display:flex;gap:10px;margin:10px 0}
-.selector button{flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;background:#eee}
-.selector button.active{background:#b30000;color:#fff}
-.notice{background:#fff3cd;color:#b30000;padding:10px;border-radius:8px;margin:10px 0;text-align:center;font-size:14px}
-.input-area input,.input-area textarea{width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc}
-button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px;border:none;border-radius:12px;margin-top:10px}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -60,10 +61,10 @@ Papa.parse(CSV_URL,{
     res.data.forEach(f=>{
       if(!f.Producto) return;
 
-      const stock = String(f.Stock).toUpperCase();
-      if(stock !== "TRUE" && stock !== "VERDADERO" && stock !== "1") return;
+      const stockRaw = String(f.Stock).toUpperCase();
+      const enStock = (stockRaw === "TRUE" || stockRaw === "VERDADERO" || stockRaw === "1");
 
-      const cat = f["Categoría"].trim();
+      const cat = f["Categoría"]?.trim() || "Otros";
       const sub = (f.Subcategoria || "").trim();
 
       if(!productos[cat]) productos[cat] = {};
@@ -72,7 +73,8 @@ Papa.parse(CSV_URL,{
       productos[cat][sub].push({
         nombre: f.Producto.trim(),
         desc: f.Descripción || "",
-        precio: Number(f.Precio) || 0
+        precio: Number(f.Precio) || 0,
+        stock: enStock
       });
     });
 
@@ -81,39 +83,51 @@ Papa.parse(CSV_URL,{
 });
 
 function render(){
-  let h="";
+  let h = "";
+
   Object.keys(productos).forEach(cat=>{
-    h+=`<div class="card"><div class="section-title">${cat}</div>`;
+    h += `<div class="card">
+            <div class="section-title">${cat}</div>`;
+
     Object.keys(productos[cat]).forEach(sub=>{
-      if(sub) h+=`<div class="sub-title">${sub}</div>`;
+      if(sub) h += `<div class="sub-title">${sub}</div>`;
+
       productos[cat][sub].forEach(p=>{
-        const id=p.nombre.replace(/\s+/g,"_");
-        carrito[id]=0;
-        precios[id]=p.precio;
-        h+=`
+        const id = p.nombre.replace(/\s+/g,"_");
+
+        carrito[id] = 0;
+        precios[id] = p.precio;
+
+        h += `
         <div class="item">
           <div>
             <div class="name">${p.nombre}</div>
             <div class="desc">${p.desc}</div>
+            ${!p.stock ? `<div class="sin-stock">❌ Sin stock</div>` : ""}
           </div>
           <div class="controls">
-            <button class="minus" onclick="chg('${id}',-1)">−</button>
+            <button class="minus" ${!p.stock?"disabled":""} onclick="chg('${id}',-1)">−</button>
             <span id="${id}">0</span>
-            <button class="plus" onclick="chg('${id}',1)">+</button>
+            <button class="plus" ${!p.stock?"disabled":""} onclick="chg('${id}',1)">+</button>
           </div>
         </div>`;
       });
     });
-    h+=`</div>`;
+
+    h += `</div>`;
   });
-  menu.innerHTML = h || "<div class='card'>No hay productos con stock</div>";
+
+  menu.innerHTML = h || "<div class='card'>No hay productos cargados</div>";
 }
 
 function chg(id,d){
-  carrito[id]=Math.max(0,carrito[id]+d);
-  document.getElementById(id).innerText=carrito[id];
-  total=0;
-  for(let k in carrito) total+=carrito[k]*(precios[k]||0);
+  carrito[id] = Math.max(0, carrito[id] + d);
+  document.getElementById(id).innerText = carrito[id];
+
+  total = 0;
+  for(let k in carrito){
+    total += carrito[k] * (precios[k] || 0);
+  }
 }
 </script>
 
