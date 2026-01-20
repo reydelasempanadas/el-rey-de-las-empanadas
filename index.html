@@ -77,130 +77,106 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
-<!-- QR PARA COMPARTIR EL ENLACE -->
+<!-- QR -->
 <div class="card" style="text-align:center;border:3px solid #b30000">
   <div class="section-title">📲 Compartí el enlace para hacer pedidos</div>
-
-  <img
-    src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=https://wa.me/?text=%F0%9F%91%91%20El%20Rey%20de%20las%20Empanadas%0AHac%C3%A9%20tu%20pedido%20ac%C3%A1%20%F0%9F%91%87%0Ahttps://reydelasempanadas.github.io/el-rey-de-las-empanadas/"
-    style="display:block;margin:15px auto"
-  >
-
-  <p style="font-size:14px;color:#555">
-    Escaneá el código y compartí el enlace por WhatsApp
-  </p>
-
-  <a
-    href="https://wa.me/?text=👑%20El%20Rey%20de%20las%20Empanadas%0AHacé%20tu%20pedido%20acá%20👇%0Ahttps://reydelasempanadas.github.io/el-rey-de-las-empanadas/"
-    target="_blank"
-    style="color:#25D366;font-weight:bold;text-decoration:none"
-  >
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=https://wa.me/?text=👑%20El%20Rey%20de%20las%20Empanadas%0AHacé%20tu%20pedido%20acá%20👇%0Ahttps://reydelasempanadas.github.io/el-rey-de-las-empanadas/" style="display:block;margin:15px auto">
+  <a href="https://wa.me/?text=👑%20El%20Rey%20de%20las%20Empanadas%0AHacé%20tu%20pedido%20acá%20👇%0Ahttps://reydelasempanadas.github.io/el-rey-de-las-empanadas/" target="_blank" style="color:#25D366;font-weight:bold;text-decoration:none">
     👉 Compartir enlace ahora
   </a>
 </div>
 
 <script>
-const menu = document.getElementById("menu");
+const menu=document.getElementById("menu");
+let carrito={},precios={},total=0,entrega="Mostrador",pago="Efectivo",productos={};
 
-let carrito={}, precios={}, total=0, entrega="Mostrador", pago="Efectivo";
-let productos={};
-
-const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?output=csv";
-
-Papa.parse(CSV_URL,{
-  download:true,
-  header:true,
-  skipEmptyLines:true,
-  complete:(res)=>{
-    res.data.forEach(f=>{
-      if(!f.Producto) return;
-
-      const cat=f["Categoría"].trim();
-      const sub=(f["Subcategoría"]||"").trim();
-
-      if(!productos[cat]) productos[cat]={};
-      if(!productos[cat][sub]) productos[cat][sub]=[];
-
-      productos[cat][sub].push({
-        nombre:f.Producto.trim(),
-        desc:f.Descripción||"",
-        precio:Number(f.Precio)||0,
-        stock:String(f.Stock).toUpperCase()
-      });
-    });
-    render();
-  }
+Papa.parse("https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?output=csv",{
+download:true,header:true,skipEmptyLines:true,
+complete:(res)=>{
+res.data.forEach(f=>{
+if(!f.Producto)return;
+const cat=f["Categoría"].trim();
+const sub=(f["Subcategoría"]||"").trim();
+if(!productos[cat])productos[cat]={};
+if(!productos[cat][sub])productos[cat][sub]=[];
+productos[cat][sub].push({
+nombre:f.Producto.trim(),
+desc:f.Descripción||"",
+precio:Number(f.Precio)||0,
+stock:String(f.Stock).toUpperCase()
+});
+});
+render();
+}
 });
 
 function render(){
-  let h="";
-  Object.keys(productos).forEach(cat=>{
-    h+=`<div class="card"><div class="section-title">${cat}</div>`;
-    Object.keys(productos[cat]).forEach(sub=>{
-      if(sub) h+=`<div class="sub-title">${sub}</div>`;
-      productos[cat][sub].forEach(p=>{
-        const id=p.nombre.replace(/\s+/g,"_");
-        carrito[id]=0;
-        precios[id]=p.precio;
-        h+=`
-        <div class="item">
-          <div>
-            <div class="name">${p.nombre}</div>
-            <div class="desc">${p.desc}</div>
-            ${p.stock==="TRUE"||p.stock==="1"?"":"<div style='color:red;font-weight:bold'>Sin stock</div>"}
-          </div>
-          <div class="controls">
-            <button class="minus" onclick="chg('${id}',-1)">−</button>
-            <span id="${id}">0</span>
-            <button class="plus" onclick="chg('${id}',1)">+</button>
-          </div>
-        </div>`;
-      });
-    });
-    h+="</div>";
-  });
-  menu.innerHTML=h;
+let h="";
+Object.keys(productos).forEach(cat=>{
+h+=`<div class="card"><div class="section-title">${cat}</div>`;
+Object.keys(productos[cat]).forEach(sub=>{
+if(sub)h+=`<div class="sub-title">${sub}</div>`;
+productos[cat][sub].forEach(p=>{
+const id=p.nombre.replace(/\s+/g,"_");
+carrito[id]=0;precios[id]=p.precio;
+h+=`
+<div class="item">
+<div>
+<div class="name">${p.nombre}</div>
+<div class="desc">${p.desc}</div>
+<div style="font-size:13px;color:#333"><b>$${p.precio}</b></div>
+${p.stock==="TRUE"||p.stock==="1"?"":"<div style='color:red;font-weight:bold'>Sin stock</div>"}
+</div>
+<div class="controls">
+<button class="minus" onclick="chg('${id}',-1)">−</button>
+<span id="${id}">0</span>
+<button class="plus" onclick="chg('${id}',1)">+</button>
+</div>
+</div>`;
+});
+});
+h+="</div>";
+});
+menu.innerHTML=h;
 }
 
 function chg(id,d){
-  carrito[id]=Math.max(0,carrito[id]+d);
-  document.getElementById(id).innerText=carrito[id];
-  total=0;
-  for(let k in carrito) total+=carrito[k]*(precios[k]||0);
-  document.getElementById("total").innerText=total;
-  resumen();
+carrito[id]=Math.max(0,carrito[id]+d);
+document.getElementById(id).innerText=carrito[id];
+total=0;for(let k in carrito)total+=carrito[k]*(precios[k]||0);
+document.getElementById("total").innerText=total;
+resumen();
 }
 
 function resumen(){
-  let r="";
-  for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
-  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+let r="";for(let k in carrito)if(carrito[k])r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
+document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
 function setEntrega(t){
-  entrega=t;
-  btnMostrador.classList.toggle("active",t==="Mostrador");
-  btnDelivery.classList.toggle("active",t==="Delivery");
-  direccion.style.display=observaciones.style.display=t==="Delivery"?"block":"none";
-  avisoEnvio.style.display=t==="Delivery"?"block":"none";
+entrega=t;
+btnMostrador.classList.toggle("active",t==="Mostrador");
+btnDelivery.classList.toggle("active",t==="Delivery");
+direccion.style.display=observaciones.style.display=t==="Delivery"?"block":"none";
+avisoEnvio.style.display=t==="Delivery"?"block":"none";
 }
 
 function setPago(p){
-  pago=p;
-  btnEfectivo.classList.toggle("active",p==="Efectivo");
-  btnTransferencia.classList.toggle("active",p==="Transferencia");
-  cambioBox.style.display=p==="Efectivo"?"block":"none";
-  transferNotice.style.display=p==="Transferencia"?"block":"none";
+pago=p;
+btnEfectivo.classList.toggle("active",p==="Efectivo");
+btnTransferencia.classList.toggle("active",p==="Transferencia");
+cambioBox.style.display=p==="Efectivo"?"block":"none";
+transferNotice.style.display=p==="Transferencia"?"block":"none";
 }
 
 function enviar(){
-  if(!total||!nombre.value) return alert("Complete el pedido");
-  let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
-  for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
-  msg+=`%0A💰 Total: $${total}`;
-  if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Enviar costo con envío`;
-  if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace para transferencia`;
-  window.open("https://wa.me/59892663559?text="+msg,"_blank");
+if(!total||!nombre.value)return alert("Complete el pedido");
+let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
+for(let k in carrito)if(carrito[k])msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
+msg+=`%0A💰 Total: $${total}`;
+if(entrega==="Delivery")msg+=`%0A⚠️ ATENCIÓN! Enviar costo con envío`;
+if(pago==="Transferencia")msg+=`%0A‼️ ATENCIÓN! Enviar enlace para transferencia`;
+window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 </script>
 
