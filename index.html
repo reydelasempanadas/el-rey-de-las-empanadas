@@ -27,6 +27,21 @@ h1 small{display:block;font-size:12px;color:#555}
 
 .plus{background:#25D366}
 .minus{background:#b30000}
+
+.selector{display:flex;gap:10px;margin:10px 0}
+.selector button{flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;background:#eee}
+.selector button.active{background:#b30000;color:#fff}
+
+.notice{background:#fff3cd;color:#b30000;padding:10px;border-radius:8px;margin:10px 0;text-align:center;font-size:14px}
+
+.input-area input,.input-area textarea{
+  width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc
+}
+
+button.send{
+  width:100%;padding:15px;background:#25D366;color:#fff;
+  font-size:18px;border:none;border-radius:12px;margin-top:10px
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -40,14 +55,55 @@ h1 small{display:block;font-size:12px;color:#555}
 
 <div id="menu"></div>
 
+<div class="card">
+  <div class="section-title">🛒 Resumen del pedido</div>
+  <div id="resumen"><small>No hay productos seleccionados</small></div>
+  <p><b>Total:</b> $<span id="total">0</span></p>
+
+  <div id="avisoEnvio" class="notice" style="display:none">
+    ⚠️ ATENCIÓN: enviar costo total con delivery
+  </div>
+
+  <div class="section-title">🚚 Forma de entrega</div>
+  <div class="selector">
+    <button id="btnMostrador" class="active" onclick="setEntrega('Mostrador')">Retiro en mostrador</button>
+    <button id="btnDelivery" onclick="setEntrega('Delivery')">Delivery</button>
+  </div>
+
+  <div class="input-area">
+    <input id="nombre" placeholder="Nombre">
+    <input id="direccion" placeholder="Dirección" style="display:none">
+    <textarea id="observaciones" placeholder="Observaciones para delivery" style="display:none"></textarea>
+  </div>
+
+  <div class="section-title">💳 Forma de pago</div>
+  <div class="selector">
+    <button id="btnEfectivo" class="active" onclick="setPago('Efectivo')">Efectivo</button>
+    <button id="btnTransferencia" onclick="setPago('Transferencia')">Transferencia</button>
+  </div>
+
+  <div id="transferNotice" class="notice" style="display:none">
+    ‼️ ATENCIÓN: enviar enlace de transferencia
+  </div>
+
+  <div id="cambioBox" class="notice">
+    <input id="efectivoCambio" placeholder="¿Necesitás cambio? Indicá con cuánto pagás"
+           style="width:100%;border:none;background:transparent">
+  </div>
+
+  <button class="send" onclick="enviar()">📲 Enviar pedido</button>
+</div>
+
 <script>
-const menu = document.getElementById("menu");
-
-let carrito = {}, precios = {}, total = 0;
-let productos = {};
-
 const CSV_URL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9FvVA-gcr9su-QtH15Qs9JR8MYzHxxO2GZLrCzQvlG_rWCqoTmIx87-BtX9Ki8v6V/pub?output=csv";
+
+let productos = {};
+let carrito = {};
+let precios = {};
+let total = 0;
+let entrega = "Mostrador";
+let pago = "Efectivo";
 
 Papa.parse(CSV_URL,{
   download:true,
@@ -59,51 +115,44 @@ Papa.parse(CSV_URL,{
     precios = {};
 
     res.data.forEach(f=>{
-      if(!f.Producto) return;
+      if(!f["Producto"]) return;
 
-      const stockRaw = String(f.Stock).toUpperCase();
-      const enStock = (stockRaw === "TRUE" || stockRaw === "VERDADERO" || stockRaw === "1");
-
-      const cat = f["Categoría"]?.trim() || "Otros";
-      const sub = (f.Subcategoria || "").trim();
+      const enStock = String(f["Stock"]).toUpperCase() === "TRUE";
+      const cat = f["Categoría"].trim();
+      const sub = (f["Subcategoría"] || "").trim();
 
       if(!productos[cat]) productos[cat] = {};
       if(!productos[cat][sub]) productos[cat][sub] = [];
 
       productos[cat][sub].push({
-        nombre: f.Producto.trim(),
-        desc: f.Descripción || "",
-        precio: Number(f.Precio) || 0,
-        stock: enStock
+        nombre:f["Producto"].trim(),
+        desc:f["Descripción"]||"",
+        precio:Number(f["Precio"])||0,
+        stock:enStock
       });
     });
 
-    render();
+    renderMenu();
   }
 });
 
-function render(){
-  let h = "";
-
+function renderMenu(){
+  let h="";
   Object.keys(productos).forEach(cat=>{
-    h += `<div class="card">
-            <div class="section-title">${cat}</div>`;
-
+    h+=`<div class="card"><div class="section-title">${cat}</div>`;
     Object.keys(productos[cat]).forEach(sub=>{
-      if(sub) h += `<div class="sub-title">${sub}</div>`;
-
+      if(sub) h+=`<div class="sub-title">${sub}</div>`;
       productos[cat][sub].forEach(p=>{
-        const id = p.nombre.replace(/\s+/g,"_");
+        const id=p.nombre.replace(/\s+/g,"_");
+        carrito[id]=0;
+        precios[id]=p.precio;
 
-        carrito[id] = 0;
-        precios[id] = p.precio;
-
-        h += `
+        h+=`
         <div class="item">
           <div>
             <div class="name">${p.nombre}</div>
             <div class="desc">${p.desc}</div>
-            ${!p.stock ? `<div class="sin-stock">❌ Sin stock</div>` : ""}
+            ${!p.stock?'<div class="sin-stock">❌ Sin stock</div>':""}
           </div>
           <div class="controls">
             <button class="minus" ${!p.stock?"disabled":""} onclick="chg('${id}',-1)">−</button>
@@ -113,21 +162,50 @@ function render(){
         </div>`;
       });
     });
-
-    h += `</div>`;
+    h+=`</div>`;
   });
-
-  menu.innerHTML = h || "<div class='card'>No hay productos cargados</div>";
+  document.getElementById("menu").innerHTML=h;
 }
 
 function chg(id,d){
-  carrito[id] = Math.max(0, carrito[id] + d);
-  document.getElementById(id).innerText = carrito[id];
+  carrito[id]=Math.max(0,carrito[id]+d);
+  document.getElementById(id).innerText=carrito[id];
+  total=0;
+  for(let k in carrito) total+=carrito[k]*(precios[k]||0);
+  document.getElementById("total").innerText=total;
+  resumen();
+}
 
-  total = 0;
-  for(let k in carrito){
-    total += carrito[k] * (precios[k] || 0);
-  }
+function resumen(){
+  let r="";
+  for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
+  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+}
+
+function setEntrega(t){
+  entrega=t;
+  btnMostrador.classList.toggle("active",t==="Mostrador");
+  btnDelivery.classList.toggle("active",t==="Delivery");
+  direccion.style.display=observaciones.style.display=t==="Delivery"?"block":"none";
+  avisoEnvio.style.display=t==="Delivery"?"block":"none";
+}
+
+function setPago(p){
+  pago=p;
+  btnEfectivo.classList.toggle("active",p==="Efectivo");
+  btnTransferencia.classList.toggle("active",p==="Transferencia");
+  cambioBox.style.display=p==="Efectivo"?"block":"none";
+  transferNotice.style.display=p==="Transferencia"?"block":"none";
+}
+
+function enviar(){
+  if(!total||!nombre.value) return alert("Complete el pedido");
+  let msg="🧾 *Pedido El Rey de las Empanadas*%0A";
+  for(let k in carrito) if(carrito[k]) msg+=`• ${carrito[k]} ${k.replace(/_/g," ")}%0A`;
+  msg+=`%0A💰 Total: $${total}`;
+  if(entrega==="Delivery") msg+=`%0A⚠️ ATENCIÓN! Enviar costo total con delivery`;
+  if(pago==="Transferencia") msg+=`%0A‼️ ATENCIÓN! Enviar enlace de transferencia`;
+  window.open("https://wa.me/59892663559?text="+msg,"_blank");
 }
 </script>
 
