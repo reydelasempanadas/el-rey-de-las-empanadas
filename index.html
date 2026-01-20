@@ -16,8 +16,10 @@ h1 small{display:block;font-size:12px;color:#555}
 .item:last-child{border-bottom:none}
 .name{font-weight:bold}
 .desc{font-size:12px;color:#777}
+.sin-stock{color:#b30000;font-weight:bold;font-size:13px}
 .controls{display:flex;align-items:center;gap:6px}
 .controls button{width:30px;height:30px;border:none;border-radius:6px;font-size:18px;color:#fff}
+.controls button:disabled{background:#ccc}
 .plus{background:#25D366}
 .minus{background:#b30000}
 .selector{display:flex;gap:10px;margin:10px 0}
@@ -37,7 +39,7 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 <body>
 
 <h1>👑 El Rey de las Empanadas
-<small>Lunes cerrado · Pedidos de 17 a 23 hs</small>
+<small>Lunes cerrado · Pedidos de 17 a 23 hs · Delivery de 18:30 a 23 hs</small>
 </h1>
 
 <div id="menu"></div>
@@ -80,6 +82,14 @@ button.send{width:100%;padding:15px;background:#25D366;color:#fff;font-size:18px
 <button class="send" onclick="enviar()">📲 Enviar pedido</button>
 </div>
 
+<div class="qr-box">
+<p><b>📲 Escaneá para hacer tu pedido</b></p>
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://reydelasempanadas.github.io/el-rey-de-las-empanadas/">
+<a href="https://reydelasempanadas.github.io/el-rey-de-las-empanadas/" target="_blank">
+👉 Click en el enlace para hacer tu pedido
+</a>
+</div>
+
 <script>
 const menu = document.getElementById("menu");
 
@@ -91,18 +101,26 @@ const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS3xILJU5RgaRD9Fv
 Papa.parse(CSV_URL,{
   download:true,
   header:true,
+  skipEmptyLines:true,
   complete:(res)=>{
-    const filas=res.data.filter(f=>f.Producto && String(f.Disponible).toUpperCase()==="TRUE");
+    productos={}; carrito={}; precios={};
 
-    filas.forEach(f=>{
-      const cat=f.Categoria.trim();
+    res.data.forEach(f=>{
+      if(!f.Producto) return;
+
+      const cat=f["Categoría"].trim();
       const sub=(f.Subcategoria||"").trim();
+      const stockRaw=String(f.Stock).toUpperCase();
+      const enStock=(stockRaw==="TRUE"||stockRaw==="VERDADERO"||stockRaw==="1");
+
       if(!productos[cat]) productos[cat]={};
       if(!productos[cat][sub]) productos[cat][sub]=[];
+
       productos[cat][sub].push({
         nombre:f.Producto.trim(),
         desc:f.Descripción||"",
-        precio:Number(f.Precio)||0
+        precio:Number(f.Precio)||0,
+        stock:enStock
       });
     });
 
@@ -117,7 +135,7 @@ function render(){
     Object.keys(productos[cat]).forEach(sub=>{
       if(sub) h+=`<div class="sub-title">${sub}</div>`;
       productos[cat][sub].forEach(p=>{
-        const id=p.nombre.replace(/\s/g,"_");
+        const id=p.nombre.replace(/\s+/g,"_");
         carrito[id]=0;
         precios[id]=p.precio;
         h+=`
@@ -125,11 +143,12 @@ function render(){
           <div>
             <div class="name">${p.nombre}</div>
             <div class="desc">${p.desc}</div>
+            ${!p.stock?`<div class="sin-stock">❌ Sin stock</div>`:""}
           </div>
           <div class="controls">
-            <button class="minus" onclick="chg('${id}',-1)">−</button>
+            <button class="minus" ${!p.stock?"disabled":""} onclick="chg('${id}',-1)">−</button>
             <span id="${id}">0</span>
-            <button class="plus" onclick="chg('${id}',1)">+</button>
+            <button class="plus" ${!p.stock?"disabled":""} onclick="chg('${id}',1)">+</button>
           </div>
         </div>`;
       });
@@ -151,7 +170,7 @@ function chg(id,d){
 function resumen(){
   let r="";
   for(let k in carrito) if(carrito[k]) r+=`${carrito[k]} ${k.replace(/_/g," ")}<br>`;
-  document.getElementById("resumen").innerHTML=r||"<small>No hay productos seleccionados</small>";
+  resumenDiv.innerHTML=r||"<small>No hay productos seleccionados</small>";
 }
 
 function setEntrega(t){
